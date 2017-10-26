@@ -1,8 +1,0 @@
-prefix=/home/kc/Sailbot_ROS/devel
-
-Name: control_arduino
-Description: Description of control_arduino
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/kc/Sailbot_ROS/devel/lib 
-Requires: 

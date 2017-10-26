@@ -1,2 +1,0 @@
-control_arduino
--DCATKIN_DEVEL_PREFIX=/home/kc/Sailbot_ROS/devel -DCMAKE_INSTALL_PREFIX=/home/kc/Sailbot_ROS/install -G Unix Makefiles
