@@ -1,0 +1,4 @@
+# files produced by catkin_make
+.catkin_workspace
+build/
+devel/
