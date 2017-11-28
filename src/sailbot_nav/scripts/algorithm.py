@@ -115,6 +115,7 @@ def _optimum_heading(displacement_target, speed_wind, heading_wind, direction):
             useful_speed_max = useful_speed
             v = velocity_boat
         offset += step_size
+
     return (heading_max, useful_speed_max)
 
 # Returns the boat speed for relative wind speed and angle.
@@ -155,4 +156,3 @@ def _smallest_angle(heading1, heading2):
 
 def _wrap_angle(angle):
     return angle % (2*pi)
-
