@@ -4,7 +4,7 @@
 
 
     <param name="robot_description" command="cat $(find sailbot_sim)/urdf/boat.urdf" />
-    <node name="sailbot_sim" pkg="sailbot_sim" type="sailbot_sim" />
+    <node name="sim_odom" pkg="sailbot_sim" type="sim_odom.py" />
     <node name="sim_windsensor" pkg="sailbot_sim" type="sim_windsensor.py" />
     <node pkg="tf" type="static_transform_publisher" name="sail_tf_broadcaster" args="0 0 0 0.7895 0 0 base_link sail 100" />
 

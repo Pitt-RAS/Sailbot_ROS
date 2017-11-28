@@ -4,7 +4,7 @@ Simulates a boat that acts according to the simplified polar diagram presented i
 
 ## Nodes
 
-### `sailbot_sim` -  Odometry simulator
+### `odom_sim.py` -  Odometry simulator
 
 **Subscribes to:**
 * `cmd_heading` (Float32) - The current commanded boat heading in degrees
@@ -16,6 +16,9 @@ Simulates a boat that acts according to the simplified polar diagram presented i
 
 **Services:**
 * `sim_reset_pose` - Resets the position and heading of the simulated boat to 0
+
+**Params:**
+* `~rate` - The update rate for the simulator
 
 ### `sim_windsensor.py` - Simulate the wind sensor
 

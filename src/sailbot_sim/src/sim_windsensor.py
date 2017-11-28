@@ -24,12 +24,6 @@ from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
 class WindSensorSim:
     def __init__(self):
-        self.odomSub = rospy.Subscriber("/odom", Odometry, self.update)
-        self.trueWindPub = rospy.Publisher("/true_wind", Vector3, queue_size=10) 
-        self.trueWindMarkerPub = rospy.Publisher("/true_wind_marker", Marker, queue_size=10)
-        self.relativeWindPub = rospy.Publisher("/relative_wind", Vector3, queue_size=10) 
-        self.relativeWindMarkerPub = rospy.Publisher("/relative_wind_marker", Marker, queue_size=10)
-
         # Setup static true wind vector
         self.trueWind = Vector3(rospy.get_param("/sim_wind_vector/x", 0), rospy.get_param("/sim_wind_vector/y", 0), 0)
         trueWindQat = quaternion_from_euler(0, 0, atan2(self.trueWind.y, self.trueWind.x)) 
@@ -65,6 +59,12 @@ class WindSensorSim:
         self.relativeWindMarker.color.g = 1.0
         self.relativeWindMarker.color.b = 0.0
         self.relativeWindMarker.type = 0
+
+        self.trueWindPub = rospy.Publisher("/true_wind", Vector3, queue_size=10) 
+        self.trueWindMarkerPub = rospy.Publisher("/true_wind_marker", Marker, queue_size=10)
+        self.relativeWindPub = rospy.Publisher("/relative_wind", Vector3, queue_size=10) 
+        self.relativeWindMarkerPub = rospy.Publisher("/relative_wind_marker", Marker, queue_size=10)
+        self.odomSub = rospy.Subscriber("/odom", Odometry, self.update)
 
     # Update every time we get an odom update
     def update(self, odom):
