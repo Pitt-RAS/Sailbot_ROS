@@ -10,15 +10,15 @@ Publishes a static goal point of (4,0) to /goal
 
 ### Nav planner - `node.py` 
 
-Subscribes to:
+**Subscribes to:**
 * `/odom` (Odometry) - Current robot pose 
 * `/true_wind` (Vector3) - The true wind vector
 * `/goal` (PointStamped) - The goal point to navigate to
 
-Publishes:
+**Publishes:**
 * `/cmd_heading` (Float32) - The target heading
 
-Params
+**Params:**
 * `~beating_parameter`
 
 ## Launch

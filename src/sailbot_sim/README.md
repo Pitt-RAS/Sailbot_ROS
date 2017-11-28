@@ -6,29 +6,29 @@ Simulates a boat that acts according to the simplified polar diagram presented i
 
 ### `sailbot_sim` -  Odometry simulator
 
-Subscribes to:
+**Subscribes to:**
 * `cmd_heading` (Float32) - The current commanded boat heading in degrees
 * `true_wind` (Vector3) - The true wind vector
 
-Publishes:
-* `odom' (Odometry) - The pose of the boat
+**Publishes:**
+* `odom` (Odometry) - The pose of the boat
 * `base_link -> odom` transform
 
-Services:
+**Services:**
 * `sim_reset_pose` - Resets the position and heading of the simulated boat to 0
 
 ### `sim_windsensor.py` - Simulate the wind sensor
 
-Subscribes to: 
+**Subscribes to:**
 * `odom` (Odometry) - The pose of the boat
 
-Publishes:
+**Publishes:**
 * `true_wind` (Vector3) - The true wind vector
 * `relative_wind` (Vector3) - The relative wind vector
 * `true_wind_marker` (visualization_msgs/Marker) - RViz marker for showing the true wind vector, centered in the odom frame
 * `relative_wind_marker` (visualization_msgs/Marker) - RViz marker for showing the relative wind vector, centered in the base_link frame
 
-Params:
+**Params:**
 * `/sim_wind_vector/x` - The X component of the true wind vector
 * `/sim_wind_vector/y` - The Y component of the true wind vector
 
@@ -36,7 +36,7 @@ Defaults to (0,0) if no param is set.
 
 ### `keyboard_steer.py` - Drive the boat using your keyboard
 
-Publishes
+**Publishes:**
 * `/cmd_heading` (Float32) - The target heading
 
 
