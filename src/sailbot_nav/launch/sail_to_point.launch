@@ -1,0 +1,4 @@
+<launch>
+    <include file="$(find sailbot_nav)/launch/nav.launch" />
+    <node name="sailbot_nav" pkg="sailbot_nav" type="goal_point_pub.py"
+</launch>

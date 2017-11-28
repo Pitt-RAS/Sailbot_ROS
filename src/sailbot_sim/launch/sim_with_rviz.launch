@@ -1,0 +1,10 @@
+<launch>
+    <arg name="sim_wind_x" default="-2" />
+    <arg name="sim_wind_y" default="0" />
+ 
+    <include file="$(find sailbot_sim)/launch/sim.launch">
+        <arg name="sim_wind_x" value="$(arg sim_wind_x)" />
+        <arg name="sim_wind_y" value="$(arg sim_wind_y)" />
+    </include>
+    <node name="rviz_sim" pkg="rviz" type="rviz" args="-d $(find sailbot_sim)/rviz/sim.rviz" />
+</launch>
