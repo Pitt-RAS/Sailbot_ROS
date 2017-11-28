@@ -93,7 +93,6 @@ def _optimum_heading(displacement_target, speed_wind, heading_wind, direction):
     offset = 0.0
     step_size = pi / 1000.0
 
-    v = 0
     while offset <= pi:
         if direction:
             heading_boat = heading_wind + offset
@@ -113,7 +112,7 @@ def _optimum_heading(displacement_target, speed_wind, heading_wind, direction):
         if useful_speed > useful_speed_max:
             heading_max = heading_boat
             useful_speed_max = useful_speed
-            v = velocity_boat
+
         offset += step_size
 
     return (heading_max, useful_speed_max)
