@@ -20,9 +20,16 @@ from math import sqrt, pi, sin, cos
 #
 # Parameter speed_wind is m/s. Parameter heading_wind is radians.
 #
-# Parameter beating_parameter is a rational in (1.0, infinity).
+# Parameter beating_parameter is a real in (1.0, infinity).
 #
-# All parameters are of the ground inertial reference frame.
+# All parameters are of the ground inertial reference frame. Headings are
+# absolute, not relative to the boat.
+#
+# The coorindate plane is right-handed. Zero degrees is along the positive
+# z-axis, and counter-clockwise is positive.
+#
+# The wind heading is the direction the wind is coming _from_, not the
+# direction of its motion.
 
 def heading(position_boat, heading_boat,
             position_target,
@@ -113,7 +120,6 @@ def _optimum_heading(displacement_target, speed_wind, heading_wind, direction):
 # Returns the boat speed for relative wind speed and angle.
 #
 # A.K.A f_polar
-#
 #
 # Parameters speed and angle are radians.
 #
