@@ -26,7 +26,7 @@ from math import sqrt, pi, sin, cos
 # absolute, not relative to the boat.
 #
 # The coorindate plane is right-handed. Zero degrees is along the positive
-# z-axis, and counter-clockwise is positive.
+# x-axis, and counter-clockwise is positive.
 #
 # The wind heading is the direction the wind is coming _from_, not the
 # direction of its motion.
