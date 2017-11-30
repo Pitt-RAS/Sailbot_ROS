@@ -39,7 +39,7 @@ class SailbotNav:
             return
 
         # Get magnitude / direction from true wind vector 
-        windHeading = atan2(self.trueWind.y, self.trueWind.x)
+        windHeading = atan2(-self.trueWind.y, -self.trueWind.x)
         windSpeed = sqrt(self.trueWind.x**2 + self.trueWind.y**2)
         
         # Get yaw angle
