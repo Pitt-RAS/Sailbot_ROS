@@ -7,7 +7,7 @@ Simulates a boat that acts according to the simplified polar diagram presented i
 ### `odom_sim.py` -  Odometry simulator
 
 **Subscribes to:**
-* `cmd_heading` (Float32) - The current commanded boat heading in degrees
+* `cmd_heading` (Float32) - The current commanded boat heading in radians 
 * `true_wind` (Vector3) - The true wind vector
 
 **Publishes:**

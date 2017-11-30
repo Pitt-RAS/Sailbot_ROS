@@ -6,7 +6,7 @@ from std_msgs.msg import Float32
 from geometry_msgs.msg import Vector3, Quaternion
 from nav_msgs.msg import Odometry
 from sailbot_sim.srv import ResetPose, ResetPoseResponse
-from math import sqrt, sin, cos, atan2, pi, radians, degrees
+from math import sqrt, sin, cos, atan2, pi, radians 
 import threading
 
 def boundAngle(theta, limit):
@@ -20,7 +20,7 @@ def boatPolarFunction(windVelocity, angleBetweenWind):
     if windVelocity == 0:
         return 0
 
-    if angleBetweenWind > 43 and angleBetweenWind < 151:
+    if angleBetweenWind > radians(43) and angleBetweenWind < radians(151):
         return 0.3
     return 0
 
@@ -44,7 +44,7 @@ class OdomSim:
 
     def updateAngleSetpoint(self, angle):
         self.lock.acquire()
-        self.heading = radians(boundAngle(angle.data, 360.0))
+        self.heading = boundAngle(angle.data, 2*pi)
         self.lock.release()
 
     def updateWindVector(self, newWind):
@@ -66,7 +66,7 @@ class OdomSim:
         dt = (now-self.lastTime).to_sec()
         self.lastTime = now
 
-        angleBetweenWind = boundAngle(degrees(abs(self.heading - atan2(self.windVector.y, self.windVector.x))), 180.0)
+        angleBetweenWind = boundAngle(abs(self.heading - atan2(self.windVector.y, self.windVector.x)), pi)
         velocity = boatPolarFunction(sqrt(self.windVector.x**2 + self.windVector.y**2), angleBetweenWind)
 
         self.y += velocity * dt * sin(self.heading)

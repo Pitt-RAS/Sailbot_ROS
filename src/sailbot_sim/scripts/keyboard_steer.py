@@ -2,6 +2,7 @@
 import rospy
 import curses
 from std_msgs.msg import Float32
+from math import radians
 
 def main(stdscr):
     rospy.init_node("sim_keyboard_steer")
@@ -12,9 +13,9 @@ def main(stdscr):
     while not rospy.is_shutdown():
         c = stdscr.getch()
         if c == ord('a'):
-            thetaMsg.data += 1 
+            thetaMsg.data += radians(1) 
         elif c == ord('d'):
-            thetaMsg.data -= 1
+            thetaMsg.data -= radians(1)
         thetaPub.publish(thetaMsg);
 
 curses.wrapper(main)

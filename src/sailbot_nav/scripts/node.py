@@ -54,7 +54,7 @@ class SailbotNav:
         newHeading = heading(boatPosition, boatHeading, goalPoint, windSpeed, windHeading, self.beatingParam) 
 
         # Send new heading
-        newHeadingMsg = Float32(degrees(newHeading))
+        newHeadingMsg = Float32(newHeading)
         self.newHeadingPub.publish(newHeadingMsg)
 
 
