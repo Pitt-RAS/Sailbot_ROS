@@ -52,7 +52,7 @@ The default true wind vector is (-2, 0).
 
 ### Args
 * `sim_wind_x`
-* `sim_wind_y
+* `sim_wind_y`
 
 The wind vector can be set without editing the roslaunch file. For example: `roslaunch sailbot_sim sim_with_rviz.launch sim_wind_x:=-2 sim_wind_y:=0`
 
