@@ -20,7 +20,7 @@ from math import sqrt, pi, sin, cos
 #
 # Parameter speed_wind is m/s. Parameter heading_wind is radians.
 #
-# Parameter beating_parameter is a real in (1.0, infinity).
+# Parameter beating_parameter is a positive real.
 #
 # Return value is radians.
 #
@@ -39,7 +39,7 @@ def heading(position_boat, heading_boat,
             beating_parameter):
     assert(speed_wind >= 0.0)
     assert(0.0 <= heading_wind and heading_wind <= 2*pi)
-    assert(beating_parameter > 1.0)
+    assert(beating_parameter > 0.0)
 
     displacement_target = (position_target[0] - position_boat[0],
                            position_target[1] - position_boat[1])
