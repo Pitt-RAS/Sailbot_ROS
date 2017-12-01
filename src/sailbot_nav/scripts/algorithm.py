@@ -22,6 +22,8 @@ from math import sqrt, pi, sin, cos
 #
 # Parameter beating_parameter is a real in (1.0, infinity).
 #
+# Return value is radians.
+#
 # All parameters are of the ground inertial reference frame. Headings are
 # absolute, not relative to the boat.
 #
@@ -54,6 +56,9 @@ def heading(position_boat, heading_boat,
     (heading2, speed2)  = _optimum_heading(displacement_target,
                                            speed_wind, heading_wind,
                                            False)
+
+    assert(0.0 <= heading1 < 2*pi);
+    assert(0.0 <= heading2 < 2*pi);
 
     if   _smallest_angle(heading1, heading_boat) \
        < _smallest_angle(heading2, heading_boat):
