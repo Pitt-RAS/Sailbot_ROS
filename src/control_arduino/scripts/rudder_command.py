@@ -2,7 +2,7 @@
 
 import rospy
 from std_msgs.msg import Float32, Int32
-from math import atan, pi
+from math import atan, pi, degrees, floor
 
 goal_heading = 0.0
 current_heading= 0.0
@@ -25,7 +25,7 @@ class RudderCommandNode:
       current_heading = data.data
 
    def calc_cmd_heading(self,goal_heading, theta_e):
-      return atan((2*pi*L*theta_e*k_e)/V)
+      return int(degrees(atan((2*pi*L*theta_e*k_e)/V)))
 
    def update(self):
       theta_e = goal_heading - current_heading
