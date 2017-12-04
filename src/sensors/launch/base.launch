@@ -1,0 +1,13 @@
+<launch>
+    <param name="robot_description" command="cat $(find sailbot_sim)/urdf/boat.urdf" />
+    <node name="sensor_arduino_bridge" pkg="rosserial_python" type="serial_node.py">
+        <param name="port" value="/dev/ttyUSB0" />
+    </node>
+
+    <node name="motor_arduino_bridge" pkg="rosserial_python" type="serial_node.py">
+        <param name="port" value="/dev/ttyACM0" />
+    </node>
+
+    <node name="sailbot_wind_velocity" pkg="sensors" type="windspeed_filter.py" />
+    <node name="sailbot_wind_direction" pkg="sensors" type="winddirection.py" /> 
+</launch>
