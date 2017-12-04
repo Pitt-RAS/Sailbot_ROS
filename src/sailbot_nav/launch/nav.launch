@@ -1,0 +1,5 @@
+<launch>
+    <node name="sailbot_nav" pkg="sailbot_nav" type="node.py">
+        <param name="~beating_parameter" type="double" value="5" />
+    </node>
+</launch>

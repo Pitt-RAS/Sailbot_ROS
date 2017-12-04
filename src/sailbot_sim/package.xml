@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<package>
+  <name>sailbot_sim</name>
+  <version>0.0.0</version>
+  <description>The sailbot_sim package</description>
+  <license>MIT</license>
+  <maintainer email="andrew@lobos.me">andrew</maintainer>
+  <buildtool_depend>catkin</buildtool_depend>
+</package>
