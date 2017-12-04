@@ -4,10 +4,10 @@ Simulates a boat that acts according to the simplified polar diagram presented i
 
 ## Nodes
 
-### `sailbot_sim` -  Odometry simulator
+### `odom_sim.py` -  Odometry simulator
 
 **Subscribes to:**
-* `cmd_heading` (Float32) - The current commanded boat heading in degrees
+* `cmd_heading` (Float32) - The current commanded boat heading in radians 
 * `true_wind` (Vector3) - The true wind vector
 
 **Publishes:**
@@ -16,6 +16,9 @@ Simulates a boat that acts according to the simplified polar diagram presented i
 
 **Services:**
 * `sim_reset_pose` - Resets the position and heading of the simulated boat to 0
+
+**Params:**
+* `~rate` - The update rate for the simulator
 
 ### `sim_windsensor.py` - Simulate the wind sensor
 
@@ -49,7 +52,7 @@ The default true wind vector is (-2, 0).
 
 ### Args
 * `sim_wind_x`
-* `sim_wind_y
+* `sim_wind_y`
 
 The wind vector can be set without editing the roslaunch file. For example: `roslaunch sailbot_sim sim_with_rviz.launch sim_wind_x:=-2 sim_wind_y:=0`
 

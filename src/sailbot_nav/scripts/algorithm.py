@@ -20,9 +20,18 @@ from math import sqrt, pi, sin, cos
 #
 # Parameter speed_wind is m/s. Parameter heading_wind is radians.
 #
-# Parameter beating_parameter is a rational in (1.0, infinity).
+# Parameter beating_parameter is a positive real.
 #
-# All parameters are of the ground inertial reference frame.
+# Return value is radians.
+#
+# All parameters are of the ground inertial reference frame. Headings are
+# absolute, not relative to the boat.
+#
+# The coorindate plane is right-handed. Zero degrees is along the positive
+# x-axis, and counter-clockwise is positive.
+#
+# The wind heading is the direction the wind is coming _from_, not the
+# direction of its motion.
 
 def heading(position_boat, heading_boat,
             position_target,
@@ -30,7 +39,7 @@ def heading(position_boat, heading_boat,
             beating_parameter):
     assert(speed_wind >= 0.0)
     assert(0.0 <= heading_wind and heading_wind <= 2*pi)
-    assert(beating_parameter > 1.0)
+    assert(beating_parameter > 0.0)
 
     displacement_target = (position_target[0] - position_boat[0],
                            position_target[1] - position_boat[1])
@@ -47,6 +56,9 @@ def heading(position_boat, heading_boat,
     (heading2, speed2)  = _optimum_heading(displacement_target,
                                            speed_wind, heading_wind,
                                            False)
+
+    assert(0.0 <= heading1 < 2*pi);
+    assert(0.0 <= heading2 < 2*pi);
 
     if   _smallest_angle(heading1, heading_boat) \
        < _smallest_angle(heading2, heading_boat):
@@ -86,7 +98,6 @@ def _optimum_heading(displacement_target, speed_wind, heading_wind, direction):
     offset = 0.0
     step_size = pi / 1000.0
 
-    v = 0
     while offset <= pi:
         if direction:
             heading_boat = heading_wind + offset
@@ -106,14 +117,14 @@ def _optimum_heading(displacement_target, speed_wind, heading_wind, direction):
         if useful_speed > useful_speed_max:
             heading_max = heading_boat
             useful_speed_max = useful_speed
-            v = velocity_boat
+
         offset += step_size
+
     return (heading_max, useful_speed_max)
 
 # Returns the boat speed for relative wind speed and angle.
 #
 # A.K.A f_polar
-#
 #
 # Parameters speed and angle are radians.
 #
@@ -149,4 +160,3 @@ def _smallest_angle(heading1, heading2):
 
 def _wrap_angle(angle):
     return angle % (2*pi)
-
