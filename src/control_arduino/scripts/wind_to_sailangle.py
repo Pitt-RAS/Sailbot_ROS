@@ -17,7 +17,7 @@ rospy.Subscriber("/relative_wind_direction", Float32, calculate) #subscribe to w
 # Limit update rate to the Arduino
 rate = rospy.Rate(10)
 
-while True:
+while not rospy.is_shutdown():
     wind = sailangle
     if np.abs(wind) > 45: #if not in deadzone, calculate and publish sailangle
         sailangle = np.abs(wind)/2
