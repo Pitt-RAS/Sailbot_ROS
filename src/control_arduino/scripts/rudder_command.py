@@ -16,13 +16,18 @@ class RudderCommandNode:
    def __init__(self):
       self.rudderAnglePub = rospy.Publisher('cmd_rudder_angle', Int32, queue_size=10)
       self.cmdHeadingSub = rospy.Subscriber("cmd_heading", Float32, self.cmd_callback)
-      self.curHeadingSub = rospy.Subscriber("cur_heading", Float32, self.cur_callback)
+      self.curHeadingSub = rospy.Subscriber("/imu", Imu, heading, self.cur_callback)
 
    def cmd_callback(self, data):
       goal_heading = data.data
 
-   def cur_callback(self, data):
-      current_heading = data.data
+   def cur_callback(self, odom):
+      temp = euler_from_quaternion((odom.orientation.x, odom.orientation.y, odom.orientation.z, odom.orientation.w))
+      if temp<0:
+         current_heading = (temp*-1)+180
+      else:
+         current_heading = temp
+      print(current_heading)
 
    def calc_cmd_heading(self,goal_heading, theta_e):
       return int(degrees(atan((2*pi*L*theta_e*k_e)/V)))
