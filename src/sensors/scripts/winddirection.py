@@ -4,7 +4,7 @@ import tf
 from std_msgs.msg import Int32, Float32
 from geometry_msgs.msg import Quaternion
 from visualization_msgs.msg import Marker
-from math import radians, sin, cos, atan2
+from math import pi, sin, cos, atan2
 
 # This node takes the raw relative wind direction in degrees,
 # applies Carlos' exponential weighting implementation,
@@ -39,7 +39,7 @@ class WindDirectionNode:
         self.cosval = 0
 
     def updateRelativeWind(self, windDegrees):
-        val = radians(windDegrees.data)
+        val = (windDegrees.data/4096.0)*(2.0*pi)
 
         self.sinweight = self.memory*self.sinweight + 1;
         self.sinval = (1-1/self.sinweight)*self.sinval + (1/self.sinweight)*sin(val);
