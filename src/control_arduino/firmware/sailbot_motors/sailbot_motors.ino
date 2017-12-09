@@ -6,6 +6,7 @@
 #include <ros.h>
 #include <tf/tf.h>
 #include <sensor_msgs/Imu.h>
+#include <sensor_msgs/MagneticField.h>
 
 #include <std_msgs/Int32.h>
 #include <std_msgs/Float32.h>
@@ -81,7 +82,9 @@ void sailCb(const std_msgs::Int32 &sailAngle){
 ros::Subscriber<std_msgs::Int32> rudderSub("cmd_rudder_angle", &rudderCb );
 ros::Subscriber<std_msgs::Int32> sailSub("cmd_sail_angle", &sailCb );
 sensor_msgs::Imu imuMsg;
-ros::Publisher imuMsgPub("imu", &imuMsg);
+sensor_msgs::MagneticField magMsg;
+ros::Publisher imuMsgPub("imu/data_raw", &imuMsg);
+ros::Publisher magMsgPub("imu/mag", &magMsg);
 
 int sailPos = 0;
 
@@ -101,6 +104,7 @@ void setup()
   nh.subscribe(rudderSub);
   nh.subscribe(sailSub);
   nh.advertise(imuMsgPub);
+  nh.advertise(magMsgPub);
   
   pinMode(2, INPUT);
   pinMode(3, INPUT);
@@ -118,10 +122,10 @@ void setup()
     mpuIMU.initMPU9250();
     mpuIMU.initAK8963(mpuIMU.magCalibration);
   }
-}
 
-float heading = 0;
-unsigned long lastT = millis();
+  imuMsg.header.frame_id = "base_link";
+  magMsg.header.frame_id = "base_link";
+}
 
 void loop()
 {  
@@ -142,11 +146,7 @@ void loop()
 
   //Every time the data is ready to be read the code gets exacuted
   if (mpuIMU.readByte(MPU9250_ADDRESS, INT_STATUS) & 0x01)
-  {  
-    float dt = millis() - lastT;
-    dt /= 1000;
-    lastT = millis();
-    
+  {
     //Calculates the accelerometer data
     mpuIMU.readAccelData(mpuIMU.accelCount);
     mpuIMU.getAres();
@@ -160,9 +160,9 @@ void loop()
 
     mpuIMU.readGyroData(mpuIMU.gyroCount);
     mpuIMU.getGres();
-    mpuIMU.gx = (float)mpuIMU.gyroCount[0]*mpuIMU.gRes;
-    mpuIMU.gy = (float)mpuIMU.gyroCount[1]*mpuIMU.gRes;
-    mpuIMU.gz = (float)mpuIMU.gyroCount[2]*mpuIMU.gRes;
+    mpuIMU.gx = (float)mpuIMU.gyroCount[0]*mpuIMU.gRes - mpuIMU.gyroBias[0];
+    mpuIMU.gy = (float)mpuIMU.gyroCount[1]*mpuIMU.gRes - mpuIMU.gyroBias[0];
+    mpuIMU.gz = (float)mpuIMU.gyroCount[2]*mpuIMU.gRes - mpuIMU.gyroBias[0];
 
     imuMsg.angular_velocity.x = mpuIMU.gx * (M_PI/180.0);
     imuMsg.angular_velocity.y = mpuIMU.gy * (M_PI/180.0);
@@ -170,23 +170,19 @@ void loop()
 
     mpuIMU.readMagData(mpuIMU.magCount);
     mpuIMU.getMres();
-
-    mpuIMU.readMagData(mpuIMU.magCount);
-    mpuIMU.getMres();
-    mpuIMU.mx = (float)mpuIMU.magCount[0]*mpuIMU.mRes*mpuIMU.magCalibration[0];
-    mpuIMU.my = (float)mpuIMU.magCount[1]*mpuIMU.mRes*mpuIMU.magCalibration[1];
-    mpuIMU.mz = (float)mpuIMU.magCount[2]*mpuIMU.mRes*mpuIMU.magCalibration[2];
-
-    
-    heading += imuMsg.angular_velocity.z*dt;
-    imuMsg.orientation = tf::createQuaternionFromYaw(heading);
+    magMsg.magnetic_field.x = (float)mpuIMU.magCount[0]*mpuIMU.mRes*mpuIMU.magCalibration[0];
+    magMsg.magnetic_field.y = (float)mpuIMU.magCount[1]*mpuIMU.mRes*mpuIMU.magCalibration[1];
+    magMsg.magnetic_field.z = (float)mpuIMU.magCount[2]*mpuIMU.mRes*mpuIMU.magCalibration[2];
 
     imuMsg.header.stamp = nh.now();
+    magMsg.header.stamp = nh.now();
     imuMsgPub.publish(&imuMsg);
+    magMsgPub.publish(&magMsg);
   }
 
   digitalWrite(13, LOW);
   nh.spinOnce();
 }
+
 
 
