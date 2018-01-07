@@ -19,6 +19,7 @@ Simulates a boat that acts according to the simplified polar diagram presented i
 
 **Params:**
 * `~rate` - The update rate for the simulator
+* `~maxomega` - The max rotational rate of the simulated boat. The boat will rotate constantly at this rate until it reaches the commanded angle
 
 ### `sim_windsensor.py` - Simulate the wind sensor
 
