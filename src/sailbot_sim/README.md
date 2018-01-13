@@ -61,3 +61,33 @@ The wind vector can be set without editing the roslaunch file. For example: `ros
 
 Same as `sim.launch`, but also starts RViz with the robot model and wind vectors.
 
+## Using the simulator
+
+To command the boat heading, publish a Float32 containing the new absolute heading of the boat on `/cmd_heading` in radians. In the simulator, the boat will turn to this heading at a constant rotational rate. The velocity of the boat will always be determined through the polar plot.
+
+Here is a simple example of publishing a fixed heading:
+
+1. Remember to start the sim with: `roslaunch sailbot_sim sim_with_rviz.launch`
+
+2. Create a python file (anglePublisher.py) with this code:
+
+```python
+#!/usr/bin/env python2
+import rospy
+from std_msgs.msg import Float32
+from math import radians
+
+rospy.init_node("heading_sender")
+
+headingPub = rospy.Publisher("/cmd_heading", Float32, queue_size=10)
+
+# Set the angle to 45 degrees
+angleMessage = Float32(radinas(45))
+
+while not rospy.is_shutdown():
+  headingPub.publish(angleMessage)
+
+```
+
+3. Run it with `python anglePublisher.py`
+
