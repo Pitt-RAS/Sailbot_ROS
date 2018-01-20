@@ -3,7 +3,7 @@
         <param name="gain" value="0.5" />
         <param name="zeta" value="0.001" />
 
-        <param name="use_mag" value="true" />
+        <param name="use_mag" value="false" />
         <param name="use_magnetic_field_msg" value="true" />
 
         <param name="publish_tf" value="true" />
@@ -24,12 +24,13 @@
         <remap from="time_reference" to="/gps/time_reference" />
     </node>
 -->
-
+<!--
     <node pkg="robot_localization" type="navsat_transform_node" name="navsat_transform_node" respawn="true">
         <param name="magnetic_declination_radians" value="0"/>
         <param name="yaw_offset" value="0" />
         <param name="wait_for_datum" value="false" />
-<!--        <rosparam param="datum">[0, 0, 0.0, map, base_link]</rosparam> -->
+<!--        <rosparam param="datum">[0, 0, 0.0, map, base_link]</rosparam>
 
     </node>
+-->
 </launch>
