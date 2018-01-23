@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 import rospy
 import tf
+import numpy as np
 from tf.transformations import quaternion_from_euler
 from std_msgs.msg import Float32
 from geometry_msgs.msg import Vector3, Quaternion
@@ -26,12 +27,21 @@ def boatPolarFunction(windVelocity, angleBetweenWind):
 
 class OdomSim:
     def __init__(self):
+        self.lock = threading.Lock()
+        self.lock.acquire()
+
         self.windVector = Vector3(0,0,0)
 
         self.x = 0
         self.y = 0
         self.heading = 0
+        self.commandHeading = 0
+        self.omega_max = 0
         self.lastTime = rospy.Time.now()
+
+        rate = rospy.get_param("~rate", 60)
+        radSec = rospy.get_param("~maxomega", 3.14)
+        self.dTheta = radSec / rate
 
         self.angleSetpointSubscriber = rospy.Subscriber("cmd_heading", Float32, self.updateAngleSetpoint, queue_size=10)
         self.windVectorSubscriber = rospy.Subscriber("true_wind", Vector3, self.updateWindVector, queue_size=10)
@@ -39,12 +49,11 @@ class OdomSim:
         self.resetPoseService = rospy.Service("sim_reset_pose", ResetPose, self.resetPose)
         self.tfBroadcaster = tf.TransformBroadcaster()
 
-        self.lock = threading.Lock()
-
+        self.lock.release()
 
     def updateAngleSetpoint(self, angle):
         self.lock.acquire()
-        self.heading = boundAngle(angle.data, 2*pi)
+        self.commandHeading = boundAngle(angle.data, 2*pi)
         self.lock.release()
 
     def updateWindVector(self, newWind):
@@ -68,6 +77,16 @@ class OdomSim:
 
         angleBetweenWind = boundAngle(abs(self.heading - atan2(self.windVector.y, self.windVector.x)), pi)
         velocity = boatPolarFunction(sqrt(self.windVector.x**2 + self.windVector.y**2), angleBetweenWind)
+
+        if self.heading != self.commandHeading:
+            error = self.commandHeading-self.heading
+            if abs(error) > pi:
+                error = -error
+
+            if abs(error-self.dTheta) < 0.00001:
+                self.heading = self.commandHeading
+            self.heading += self.dTheta*np.sign(error)
+            self.heading = boundAngle(self.heading, 2*pi)
 
         self.y += velocity * dt * sin(self.heading)
         self.x += velocity * dt * cos(self.heading)
