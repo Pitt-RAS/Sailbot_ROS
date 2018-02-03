@@ -82,7 +82,7 @@ rospy.init_node("heading_sender")
 headingPub = rospy.Publisher("/cmd_heading", Float32, queue_size=10)
 
 # Set the angle to 45 degrees
-angleMessage = Float32(radinas(45))
+angleMessage = Float32(radians(45))
 
 while not rospy.is_shutdown():
   headingPub.publish(angleMessage)
