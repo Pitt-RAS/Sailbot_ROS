@@ -102,7 +102,7 @@ class OdomSim:
 
         odom.child_frame_id = "base_link"
 
-        odom.twist.twist.linear = Vector3(velocity, 0, 0)
+        odom.twist.twist.linear = Vector3(velocity*cos(self.heading), velocity*sin(self.heading), 0)
         odom.twist.twist.angular = Vector3(0, 0, 0)
 
         self.odomPublisher.publish(odom)
