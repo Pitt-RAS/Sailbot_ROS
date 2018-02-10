@@ -4,7 +4,7 @@ from geometry_msgs.msg import Vector3
 from std_msgs.msg import Float32
 from nav_msgs.msg import Odometry
 from visualization_msgs.msg import Marker
-from math import atan2,sin,cos
+from math import atan2,sin,cos,pow
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
 # Provides a simulated wind sensor
@@ -27,6 +27,8 @@ class WindSensorSim:
         # Setup static true wind vector
         self.trueWind = Vector3(rospy.get_param("/sim_wind_vector/x", 0), rospy.get_param("/sim_wind_vector/y", 0), 0)
         trueWindQat = quaternion_from_euler(0, 0, atan2(self.trueWind.y, self.trueWind.x)) 
+        self.trueWindDirection = atan2(self.trueWind.y, self.trueWind.x)
+        self.trueWindSpeed = math.sqrt(pow(self.trueWind.x, 2), pow(self.trueWind.y, 2))
 
         # Create true wind marker for rviz
         self.trueWindMarker = Marker()
@@ -60,9 +62,11 @@ class WindSensorSim:
         self.relativeWindMarker.color.b = 0.0
         self.relativeWindMarker.type = 0
 
-        self.trueWindPub = rospy.Publisher("/true_wind", Vector3, queue_size=10) 
+        # self.trueWindPub = rospy.Publisher("/true_wind", Vector3, queue_size=10) 
         self.trueWindMarkerPub = rospy.Publisher("/true_wind_marker", Marker, queue_size=10)
-        self.relativeWindPub = rospy.Publisher("/relative_wind", Vector3, queue_size=10) 
+        # self.relativeWindPub = rospy.Publisher("/relative_wind", Vector3, queue_size=10) 
+        self.relativeWindSpeedPub = rospy.Publisher("/wind_speed", Int32, queue_size=10) 
+        self.relativeWindDirectionPub = rospy.Publisher("/wind_direction", Int32, queue_size=10)
         self.relativeWindMarkerPub = rospy.Publisher("/relative_wind_marker", Marker, queue_size=10)
         self.odomSub = rospy.Subscriber("/odom", Odometry, self.update)
 
@@ -85,9 +89,9 @@ class WindSensorSim:
         self.relativeWindMarker.pose.orientation.w = relativeWindQat[3]
 
         # Update topics
-        self.relativeWindPub.publish(Vector3(relative_wind_vector[0], relative_wind_vector[1], 0))
+        # self.relativeWindPub.publish(Vector3(relative_wind_vector[0], relative_wind_vector[1], 0))
         self.relativeWindMarkerPub.publish(self.relativeWindMarker)
-        self.trueWindPub.publish(self.trueWind)
+        # self.trueWindPub.publish(self.trueWind)
         self.trueWindMarkerPub.publish(self.trueWindMarker)
 
 rospy.init_node("sim_windsensor")

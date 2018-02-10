@@ -94,7 +94,7 @@ class TrueWind:
         self.course_over_ground = 0
         
         topic = "true_wind"
-        pub = rospy.Publisher(topic, TrueWind.msg, queue_size = 10)
+        pub = rospy.Publisher(topic, TrueWind, queue_size = 10)
         self.trueWindPub = rospy.init_node("true_wind", anonymous = False)
         message = TrueWind()
         rospy.Subscriber("wind_direction", Int32, wind_direction_callback)
@@ -125,9 +125,11 @@ class TrueWind:
             diff_angle = left_right(apparent_wind_direction, course_over_ground)
             true_wind_direction = find_true_wind_direction(true_wind_angle, apparent_wind_direction, diff_angle)
              
-            
-            print "The True Wind Speed is: %f \n and the True Wind Direction is: %f" % (true_wind_speed, true_wind_direction)
-
+            tw = TrueWind()
+            tw.header.stamp = now
+            tw.direction = true_wind_direction
+            tw.speed = true_wind_speed
+            self.pub.publish(tw)
 
 rate = rospy.Rate(rospy.get_param("~rate", 60))
 while not rospy.is_shutdown():
