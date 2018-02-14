@@ -45,8 +45,10 @@ class WindspeedFilter:
             velocityEstimate /= 1000.0
             # period -> hz
             velocityEstimate = 1.0/velocityEstimate
+            # hz/2 b/c new anemometer has 2 ticks per rotation
+            velocityEstimate /= 2
 
-        self.windspeedSpeedPub.publish(Float32(velocityEstimate))
+        self.windspeedSpeedPub.publish(Float32(velocityEstimate/2))
         self.lock.release()
 
 rospy.init_node("windspeed_filter")
