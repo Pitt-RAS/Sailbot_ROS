@@ -5,6 +5,7 @@ import numpy as np
 from tf.transformations import quaternion_from_euler
 from std_msgs.msg import Float32
 from geometry_msgs.msg import Vector3, Quaternion
+from Sailbot_ROS.msg import TrueWind
 from nav_msgs.msg import Odometry
 from sailbot_sim.srv import ResetPose, ResetPoseResponse
 from math import sqrt, sin, cos, atan2, pi, radians 
@@ -44,7 +45,8 @@ class OdomSim:
         self.dTheta = radSec / rate
 
         self.angleSetpointSubscriber = rospy.Subscriber("cmd_heading", Float32, self.updateAngleSetpoint, queue_size=10)
-        self.windVectorSubscriber = rospy.Subscriber("true_wind", Vector3, self.updateWindVector, queue_size=10)
+        # self.windVectorSubscriber = rospy.Subscriber("true_wind", Vector3, self.updateWindVector, queue_size=10)
+        self.windSubscriber = rospy.Subscriber("true_wind", TrueWind, self.updateWind, queue_size=10)
         self.odomPublisher = rospy.Publisher("odom", Odometry, queue_size=10)
         self.resetPoseService = rospy.Service("sim_reset_pose", ResetPose, self.resetPose)
         self.tfBroadcaster = tf.TransformBroadcaster()
@@ -56,9 +58,10 @@ class OdomSim:
         self.commandHeading = boundAngle(angle.data, 2*pi)
         self.lock.release()
 
-    def updateWindVector(self, newWind):
+    def updateWind(self, newWind):
         self.lock.acquire()
-        self.windVector = newWind
+        wind = newWind.speed*[cos((pi / 180)*newWind.direction), sin((pi / 180)*newWind.direction), 0]
+        self.windVector = Vector3(newWind)
         self.lock.release()
 
     def resetPose(self, req):
@@ -75,6 +78,7 @@ class OdomSim:
         dt = (now-self.lastTime).to_sec()
         self.lastTime = now
 
+        
         angleBetweenWind = boundAngle(abs(self.heading - atan2(self.windVector.y, self.windVector.x)), pi)
         velocity = boatPolarFunction(sqrt(self.windVector.x**2 + self.windVector.y**2), angleBetweenWind)
 

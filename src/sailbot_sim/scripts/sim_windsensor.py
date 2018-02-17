@@ -4,7 +4,7 @@ from geometry_msgs.msg import Vector3
 from std_msgs.msg import Float32
 from nav_msgs.msg import Odometry
 from visualization_msgs.msg import Marker
-from math import atan2,sin,cos,pow
+from math import atan2,sin,cos,pow,sqrt
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
 # Provides a simulated wind sensor
@@ -27,8 +27,7 @@ class WindSensorSim:
         # Setup static true wind vector
         self.trueWind = Vector3(rospy.get_param("/sim_wind_vector/x", 0), rospy.get_param("/sim_wind_vector/y", 0), 0)
         trueWindQat = quaternion_from_euler(0, 0, atan2(self.trueWind.y, self.trueWind.x)) 
-        self.trueWindDirection = atan2(self.trueWind.y, self.trueWind.x)
-        self.trueWindSpeed = math.sqrt(pow(self.trueWind.x, 2), pow(self.trueWind.y, 2))
+
 
         # Create true wind marker for rviz
         self.trueWindMarker = Marker()
@@ -80,6 +79,12 @@ class WindSensorSim:
         relative_wind_vector = [self.trueWind.x * cos(heading) - self.trueWind.y * sin(heading), 
                 self.trueWind.x * sin(heading) + self.trueWind.y * cos(heading)]
         relative_wind_vector[0] -= robot_velocity
+        relative_wind_speed = sqrt(pow(relative_wind_vector[0], 2) + pow(relative_wind_vector, 2))
+        relative_wind_speed = math.floor(relative_wind_speed)
+        relative_wind_direction = atan2(relative_wind_vector[1], relative_wind_vector[2])
+        relative_wind_direction *= math.floor(180 / math.pi)
+        if (relative_wind_direction < 0):
+            relative_wind_direction = 360 + relative_wind_direction
 
         # Update orientation for relative wind marker
         relativeWindQat = quaternion_from_euler(0, 0, atan2(relative_wind_vector[1], relative_wind_vector[0])) 
@@ -89,6 +94,8 @@ class WindSensorSim:
         self.relativeWindMarker.pose.orientation.w = relativeWindQat[3]
 
         # Update topics
+        self.relativeWindSpeedPub.publish(relative_wind_speed)
+        self.relativeWindDirectionPub.publish(relative_wind_direction)
         # self.relativeWindPub.publish(Vector3(relative_wind_vector[0], relative_wind_vector[1], 0))
         self.relativeWindMarkerPub.publish(self.relativeWindMarker)
         # self.trueWindPub.publish(self.trueWind)
