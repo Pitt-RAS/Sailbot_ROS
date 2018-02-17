@@ -6,4 +6,6 @@
   <license>MIT</license>
   <maintainer email="andrew@lobos.me">andrew</maintainer>
   <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>message_generation</build_depend>
+  <run_depend>message_runtime</run_depend>
 </package>
