@@ -3,7 +3,7 @@
 import rospy
 from std_msgs.msg import Float32, Int32
 from math import atan, pi, degrees, floor, radians
-from sensor_msgs.msg import Imu
+from nav_msgs.msg import Odometry
 from tf.transformations import euler_from_quaternion
 
 L = 0.6096 #distance from rudder to front wheels (2ft) in meters
