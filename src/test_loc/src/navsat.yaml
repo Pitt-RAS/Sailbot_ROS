@@ -1,0 +1,13 @@
+frequency: 5
+
+delay: 0
+
+magnetic_declination_radians: -0.32579
+
+yaw_offset: 0
+
+zero_altitude: true
+
+use_odometry_yaw: false
+
+wait_for_datum: false
