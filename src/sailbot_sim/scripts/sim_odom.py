@@ -5,7 +5,7 @@ import numpy as np
 from tf.transformations import quaternion_from_euler
 from std_msgs.msg import Float32
 from geometry_msgs.msg import Vector3, Quaternion
-from Sailbot_ROS.msg import TrueWind
+from sailbot_sim.msg import TrueWind
 from nav_msgs.msg import Odometry
 from sailbot_sim.srv import ResetPose, ResetPoseResponse
 from math import sqrt, sin, cos, atan2, pi, radians 
@@ -61,7 +61,7 @@ class OdomSim:
     def updateWind(self, newWind):
         self.lock.acquire()
         wind = newWind.speed*[cos((pi / 180)*newWind.direction), sin((pi / 180)*newWind.direction), 0]
-        self.windVector = Vector3(newWind)
+        self.windVector = Vector3(wind[0], wind[1], wind[2])
         self.lock.release()
 
     def resetPose(self, req):

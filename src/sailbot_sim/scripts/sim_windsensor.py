@@ -1,10 +1,11 @@
 #!/usr/bin/env python2
 import rospy
 from geometry_msgs.msg import Vector3
-from std_msgs.msg import Float32
+from std_msgs.msg import Float32, Int32
 from nav_msgs.msg import Odometry
+from sailbot_sim.msg import TrueWind
 from visualization_msgs.msg import Marker
-from math import atan2,sin,cos,pow,sqrt
+from math import atan2,sin,cos,pow,sqrt,floor,pi
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
 # Provides a simulated wind sensor
@@ -64,11 +65,21 @@ class WindSensorSim:
         # self.trueWindPub = rospy.Publisher("/true_wind", Vector3, queue_size=10) 
         self.trueWindMarkerPub = rospy.Publisher("/true_wind_marker", Marker, queue_size=10)
         # self.relativeWindPub = rospy.Publisher("/relative_wind", Vector3, queue_size=10) 
+        self.trueWindSub = rospy.Subscriber("/true_wind", TrueWind, self.updateTrueWind)
         self.relativeWindSpeedPub = rospy.Publisher("/wind_speed", Int32, queue_size=10) 
         self.relativeWindDirectionPub = rospy.Publisher("/wind_direction", Int32, queue_size=10)
         self.relativeWindMarkerPub = rospy.Publisher("/relative_wind_marker", Marker, queue_size=10)
         self.odomSub = rospy.Subscriber("/odom", Odometry, self.update)
 
+    def updateTrueWind(self, true_wind):
+        quat = quaternion_from_euler(0, 0,(pi/180)*true_wind.direction) 
+        self.trueWindMarker.pose.orientation.x = quat[0]
+        self.trueWindMarker.pose.orientation.y = quat[1]
+        self.trueWindMarker.pose.orientation.z = quat[2]
+        self.trueWindMarker.pose.orientation.w = quat[3]
+
+        self.trueWindMarkerPub.publish(self.trueWindMarker)
+	
     # Update every time we get an odom update
     def update(self, odom):
         # Update relative wind vector
@@ -78,11 +89,11 @@ class WindSensorSim:
 
         relative_wind_vector = [self.trueWind.x * cos(heading) - self.trueWind.y * sin(heading), 
                 self.trueWind.x * sin(heading) + self.trueWind.y * cos(heading)]
-        relative_wind_vector[0] -= robot_velocity
-        relative_wind_speed = sqrt(pow(relative_wind_vector[0], 2) + pow(relative_wind_vector, 2))
-        relative_wind_speed = math.floor(relative_wind_speed)
-        relative_wind_direction = atan2(relative_wind_vector[1], relative_wind_vector[2])
-        relative_wind_direction *= math.floor(180 / math.pi)
+        relative_wind_vector[0] += robot_velocity
+        relative_wind_speed = sqrt(pow(relative_wind_vector[0], 2) + pow(relative_wind_vector[1], 2))
+        relative_wind_speed = floor(relative_wind_speed)
+        relative_wind_direction = atan2(relative_wind_vector[0], relative_wind_vector[1])
+        relative_wind_direction *= floor(180 / pi)
         if (relative_wind_direction < 0):
             relative_wind_direction = 360 + relative_wind_direction
 
@@ -99,7 +110,6 @@ class WindSensorSim:
         # self.relativeWindPub.publish(Vector3(relative_wind_vector[0], relative_wind_vector[1], 0))
         self.relativeWindMarkerPub.publish(self.relativeWindMarker)
         # self.trueWindPub.publish(self.trueWind)
-        self.trueWindMarkerPub.publish(self.trueWindMarker)
 
 rospy.init_node("sim_windsensor")
 windSensor = WindSensorSim()
