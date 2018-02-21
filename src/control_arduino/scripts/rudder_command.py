@@ -22,7 +22,7 @@ class RudderCommandNode:
       self.goal_heading = data.data
 
    def cur_callback(self, odom):
-      temp = euler_from_quaternion(odom.pose.pose.orientation.x, odom.pose.pose.orientation.y, odom.pose.pose.orientation.z, odom.pose.pose.orientation..w)
+      temp = euler_from_quaternion(odom.pose.pose.orientation.x, odom.pose.pose.orientation.y, odom.pose.pose.orientation.z, odom.pose.pose.orientation.w)
       self.current_heading = degrees(temp[2])
 
    def calc_cmd_angle(self,goal_heading, theta_e):
