@@ -7,8 +7,9 @@ from nav_msgs.msg import Odometry
 #from sensor_msgs.msg import Imu
 from tf.transformations import euler_from_quaternion
 
-L = 0.6096 #distance from rudder to front wheels (2ft) in meters
 K_p = 1.0 #proportional constant
+
+L = 0.6096 #distance from rudder to front wheels (2ft) in meters
 V = 1 #velocity
 
 class RudderCommandNode:
@@ -27,7 +28,7 @@ class RudderCommandNode:
     temp_raw = euler_from_quaternion(odom.pose.pose.orientation.x, odom.pose.pose.orientation.y, odom.pose.pose.orientation.z, odom.pose.pose.orientation.w)
     #temp_raw = euler_from_quaternion((odom.orientation.x, odom.orientation.y, odom.orientation.z, odom.orientation.w))
     temp_heading = degrees(temp_raw[2])
-    if(temp_heading<0):
+    if(temp_heading<0): #turns 0 to 180 (ccw) and 0 to -180 (cw) into 0-360
       temp_heading = 360 + temp_heading
     self.current_heading = temp_heading
 
@@ -39,22 +40,22 @@ class RudderCommandNode:
       return
 
     theta_e = self.goal_heading - self.current_heading
-    #if(theta_e>180):
-      #theta_e = 360 - theta_e
+    if(theta_e>180): #turns boat in optimal direction
+      theta_e = theta_e - 360
 
     #command_angle = self.calc_cmd_angle(self.goal_heading, theta_e)
     #self.rudderAnglePub.publish(Int32(command_angle))
 
-    new_rudder_heading = theta_e+90
-    if(new_rudder_heading<0):
-      new_rudder_heading = 0
-    if(new_rudder_heading>180):
-      new_rudder_heading = 180
+    new_rudder_angle = (K_p * theta_e) + 90
+    if(new_rudder_angle<0):
+      new_rudder_angle = 0
+    if(new_rudder_angle>180):
+      new_rudder_angle = 180
 
-    self.rudderAnglePub.publish(Int32(K_p * new_rudder_heading))
+    self.rudderAnglePub.publish(Int32(new_rudder_angle))
 
     print("heading "+str(self.current_heading))
-    print("commanding "+str(K_p * new_rudder_heading))
+    print("commanding "+str(new_rudder_angle))
 
 if __name__ == '__main__':
   rospy.init_node('rudder_command')
