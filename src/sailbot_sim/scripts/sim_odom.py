@@ -45,7 +45,7 @@ class OdomSim:
         self.dTheta = radSec / rate
 
         self.angleSetpointSubscriber = rospy.Subscriber("cmd_heading", Int32, self.updateAngleSetpoint, queue_size=10)
-        self.odomPublisher = rospy.Publisher("odom", Odometry, queue_size=10)
+        self.odomPublisher = rospy.Publisher("odometry/filtered", Odometry, queue_size=10)
         self.resetPoseService = rospy.Service("sim_reset_pose", ResetPose, self.resetPose)
 
         self.wind_direction_pub = rospy.Publisher("wind_direction", Int32, queue_size=10)

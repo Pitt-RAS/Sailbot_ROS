@@ -12,9 +12,9 @@ from geometry_msgs.msg import Vector3, PointStamped
 
 class SailbotNav:
     def __init__(self):
-        self.newHeadingPub = rospy.Publisher("/cmd_heading", Float32, queue_size=10)
-        self.odomSub = rospy.Subscriber("/odom", Odometry, self.updateOdom)
-        self.trueWindSub = rospy.Subscriber("/true_wind", Vector3, self.updateTrueWind)
+        self.newHeadingPub = rospy.Publisher("/cmd_heading", Int32, queue_size=10)
+        self.odomSub = rospy.Subscriber("/odometry/filtered", Odometry, self.updateOdom)
+        self.trueWindSub = rospy.Subscriber("/true_wind", TrueWind, self.updateTrueWind)
         self.goalPointSub = rospy.Subscriber("/goal", PointStamped, self.updateGoalPoint)
 
         self.beatingParam = rospy.get_param("~beating_parameter", 5)
