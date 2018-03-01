@@ -47,6 +47,7 @@ void loop() {
   relativeWindDirection.data = angleSensor.read();
   relativeWindDirectionPublisher.publish(&relativeWindDirection);
   nh.spinOnce();
+  delay(10);
 }
 
 

@@ -9,5 +9,7 @@
     </node>
 
     <node name="sailbot_wind_velocity" pkg="sensors" type="windspeed_filter.py" />
-    <node name="sailbot_wind_direction" pkg="sensors" type="winddirection.py" /> 
+    <node name="sailbot_wind_direction" pkg="sensors" type="winddirection.py">
+        <param name="wind_direction_const_offset" value="0" type="double"/>
+    </node> 
 </launch>
