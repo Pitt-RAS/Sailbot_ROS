@@ -1,19 +1,18 @@
 #!/usr/bin/env python
 import rospy
-from std_msgs.msg import Float32, Int32
-from math import degrees
+from std_msgs.msg import Int32
 from time import sleep
 import numpy as np
 
 class SailAngleNode:
   def __init__(self):
     self.sailAnglePub = rospy.Publisher('cmd_sail_angle', Int32, queue_size=100)
-    self.cmdHeadingSub = rospy.Subscriber("/relative_wind_direction", Float32, self.wind_callback)
-    self.wind = 0
+    self.cmdHeadingSub = rospy.Subscriber("/relative_wind_direction", Int32, self.wind_callback)
+    self.wind = None
     self.sailAngle = 0
 
   def wind_callback(self, data):
-    self.wind = degrees(data.data) #0 to 2pi to 0 to +/-180 (cw vs ccw)
+    self.wind = data.data #0 to +/-180 (cw vs ccw)
 
   def update(self):
     if(self.wind is None):

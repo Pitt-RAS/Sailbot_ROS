@@ -4,7 +4,7 @@ import tf
 from std_msgs.msg import Int32, Float32
 from geometry_msgs.msg import Quaternion
 from visualization_msgs.msg import Marker
-from math import pi, sin, cos, atan2, radians
+from math import pi, sin, cos, atan2, radians, degrees
 
 # This node takes the raw relative wind direction in degrees,
 # applies Carlos' exponential weighting implementation,
@@ -16,7 +16,7 @@ class WindDirectionNode:
     def __init__(self):
         self.relativeWindMarkerPub = rospy.Publisher("/relative_wind_marker", Marker, queue_size=10)
         self.windDirectionRawSub = rospy.Subscriber("/relative_wind_direction/raw", Int32, self.updateRelativeWind, queue_size=10)
-        self.windDirectionPub = rospy.Publisher("/relative_wind_direction", Float32, queue_size=10)
+        self.windDirectionPub = rospy.Publisher("/relative_wind_direction", Int32, queue_size=10)
         self.tfBroadcaster = tf.TransformBroadcaster()
 
         self.relativeWindMarker = Marker()
@@ -38,7 +38,7 @@ class WindDirectionNode:
         self.sinval = 0
         self.cosval = 0
 
-        self.offset= radians(rospy.get_param('~wind_direction_const_offset', 0.0))
+        self.offset= rospy.get_param('~wind_direction_const_offset', 0.0)
 
     def updateRelativeWind(self, windDegrees):
         val = (windDegrees.data/4096.0)*(2.0*pi)
@@ -51,9 +51,9 @@ class WindDirectionNode:
 
         windAngle = atan2(self.sinval, self.cosval)
 
-        self.windDirectionPub.publish(Float32(windAngle + self.offset))
+        self.windDirectionPub.publish(Int32(degrees(windAngle) + self.offset))
 
-        relativeWindQat = tf.transformations.quaternion_from_euler(0, 0, (windAngle + self.offset))
+        relativeWindQat = tf.transformations.quaternion_from_euler(0, 0, (windAngle + radians(self.offset)))
         self.relativeWindMarker.pose.orientation.x = relativeWindQat[0]
         self.relativeWindMarker.pose.orientation.y = relativeWindQat[1]
         self.relativeWindMarker.pose.orientation.z = relativeWindQat[2]
