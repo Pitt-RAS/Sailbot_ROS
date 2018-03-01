@@ -3,12 +3,12 @@ import rospy
 import tf
 import numpy as np
 from tf.transformations import quaternion_from_euler
-from std_msgs.msg import Float32
+from std_msgs.msg import Float32, Int32
 from geometry_msgs.msg import Vector3, Quaternion
 from sailbot_sim.msg import TrueWind
 from nav_msgs.msg import Odometry
 from sailbot_sim.srv import ResetPose, ResetPoseResponse
-from math import sqrt, sin, cos, atan2, pi, radians 
+from math import sqrt, sin, cos, atan2, pi, radians, degrees
 import threading
 
 def boundAngle(theta, limit):
@@ -31,7 +31,7 @@ class OdomSim:
         self.lock = threading.Lock()
         self.lock.acquire()
 
-        self.windVector = Vector3(0,0,0)
+        self.windVector = Vector3(rospy.get_param("/sim_wind_vector/x", 0), rospy.get_param("/sim_wind_vector/y", 0), 0)
 
         self.x = 0
         self.y = 0
@@ -44,79 +44,86 @@ class OdomSim:
         radSec = rospy.get_param("~maxomega", 3.14)
         self.dTheta = radSec / rate
 
-        self.angleSetpointSubscriber = rospy.Subscriber("cmd_heading", Float32, self.updateAngleSetpoint, queue_size=10)
-        # self.windVectorSubscriber = rospy.Subscriber("true_wind", Vector3, self.updateWindVector, queue_size=10)
-        self.windSubscriber = rospy.Subscriber("true_wind", TrueWind, self.updateWind, queue_size=10)
+        self.angleSetpointSubscriber = rospy.Subscriber("cmd_heading", Int32, self.updateAngleSetpoint, queue_size=10)
         self.odomPublisher = rospy.Publisher("odom", Odometry, queue_size=10)
         self.resetPoseService = rospy.Service("sim_reset_pose", ResetPose, self.resetPose)
+
+        self.wind_direction_pub = rospy.Publisher("wind_direction", Int32, queue_size=10)
+        self.wind_speed_pub = rospy.Publisher("wind_speed", Int32, queue_size=10)
+
         self.tfBroadcaster = tf.TransformBroadcaster()
 
         self.lock.release()
 
     def updateAngleSetpoint(self, angle):
-        self.lock.acquire()
-        self.commandHeading = boundAngle(angle.data, 2*pi)
-        self.lock.release()
-
-    def updateWind(self, newWind):
-        self.lock.acquire()
-        wind = newWind.speed*[cos((pi / 180)*newWind.direction), sin((pi / 180)*newWind.direction), 0]
-        self.windVector = Vector3(wind[0], wind[1], wind[2])
-        self.lock.release()
+        with self.lock:
+            self.commandHeading = boundAngle(radians(angle.data), 2*pi)
 
     def resetPose(self, req):
-        self.lock.acquire()
-        self.x = 0
-        self.y = 0
-        self.heading = 0
-        self.lock.release()
+        with self.lock:
+            self.x = 0
+            self.y = 0
+            self.heading = 0
         return ResetPoseResponse()
-    
+
     def update(self):
-        self.lock.acquire()
-        now = rospy.Time.now()
-        dt = (now-self.lastTime).to_sec()
-        self.lastTime = now
+        with self.lock:
+            now = rospy.Time.now()
+            dt = (now-self.lastTime).to_sec()
+            self.lastTime = now
 
-        
-        angleBetweenWind = boundAngle(abs(self.heading - atan2(self.windVector.y, self.windVector.x)), pi)
-        velocity = boatPolarFunction(sqrt(self.windVector.x**2 + self.windVector.y**2), angleBetweenWind)
+            angleBetweenWind = boundAngle(abs(self.heading - atan2(self.windVector.y, self.windVector.x)), pi)
 
-        if self.heading != self.commandHeading:
-            error = self.commandHeading-self.heading
-            if abs(error) > pi:
-                error = -error
+            velocity = boatPolarFunction(sqrt(self.windVector.x**2 + self.windVector.y**2), angleBetweenWind)
 
-            if abs(error-self.dTheta) < 0.00001:
-                self.heading = self.commandHeading
-            self.heading += self.dTheta*np.sign(error)
-            self.heading = boundAngle(self.heading, 2*pi)
+            if self.heading != self.commandHeading:
+                error = self.commandHeading-self.heading
+                if abs(error) > pi:
+                    error = -error
 
-        self.y += velocity * dt * sin(self.heading)
-        self.x += velocity * dt * cos(self.heading)
+                if abs(error) < self.dTheta:
+                    self.heading = self.commandHeading
+                self.heading += self.dTheta*np.sign(error)
+                self.heading = boundAngle(self.heading, 2*pi)
 
-        headingQuat = quaternion_from_euler(0, 0, self.heading)
+            self.y += velocity * dt * sin(self.heading)
+            self.x += velocity * dt * cos(self.heading)
 
-        odom = Odometry()
-        odom.header.stamp = now
-        odom.header.frame_id = "odom"
-        
-        odom.pose.pose.position = Vector3(self.x, self.y, 0)
-        odom.pose.pose.orientation = Quaternion(headingQuat[0], headingQuat[1], headingQuat[2], headingQuat[3]) 
+            headingQuat = quaternion_from_euler(0, 0, self.heading)
 
-        odom.child_frame_id = "base_link"
+            odom = Odometry()
+            odom.header.stamp = now
+            odom.header.frame_id = "odom"
 
-        odom.twist.twist.linear = Vector3(velocity*cos(self.heading), velocity*sin(self.heading), 0)
-        odom.twist.twist.angular = Vector3(0, 0, 0)
+            odom.pose.pose.position = Vector3(self.x, self.y, 0)
+            odom.pose.pose.orientation = Quaternion(headingQuat[0], headingQuat[1], headingQuat[2], headingQuat[3])
 
-        self.odomPublisher.publish(odom)
+            odom.child_frame_id = "base_link"
 
-        self.tfBroadcaster.sendTransform((self.x, self.y, 0),
-                                        headingQuat,
-                                        now,
-                                        "base_link",
-                                        "odom");
-        self.lock.release()
+            odom.twist.twist.linear = Vector3(velocity*cos(self.heading), velocity*sin(self.heading), 0)
+            odom.twist.twist.angular = Vector3(0, 0, 0)
+
+            self.odomPublisher.publish(odom)
+
+            self.tfBroadcaster.sendTransform((self.x, self.y, 0),
+                                            headingQuat,
+                                            now,
+                                            "base_link",
+                                            "odom");
+
+            relative_wind_vector = self.calculateRelativeWindVector(odom.twist.twist.linear, self.windVector, self.heading)
+            relative_wind_speed = Int32(sqrt(relative_wind_vector.x**2 + relative_wind_vector.y**2))
+            relative_wind_direction = Int32(degrees(atan2(relative_wind_vector.y, relative_wind_vector.x)))
+
+            self.wind_speed_pub.publish(relative_wind_speed)
+            self.wind_direction_pub.publish(relative_wind_direction)
+
+    def calculateRelativeWindVector(self, boatVelocity, trueWind, heading):
+        boatVelocity = np.array([boatVelocity.x, boatVelocity.y])
+        trueWind = np.array([trueWind.x, trueWind.y])
+        apparentWind = trueWind - boatVelocity
+        apparentWind = np.matmul(apparentWind, np.array([[cos(heading), -sin(heading)], [sin(heading), cos(heading)]]));
+        return Vector3(apparentWind[0], apparentWind[1], 0)
 
 rospy.init_node("sim_odom")
 rate = rospy.Rate(rospy.get_param("~rate", 60))
