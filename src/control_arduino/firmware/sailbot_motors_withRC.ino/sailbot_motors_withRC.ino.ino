@@ -14,10 +14,8 @@
 #include <Adafruit_BNO055.h>
 #include <Adafruit_Sensor.h>
 
-int manual_value;
 int rudder_rc;
 int sail_rc;
-int sheet = 0;
 bool manualMode = false;
 SBUS r9(Serial1);
 
@@ -135,7 +133,7 @@ void loop()
 
   if(r9.read(&channels[0], &failSafe, &lostFrames))
   {
-    manual_value = channels[4];
+    int manual_value = channels[4];
     if(manual_value>1500){
       manualMode = true;
     } 
@@ -146,9 +144,9 @@ void loop()
     sail_rc = map(channels[0],172,1811,0,70);
   }
   
+  mystepper.update();
+  
   if(!manualMode){
-    mystepper.update();
-
     if(pause==100)
     {
       imu::Quaternion imuQuat = bno.getQuat();
@@ -185,6 +183,7 @@ void loop()
     myservo.write(rudder_rc); //changes rudder heading
     mystepper.setGoal(map(sail_rc, 0, 70, 0, 1500));
   }
+  
   digitalWrite(13, LOW);
   nh.spinOnce();
 
