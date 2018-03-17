@@ -26,7 +26,7 @@ GPSOdom::GPSOdom(ros::NodeHandle& nh) :
 }
 
 void GPSOdom::updateFix(const sensor_msgs::NavSatFix::ConstPtr& fix) {
-    if ( isnan(fix->latitude) || isnan(fix->longitude) ) {
+    if ( std::isnan(fix->latitude) || std::isnan(fix->longitude) ) {
         ROS_WARN("GPSOdom has no fix");
         return;
     }
