@@ -116,7 +116,7 @@ void setup()
   //I2C connection is created
   Wire.begin();
   
-  bno.begin(Adafruit_BNO055::OPERATION_MODE_IMUPLUS);
+  bno.begin(Adafruit_BNO055::OPERATION_MODE_NDOF);
   
   imu_msg.header.frame_id = "base_link";
 }
