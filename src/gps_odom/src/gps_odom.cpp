@@ -11,6 +11,10 @@ GPSOdom::GPSOdom(ros::NodeHandle& nh) :
     base_link_frame("boat"),
     utm_frame("utm") {
 
+    nh.param<std::string>("odom_frame", odom_frame, "odom");
+    nh.param<std::string>("boat_frame", base_link_frame, "boat");
+    nh.param<std::string>("utm_frame", utm_frame, "utm");
+
     transform.header.frame_id = odom_frame;
     transform.child_frame_id = base_link_frame;
 
@@ -22,6 +26,11 @@ GPSOdom::GPSOdom(ros::NodeHandle& nh) :
 }
 
 void GPSOdom::updateFix(const sensor_msgs::NavSatFix::ConstPtr& fix) {
+    if ( isnan(fix->latitude) || isnan(fix->longitude) ) {
+        ROS_WARN("GPSOdom has no fix");
+        return;
+    }
+
     double northing, easting;
     std::string zone;
     gps_common::LLtoUTM(fix->latitude, fix->longitude, northing, easting, zone);
