@@ -6,6 +6,7 @@ from math import atan, pi, degrees, floor, radians
 from nav_msgs.msg import Odometry
 #from sensor_msgs.msg import Imu
 from tf.transformations import euler_from_quaternion
+import numpy as np
 
 K_p = 1.0 #proportional constant
 
@@ -40,13 +41,18 @@ class RudderCommandNode:
       return
 
     theta_e = self.goal_heading - self.current_heading
-    if(theta_e>180): #turns boat in optimal direction
-      theta_e = theta_e - 360
+    
+    if(np.abs(theta_e) > 180): #fixes issue with crossing the 0
+      if(theta_e > 0):
+        theta_e = theta_e - 360
+      else:
+        theta_e = theta_e + 360
 
     #command_angle = self.calc_cmd_angle(self.goal_heading, theta_e)
     #self.rudderAnglePub.publish(Int32(command_angle))
 
     new_rudder_angle = (K_p * theta_e) + 90
+
     if(new_rudder_angle<0):
       new_rudder_angle = 0
     if(new_rudder_angle>180):
