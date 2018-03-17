@@ -1,12 +1,13 @@
 #!/usr/bin/env python2
 
 import rospy
-from math import atan2, sqrt, degrees, pi
-from tf.transformations import euler_from_quaternion 
+from math import atan2, sqrt, degrees, radians, pi
+from tf.transformations import euler_from_quaternion
 from algorithm import heading
 
-from std_msgs.msg import Float32
+from std_msgs.msg import Int32
 from nav_msgs.msg import Odometry
+from sailbot_sim.msg import TrueWind
 from geometry_msgs.msg import Vector3, PointStamped
 
 
@@ -38,10 +39,10 @@ class SailbotNav:
         if self.odom is None or self.trueWind is None or self.goal is None:
             return
 
-        # Get magnitude / direction from true wind vector 
-        windHeading = atan2(-self.trueWind.y, -self.trueWind.x)
-        windSpeed = sqrt(self.trueWind.x**2 + self.trueWind.y**2)
-        
+        # Get magnitude / direction from true wind vector
+        windHeading = radians(self.trueWind.direction)
+        windSpeed = self.trueWind.speed
+
         # Get yaw angle
         boatQuat = self.odom.pose.pose.orientation
         boatHeading = (euler_from_quaternion([boatQuat.x, boatQuat.y, boatQuat.z, boatQuat.w])[2]) % 2*pi
@@ -51,10 +52,10 @@ class SailbotNav:
         goalPoint = [self.goal.point.x, self.goal.point.y]
 
         # Run the algorithm
-        newHeading = heading(boatPosition, boatHeading, goalPoint, windSpeed, windHeading, self.beatingParam) 
+        newHeading = degrees(heading(boatPosition, boatHeading, goalPoint, windSpeed, windHeading, self.beatingParam))
 
         # Send new heading
-        newHeadingMsg = Float32(newHeading)
+        newHeadingMsg = Int32(newHeading)
         self.newHeadingPub.publish(newHeadingMsg)
 
 
