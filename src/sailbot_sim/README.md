@@ -12,7 +12,7 @@ Simulates a boat that acts according to the simplified polar diagram presented i
 
 **Publishes:**
 * `odom` (Odometry) - The pose of the boat
-* `base_link -> odom` transform
+* `boat -> odom` transform
 
 **Services:**
 * `sim_reset_pose` - Resets the position and heading of the simulated boat to 0

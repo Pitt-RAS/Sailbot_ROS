@@ -98,7 +98,7 @@ class OdomSim:
             odom.pose.pose.position = Vector3(self.x, self.y, 0)
             odom.pose.pose.orientation = Quaternion(headingQuat[0], headingQuat[1], headingQuat[2], headingQuat[3])
 
-            odom.child_frame_id = "base_link"
+            odom.child_frame_id = "boat"
 
             odom.twist.twist.linear = Vector3(velocity*cos(self.heading), velocity*sin(self.heading), 0)
             odom.twist.twist.angular = Vector3(0, 0, 0)
@@ -108,7 +108,7 @@ class OdomSim:
             self.tfBroadcaster.sendTransform((self.x, self.y, 0),
                                             headingQuat,
                                             now,
-                                            "base_link",
+                                            "boat",
                                             "odom");
 
             relative_wind_vector = self.calculateRelativeWindVector(odom.twist.twist.linear, self.windVector, self.heading)
