@@ -1,7 +1,7 @@
 <launch>
     <param name="robot_description" command="cat $(find sailbot_sim)/urdf/boat.urdf" />
     <node name="sensor_arduino_bridge" pkg="rosserial_python" type="serial_node.py">
-        <param name="port" value="/dev/ttyUSB0" />
+        <param name="port" value="/dev/arduino_A505016W" />
     </node>
 
     <node name="motor_arduino_bridge" pkg="rosserial_python" type="serial_node.py">
@@ -9,7 +9,8 @@
     </node>
 
     <node name="sailbot_wind_velocity" pkg="sensors" type="windspeed_filter.py" />
+    <node name="true_wind" pkg="sensors" type="truewind_simple.py" />
     <node name="sailbot_wind_direction" pkg="sensors" type="winddirection.py">
         <param name="wind_direction_const_offset" value="0" type="double"/>
-    </node> 
+    </node>
 </launch>
