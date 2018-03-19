@@ -7,11 +7,13 @@ Simulates a boat that acts according to the simplified polar diagram presented i
 ### `odom_sim.py` -  Odometry simulator
 
 **Subscribes to:**
-* `cmd_heading` (Float32) - The current commanded boat heading in radians 
+* `cmd_heading` (Int32) - The current commanded boat heading in degrees
 * `true_wind` (Vector3) - The true wind vector
 
 **Publishes:**
 * `odom` (Odometry) - The pose of the boat
+* `wind_speed` (Int32) - The current relative wind speed
+* `wind_direction` (Int32) - The current relative wind direction in degrees
 * `boat -> odom` transform
 
 **Services:**
@@ -20,34 +22,13 @@ Simulates a boat that acts according to the simplified polar diagram presented i
 **Params:**
 * `~rate` - The update rate for the simulator
 * `~maxomega` - The max rotational rate of the simulated boat. The boat will rotate constantly at this rate until it reaches the commanded angle
-
-### `sim_windsensor.py` - Simulate the wind sensor
-
-**Subscribes to:**
-* `odom` (Odometry) - The pose of the boat
-
-**Publishes:**
-* `true_wind` (Vector3) - The true wind vector
-* `relative_wind` (Vector3) - The relative wind vector
-* `true_wind_marker` (visualization_msgs/Marker) - RViz marker for showing the true wind vector, centered in the odom frame
-* `relative_wind_marker` (visualization_msgs/Marker) - RViz marker for showing the relative wind vector, centered in the base_link frame
-
-**Params:**
-* `/sim_wind_vector/x` - The X component of the true wind vector
-* `/sim_wind_vector/y` - The Y component of the true wind vector
-
-Defaults to (0,0) if no param is set. 
-
-### `keyboard_steer.py` - Drive the boat using your keyboard
-
-**Publishes:**
-* `/cmd_heading` (Float32) - The target heading
-
+* `/sim_wind_vector/x` - The X component of the ground truth true wind vector
+* `/sim_wind_vector/y` - The Y component of the ground truth true wind vector
 
 ## Launch
 ### `sim.launch`
 
-Start the odom sim, wind sensor sim, and publish a static transform for the sail. Also sets `robot_description` to `boat.urdf` for the RobotModel visualization in RViz.
+Start the simulator and publish a static transform for the sail. Also sets `robot_description` to `boat.urdf` for the RobotModel visualization in RViz.
 
 The default true wind vector is (-2, 0).
 
@@ -63,7 +44,7 @@ Same as `sim.launch`, but also starts RViz with the robot model and wind vectors
 
 ## Using the simulator
 
-To command the boat heading, publish a Float32 containing the new absolute heading of the boat on `/cmd_heading` in radians. In the simulator, the boat will turn to this heading at a constant rotational rate. The velocity of the boat will always be determined through the polar plot.
+To command the boat heading, publish a Int32 containing the new absolute heading of the boat on `/cmd_heading` in degrees. In the simulator, the boat will turn to this heading at a constant rotational rate. The velocity of the boat will always be determined through the polar plot.
 
 Here is a simple example of publishing a fixed heading:
 
@@ -74,19 +55,21 @@ Here is a simple example of publishing a fixed heading:
 ```python
 #!/usr/bin/env python2
 import rospy
-from std_msgs.msg import Float32
-from math import radians
+from std_msgs.msg import Int32
 
 rospy.init_node("heading_sender")
 
-headingPub = rospy.Publisher("/cmd_heading", Float32, queue_size=10)
+headingPub = rospy.Publisher("/cmd_heading", Int32, queue_size=10)
 
 # Set the angle to 45 degrees
-angleMessage = Float32(radians(45))
+angleMessage = Int32(45)
+
+# Publish at 10hz
+rate = rospy.Rate(10)
 
 while not rospy.is_shutdown():
-  headingPub.publish(angleMessage)
-
+    headingPub.publish(angleMessage)
+    rate.sleep()
 ```
 
 3. Run it with `python anglePublisher.py`
