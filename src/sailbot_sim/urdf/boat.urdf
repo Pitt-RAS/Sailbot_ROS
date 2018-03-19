@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot name="sailbot">
-   <link name="base_link">
+   <link name="boat">
      <visual>
         <origin xyz="0 0 0.1" />
         <geometry>
@@ -20,7 +20,7 @@
 
 
   <joint name="base_to_sail" type="floating">
-    <parent link="base_link"/>
+    <parent link="boat"/>
     <child link="sail"/>
   </joint>
 </robot>

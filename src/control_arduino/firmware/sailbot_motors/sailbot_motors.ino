@@ -118,7 +118,7 @@ void setup()
   
   bno.begin(Adafruit_BNO055::OPERATION_MODE_NDOF);
   
-  imu_msg.header.frame_id = "base_link";
+  imu_msg.header.frame_id = "boat";
 }
 
 void loop()
