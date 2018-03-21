@@ -1,6 +1,7 @@
 #include "gps_odom.h"
 #include "conversions.h"
 
+// TODO: Update references to transform to reflect your changes in the header
 GPSOdom::GPSOdom(ros::NodeHandle& nh) :
     originSet(false),
     gpsSub(nh.subscribe<sensor_msgs::NavSatFix>("fix", 10, &GPSOdom::updateFix, this)),
@@ -17,6 +18,11 @@ GPSOdom::GPSOdom(ros::NodeHandle& nh) :
 
     transform.header.frame_id = odom_frame;
     transform.child_frame_id = base_link_frame;
+
+    // TODO: Setup a transform from odom to UTM
+    // Note: Remember to use the frame given in the utm_frame string (see above where its value is pulled from rosparam)
+    // Since there is no rotation between the odom and UTM frames, just set the rotation to 0 degrees.
+    // This can be represented as (0,0,0,1) in quaternions
 
     geometry_msgs::Quaternion zeroQuat;
     zeroQuat.x = zeroQuat.y = zeroQuat.z = 0;
@@ -35,6 +41,7 @@ void GPSOdom::updateFix(const sensor_msgs::NavSatFix::ConstPtr& fix) {
     std::string zone;
     gps_common::LLtoUTM(fix->latitude, fix->longitude, northing, easting, zone);
 
+    // TODO: After we set the origin, update the position translation in the odom->utm transformation
     if ( !originSet ) {
         originX = easting;
         originY = northing;
@@ -51,6 +58,7 @@ void GPSOdom::updateFix(const sensor_msgs::NavSatFix::ConstPtr& fix) {
     position.z = 0;
     transform.transform.translation = position;
 
+    // TODO: Don't forget to update the timestamp and publish your new transform
     transform.header.stamp = ros::Time::now();
     transform_broadcaster.sendTransform(transform);
 }
