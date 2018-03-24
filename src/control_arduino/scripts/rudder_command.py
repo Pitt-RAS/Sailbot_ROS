@@ -27,6 +27,7 @@ class RudderCommandNode:
 
   def cur_callback(self, odom):
     temp_raw = euler_from_quaternion([odom.pose.pose.orientation.x, odom.pose.pose.orientation.y, odom.pose.pose.orientation.z, odom.pose.pose.orientation.w])
+    #temp_raw = euler_from_quaternion([odom.orientation.x, odom.orientation.y, odom.orientation.z, odom.orientation.w])
     temp_heading = degrees(temp_raw[2])
     if(temp_heading<0): #turns 0 to 180 (ccw) and 0 to -180 (cw) into 0-360
       temp_heading = 360 + temp_heading
