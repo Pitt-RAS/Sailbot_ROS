@@ -91,16 +91,20 @@ HackyStepper mystepper(SPR, 14, 15, 16, 17);
 ros::NodeHandle  nh;
 
 void rudderCb(const std_msgs::Int32 &rudderHeading){
-  myservo.write(rudderHeading.data); //changes rudder heading
+  if(!manualMode)
+    myservo.write(rudderHeading.data); //changes rudder heading
 }
 
 void sailCb(const std_msgs::Int32 &sailAngle){
-  int stepGoal = sailAngle.data;
-  
-  if(stepGoal>70)
-    stepGoal = 70;
-   
-  mystepper.setGoal(map(stepGoal, 0, 70, 0, 1500));
+  if(!manualMode)
+  {
+    int stepGoal = sailAngle.data;
+    
+    if(stepGoal>70)
+      stepGoal = 70;
+     
+    mystepper.setGoal(map(stepGoal, 0, 70, 0, 1500));
+  }
 }
 
 ros::Subscriber<std_msgs::Int32> rudderSub("cmd_rudder_angle", &rudderCb );
@@ -148,40 +152,40 @@ void loop()
   
   mystepper.update();
   
-  if(!manualMode){
-    if(pause==100)
-    {
-      imu::Quaternion imuQuat = bno.getQuat();
-      imu::Vector<3> linearAccel = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
-      imu::Vector<3> angularVel = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
-    
-      imu_msg.header.stamp = nh.now();
-    
-      imu_msg.orientation.x = imuQuat.x();
-      imu_msg.orientation.y = imuQuat.y();
-      imu_msg.orientation.z = imuQuat.z();
-      imu_msg.orientation.w = imuQuat.w();
-    
-      imu_msg.angular_velocity.x = angularVel.x();
-      imu_msg.angular_velocity.y = angularVel.y();
-      imu_msg.angular_velocity.z = angularVel.z();
-    
-      imu_msg.linear_acceleration.x = linearAccel.x();
-      imu_msg.linear_acceleration.y = linearAccel.y();
-      imu_msg.linear_acceleration.z = linearAccel.z();
-    
-      imuPub.publish(&imu_msg);
+  if(pause==100)
+  {
+    imu::Quaternion imuQuat = bno.getQuat();
+    imu::Vector<3> linearAccel = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
+    imu::Vector<3> angularVel = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
+  
+    imu_msg.header.stamp = nh.now();
+  
+    imu_msg.orientation.x = imuQuat.x();
+    imu_msg.orientation.y = imuQuat.y();
+    imu_msg.orientation.z = imuQuat.z();
+    imu_msg.orientation.w = imuQuat.w();
+  
+    imu_msg.angular_velocity.x = angularVel.x();
+    imu_msg.angular_velocity.y = angularVel.y();
+    imu_msg.angular_velocity.z = angularVel.z();
+  
+    imu_msg.linear_acceleration.x = linearAccel.x();
+    imu_msg.linear_acceleration.y = linearAccel.y();
+    imu_msg.linear_acceleration.z = linearAccel.z();
+  
+    imuPub.publish(&imu_msg);
 
 
-      //char debug[128];
-      //sprintf(debug, "at %d, target is %d", mystepper.getPosition(), mystepper.getGoal());
-      //nh.logwarn(debug);
+    //char debug[128];
+    //sprintf(debug, "at %d, target is %d", mystepper.getPosition(), mystepper.getGoal());
+    //nh.logwarn(debug);
 
-      pause= 0;
-    }
-    pause++;
+    pause= 0;
   }
-  else{ //manual mode
+  pause++;
+
+  if(manualMode)
+  {
     myservo.write(rudder_rc); //changes rudder heading
     mystepper.setGoal(map(sail_rc, 0, 70, 0, 1500));
   }
@@ -191,4 +195,3 @@ void loop()
 
   delay(1);
 }
-
