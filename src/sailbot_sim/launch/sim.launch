@@ -8,7 +8,7 @@
     <node name="wind_markers" pkg="sailbot_sim" type="wind_markers.py" />
 
     <node name="true_wind" pkg="sailbot_sim" type="true_wind.py" />
-    <node pkg="tf" type="static_transform_publisher" name="sail_tf_broadcaster" args="0 0 0 0.7895 0 0 base_link sail 100" />
+    <node pkg="tf" type="static_transform_publisher" name="sail_tf_broadcaster" args="0 0 0 0.7895 0 0 boat sail 100" />
 
     <param name="/sim_wind_vector/x" type="double" value="$(arg sim_wind_x)" />
     <param name="/sim_wind_vector/y" type="double" value="$(arg sim_wind_y)" />

@@ -20,7 +20,7 @@ class WindDirectionNode:
         self.tfBroadcaster = tf.TransformBroadcaster()
 
         self.relativeWindMarker = Marker()
-        self.relativeWindMarker.header.frame_id = "base_link"
+        self.relativeWindMarker.header.frame_id = "boat"
         self.relativeWindMarker.scale.x = 1 
         self.relativeWindMarker.scale.y = 0.1 
         self.relativeWindMarker.scale.z = 0.01 
