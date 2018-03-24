@@ -26,9 +26,9 @@ class GPSOdom {
         tf2_ros::TransformBroadcaster transform_broadcaster;
 
         nav_msgs::Odometry odom_msg;
-        // TODO: Rename the current transform to something descriptive like odomTransform
-        // TODO: Add a second transform from odom to utm (call it something like utmTransform)
-        geometry_msgs::TransformStamped transform;
+
+        geometry_msgs::TransformStamped odomTransform;
+	geometry_msgs::TransformStamped utmTransform;
 
         std::string base_link_frame;
         std::string odom_frame;
