@@ -16,6 +16,8 @@
 
 SBUS r9(Serial1);
 uint16_t channels[16];
+uint8_t failSafe;
+uint16_t lostFrames = 0;
 
 int rudder_rc;
 int sail_rc;
@@ -131,13 +133,15 @@ void setup()
   bno.begin(Adafruit_BNO055::OPERATION_MODE_IMUPLUS);
   
   imu_msg.header.frame_id = "boat";
+
+  r9.begin();
 }
 
 void loop()
 { 
   digitalWrite(13, HIGH);
 
-  if(r9.read(&channels[0], NULL, NULL))
+  if(r9.read(&channels[0], &failSafe, &lostFrames))
   {
     int manual_value = channels[4];
     if(manual_value>1500){
@@ -147,8 +151,13 @@ void loop()
       manualMode = false;
     }
     rudder_rc = map(channels[1],172,1808,0,180);
+    rudder_rc = abs(rudder_rc - 180); //flips 
     sail_rc = map(channels[0],172,1811,0,70);
   }
+
+//  char debug[128];
+//  sprintf(debug, "manual = %d, rudder = %d, sail = %d", manualMode, rudder_rc, sail_rc);
+//  nh.logwarn(debug);
   
   mystepper.update();
   
