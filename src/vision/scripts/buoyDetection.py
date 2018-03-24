@@ -51,29 +51,36 @@ def newROI(frame, name):
 
 	if len(target)==0:			#not in close range nor the far range, the bouy dones't exist	
 		target=[np.array([[[300,300]]])]
-
+		targetFound = 0
 	x,y,w,h = cv2.boundingRect(target[0])
+	print x,y,w,h
 	if targetFound ==1:
 		center = [ x+w/2, y+h/2  ]		#the center of the target, need it for the sailbot to sail to	
 	else:
 		center = [ -1, -1 ]			#we can tell if the target if found or not by checking the center
-	thresh = cv2.rectangle(cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR), (x,y), (x+w, y+h), (0,255,0), 2)
-	roi = frame[y:y+h, x:x+w]
 
-	hsvr = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-	histr = cv2.calcHist([hsvr], [0,1], None, [180,256], [0,180,0,256])
-	newWindow = (x,y,w,h)
-	return histr, newWindow, thresh, center
+	histr = 0
+	newWindow = 0
+	if targetFound ==1:
+		thresh = cv2.rectangle(cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR), (x,y), (x+w, y+h), (0,255,0), 2)
+		roi = frame[y:y+h, x:x+w]
+		hsvr = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+		histr = cv2.calcHist([hsvr], [0,1], None, [180,256], [0,180,0,256])
+		newWindow = (x,y,w,h)
+
+	return histr, newWindow, thresh, center,targetFound
 	
-name = 'buoy1.jpg'
+name = 'buoy7.jpeg'
 img = cv2.imread(name)
 
-histr, window1, thresh, center = newROI(img,name)
+histr, window1, thresh, center,targetFound = newROI(img,name)
 print center
 plt.subplot(121),plt.imshow(img,cmap = 'gray')
 plt.title('Original Image'), plt.xticks([]), plt.yticks([])
-plt.subplot(122),plt.imshow(thresh,cmap = 'gray')
-plt.title('Edge Image'), plt.xticks([]), plt.yticks([])
+if targetFound ==1:
+	plt.subplot(122),plt.imshow(thresh,cmap = 'gray')
+	plt.title('Edge Image'), plt.xticks([]), plt.yticks([])
+
 plt.show()
 
 
