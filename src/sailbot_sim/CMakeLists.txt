@@ -24,4 +24,7 @@ catkin_package(
     CATKIN_DEPENDS message_runtime
 )
 
-
+if(CATKIN_ENABLE_TESTING)
+  find_package(rostest REQUIRED)
+  add_rostest(test/test_simulator.test)
+endif()

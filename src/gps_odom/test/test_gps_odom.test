@@ -1,0 +1,5 @@
+<launch>
+    <node type="gps_odom_node" name="gps_odom_node" pkg="gps_odom" />
+    <test test-name="gps_odom_test" pkg="gps_odom" type="test_odom.py" />
+</launch>
+

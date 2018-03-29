@@ -34,6 +34,17 @@ pipeline {
                     '''
             }
         }
+        stage ('Test') {
+            steps {
+                sh '''
+                    set -x
+                    cd $WORKSPACE
+                    source /opt/ros/kinetic/setup.bash
+                    source devel/setup.bash
+                    catkin_make test
+                    '''
+            }
+        }
     }
 }
 
