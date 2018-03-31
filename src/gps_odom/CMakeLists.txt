@@ -146,6 +146,11 @@ target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
 )
 
+if(CATKIN_ENABLE_TESTING)
+  find_package(rostest REQUIRED)
+  add_rostest(test/test_gps_odom.test)
+endif()
+
 #############
 ## Install ##
 #############

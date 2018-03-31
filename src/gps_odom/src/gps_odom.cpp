@@ -17,7 +17,7 @@ GPSOdom::GPSOdom(ros::NodeHandle& nh) :
 
     odomTransform.header.frame_id = odom_frame;
     odomTransform.child_frame_id = base_link_frame;
-    
+
     utmTransform.header.frame_id = utm_frame;
     utmTransform.child_frame_id = odom_frame;
 
@@ -67,7 +67,6 @@ void GPSOdom::updateFix(const sensor_msgs::NavSatFix::ConstPtr& fix) {
         utmTransform.header.stamp = ros::Time::now();
         transform_broadcaster.sendTransform(utmTransform);
     }
-       
 }
 
 void GPSOdom::updateImu(const sensor_msgs::Imu::ConstPtr& imu) {
