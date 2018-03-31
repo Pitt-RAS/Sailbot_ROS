@@ -14,6 +14,7 @@ def disstance_over_ground (x,y,bouy):
 	disstance_over_ground = math.sqrt(math.pow(x_diff, 2) + math.pow(y_diff, 2))
 	return disstance_over_ground
 
+
 class Navigation_Node:
 	def __init__(self):
 
@@ -24,9 +25,9 @@ class Navigation_Node:
 		self.disstance_over_ground = 0
 		self.odom_sub = rospy.Subscriber("odometry/filtered",Odometry, 	self.localization_callback)
 		
-		buoy1 = rospy.get_param("buoyLocation1")
-		buoy2 = rospy.get_param("buoyLocation2")
-		buoy3 = rospy.get_param("bouyLocation3")
+		buoy1 = rospy.get_param("buoy1")
+		buoy2 = rospy.get_param("bouy2")
+		buoy3 = rospy.get_param("bouy3")
 
 		self.current_goal = buoy1
 		
@@ -44,15 +45,23 @@ class Navigation_Node:
 		if disstance < 10:
 			if (current_goal == self.buoy1):
 				self.current_goal = self.buoy2
-			elif (self.current_gual == self.buoy2):
+			elif (self.current_goal == self.buoy2):
 				self.current_goal =self.buoy3
 
-					
+		msg = Goal()
+		msg.goalType = 0 
+		pointer = Point()
 
-		self.goalPublisher.publish(self.current_goal)
+		pointer.x = self.current_goal[0]
+		pointer.y = self.current_goal[1]
+		pointer.z = 0
+
+		msg.goalPoint = pointer
+		self.header.stamp = rospy.Time.now()			
+		self.goalPublisher.publish(msg)
 
 
-rospy.init_node("navigation", anonymous = false)
+rospy.init_node("navigation", anonymous = False)
 rate = rospy.Rate(rospy.get_param("~rate", 60))
 node = Nivagation_Node()
 while not rospy.is_shutdown():
