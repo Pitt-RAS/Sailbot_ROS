@@ -1,6 +1,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include "RobotState.h"
+
 extern bool shouldUseROS;
 extern RobotState currentState;
 
@@ -25,5 +27,7 @@ extern RobotState currentState;
 #define SAIL_POT 14
 #define RUDDER_LEFT_POT 15
 #define RUDDER_RIGHT_POT 16
+
+#define BATTERY_VOLTAGE A1
 
 #endif
