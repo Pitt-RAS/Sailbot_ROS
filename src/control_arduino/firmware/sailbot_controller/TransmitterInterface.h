@@ -10,7 +10,15 @@ public:
 
     bool wantsEnable();
     bool wantsAutonomous();
-    bool wantsTeleop();
+    
+    void update();
+    
+private:
+
+    double sailAngle;
+    double rudderAngle;
+    bool enabled;
+    bool autonomous;
 };
 
 #endif
