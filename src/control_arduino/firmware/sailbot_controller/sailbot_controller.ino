@@ -95,11 +95,11 @@ void loop() {
         autonomousInit();
         currentState = MODE_AUTONOMOUS;
     }
-    else if ( tx.wantsEnable() && tx.wantsTeleop() && currentState != MODE_TELEOP ) {
+    else if ( tx.wantsEnable() && !tx.wantsAutonomous() && currentState != MODE_TELEOP ) {
         teleopInit();
         currentState = MODE_TELEOP;
     }
-    else if ( tx.wantsEnable() && currentState != MODE_DISABLED ) {
+    else if ( !tx.wantsEnable() && currentState != MODE_DISABLED ) {
         disabledInit();
         sail->setOpenLoop(0);
         leftRudder->setOpenLoop(0);
