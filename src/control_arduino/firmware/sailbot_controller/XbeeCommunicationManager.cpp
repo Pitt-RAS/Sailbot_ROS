@@ -3,20 +3,22 @@
 
 XbeeCommunicationManager::XbeeCommunicationManager(ros::Nodehandle* _nh) {
     this->nh = _nh;
+    
     if(nh!=NULL) {
-	batterySub = new ros::Subscriber<std_msgs::Float32, XbeeCommunicationManager>("/battery", &XbeeCommunicationManager::batteryCb, this);
-	trueWindSub = new ros::Subscriber<sensors::msg::TrueWind, XbeeCommunicationManager>("/trueWind",&XbeeCommunicationManager::trueWindCb, this);
-	goalPointSub = new ros::Subscriber<geometry_msgs::PointStamped, XbeeCommunicationManager>("/goal", &XbeeCommunicationManager::goalPointCb, this);
-	odomSub = new ros::Subscriber<nav_msgs::Odometry, XbeeCommunicationManager>("/odometry/filtered", &XbeeCommunicationManager::odomCb, this);
-	gpsSub = new ros::Subscriber<sensor_msgs::NatSatFix, XbeeCommunicationManager>("/gps/fix", &XbeeCommunicationManager::gpsCb, this);
+	    batterySub = new ros::Subscriber<std_msgs::Float32, XbeeCommunicationManager>("/battery", &XbeeCommunicationManager::batteryCb, this);
+	    trueWindSub = new ros::Subscriber<sensors::msg::TrueWind, XbeeCommunicationManager>("/trueWind",&XbeeCommunicationManager::trueWindCb, this);
+	    goalPointSub = new ros::Subscriber<geometry_msgs::PointStamped, XbeeCommunicationManager>("/goal", &XbeeCommunicationManager::goalPointCb, this);
+	    odomSub = new ros::Subscriber<nav_msgs::Odometry, XbeeCommunicationManager>("/odometry/filtered", &XbeeCommunicationManager::odomCb, this);
+	    gpsSub = new ros::Subscriber<sensor_msgs::NatSatFix, XbeeCommunicationManager>("/gps/fix", &XbeeCommunicationManager::gpsCb, this);
 
         nh.subscribe(batterySub);
-	nh.subscribe(trueWindSub);
+	    nh.subscribe(trueWindSub);
         nh.subscribe(goalPointSub);
         nh.subscribe(odomSub);
         nh.subscribe(gpsSub);
     }
-
+    
+    serial_packet xbee_info;
     serial_startval = -1386103603;
     xbee_info.serial_start = serial_startval;
 }

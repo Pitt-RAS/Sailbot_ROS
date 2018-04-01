@@ -9,6 +9,20 @@
 #include <geometry_msgs/PointStamped.h>
 #include "sensors/msg/TrueWind.h"
 
+struct serial_packet {
+    int32_t serial_start;
+    int32_t true_wind_speed;
+    int32_t true_wind_dir;
+    int32_t sail_angle;
+    int32_t rudder_angle;
+    int32_t state;
+    float goal[2];
+    float odom_heading;
+    float odom_speed;
+    float gps[2];
+    float battery_volt;
+};
+
 class XbeeCommunicationManager {
 public:
     XbeeCommunicationManager(ros::NodeHandle* nh);
@@ -18,19 +32,7 @@ public:
     void updateXbeeRudderAngle(int);
 private:
     ros::NodeHandle* nh;
-    struct serial_packet {
-	int32_t serial_start;
-	int32_t true_wind_speed;
-	int32_t true_wind_dir;
-	int32_t sail_angle;
-	int32_t rudder_angle;
-	int32_t state;
-	float goal[2];
-	float odom_heading;
-	float odom_speed;
-	float gps[2];
-	float battery_volt;
-    } xbee_info;
+
     int32_t serial_startval;
     void batteryCb(const std_msgs::Int32&);
     void trueWindCb(const sensors::msg::TrueWind&);
