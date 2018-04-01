@@ -1,5 +1,5 @@
-#include "PID.h"
 #include <Arduino.h>
+#include "PID.h"
 
 PID::PID(double kP, double kI, double kD) {
     this->kP = kP;
@@ -34,10 +34,27 @@ double PID::calculate(double actual) {
     } else {
         dEdT = (error - lastError) / dt;
     }
-    
+
     lastError = error;
 
     return error*kP + integral*kI + dEdT*kD;
+}
 
+void PID::configGains(double kP, double kI, double kD) {
+    this->kP = kP;
+    this->kI = kI;
+    this->kD = kD;
+}
+
+void PID::configP(double kP) {
+    this->kP = kP;
+}
+
+void PID::configI(double kI) {
+    this->kI = kI;
+}
+
+void PID::configD(double kD) {
+    this->kD = kD;
 }
 
