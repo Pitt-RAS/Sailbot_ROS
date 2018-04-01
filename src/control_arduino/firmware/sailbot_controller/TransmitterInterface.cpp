@@ -1,14 +1,14 @@
 #include "TransmitterInterface.h"
 
 TransmitterInterface::TransmitterInterface(): 
-    sailAngle(0), rudderAngle(0), wantsEnable(false), wantsAutonomous(false) {
+    sailAngle(0), rudderAngle(0), enabled(false), autonomous(false) {
     
 }
 
-void update(double sa, double ra, bool e, bool a) {
-    if (0 <= sa <= 180)
+void TransmitterInterface::update(double sa, double ra, bool e, bool a) {
+    if (sa >= 0 && sa <= 180)
         sailAngle = sa;
-    if (0 <= ra <= 180)
+    if (ra >= 0 && ra <= 180)
         rudderAngle = ra;
     enabled = e;
     autonomous = a;
@@ -29,3 +29,4 @@ bool TransmitterInterface::wantsEnable() {
 bool TransmitterInterface::wantsAutonomous() {
     return autonomous;
 }
+

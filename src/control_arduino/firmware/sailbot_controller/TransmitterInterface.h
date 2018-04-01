@@ -11,7 +11,7 @@ public:
     bool wantsEnable();
     bool wantsAutonomous();
     
-    void update();
+    void update(double sa, double ra, bool e, bool a);
     
 private:
 
