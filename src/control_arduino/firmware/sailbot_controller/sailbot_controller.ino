@@ -16,17 +16,6 @@ PIDSubsystem* rightRudder;
 
 TransmitterInterface tx;
 
-unsigned long windSensorLastTick = millis();
-unsigned long windSensorDt = 0;
-bool windSensorDtUpdated = false;
-void windISR() {
-  if ( windSensorDtUpdated )
-    return;
-  windSensorDt = millis() - windSensorLastTick;
-  windSensorLastTick = millis();
-  windSensorDtUpdated = true;
-}
-
 ros::NodeHandle nh;
 
 std_msgs::Int32 windSensorTick;
@@ -49,7 +38,6 @@ void setup() {
     leftRudder = new PIDSubsystem("leftRudder", RUDDER_LEFT_POT, RUDDER_LEFT_PWM, RUDDER_LEFT_P, RUDDER_LEFT_I, RUDDER_RIGHT_D, &nh);
     rightRudder = new PIDSubsystem("rightRudder", RUDDER_RIGHT_POT, RUDDER_RIGHT_PWM, RUDDER_RIGHT_P, RUDDER_RIGHT_I, RUDDER_RIGHT_D, &nh);
     pinMode(2, INPUT);
-    attachInterrupt(digitalPinToInterrupt(2), windISR, RISING);
 }
 
 void alwaysPeriodic() {

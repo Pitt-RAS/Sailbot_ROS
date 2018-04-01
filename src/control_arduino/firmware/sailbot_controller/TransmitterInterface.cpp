@@ -19,6 +19,7 @@ bool TransmitterInterface::wantsAutonomous() {
     return false;
 }
 
+
 bool TransmitterInterface::wantsTeleop() {
     return false;
 }
