@@ -1,0 +1,3 @@
+[
+  "pyros_setup/tests/test_setup.py::test_rospy_imported_config"
+]
