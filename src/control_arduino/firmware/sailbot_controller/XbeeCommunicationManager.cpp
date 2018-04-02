@@ -2,7 +2,7 @@
 #include "XbeeCommunicationManager.h"
 
 XbeeCommunicationManager::XbeeCommunicationManager(ros::NodeHandle* _nh) : nh(_nh) {
-    if ( nh != NULL ) {
+    if ( shouldUseROS ) {
         batterySub = new ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>("/battery", &XbeeCommunicationManager::batteryCb, this);
         trueWindSub = new ros::Subscriber<sailbot_sim::TrueWind, XbeeCommunicationManager>("/trueWind",&XbeeCommunicationManager::trueWindCb, this);
         goalPointSub = new ros::Subscriber<geometry_msgs::PointStamped, XbeeCommunicationManager>("/goal", &XbeeCommunicationManager::goalPointCb, this);

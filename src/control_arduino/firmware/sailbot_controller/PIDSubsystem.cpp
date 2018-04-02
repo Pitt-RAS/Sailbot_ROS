@@ -1,11 +1,12 @@
-#include "Arduino.h"
+#include "config.h"
+#include <Arduino.h>
 #include "PIDSubsystem.h"
 
 PIDSubsystem::PIDSubsystem(const char* name, int analogSensorPin, int pwmPin, double kP, double kI, double kD, ros::NodeHandle* _nh)
     : pwm(pwmPin), pid(kP, kI, kD) {
     this->analogSensorPin = analogSensorPin;
     this->nh = _nh;
-    if ( nh != NULL ) {
+    if ( shouldUseROS ) {
         char topic[64];
         sprintf(topic, "/pidsubsystem/%s/p", name);
         pConfigSub = new ros::Subscriber<std_msgs::Float64, PIDSubsystem>(strdup(topic), &PIDSubsystem::updatePTerm, this);
