@@ -1,7 +1,8 @@
+#include "config.h"
 #include "TransmitterInterface.h"
 
 TransmitterInterface::TransmitterInterface(): 
-    sailAngle(0), rudderAngle(0), enabled(false), autonomous(false), r9(Serial1) {
+    sailAngle(0), rudderAngle(0), enabled(false), autonomous(false), r9(TX_SERIALPORT), watchdog(TX_TIMEOUT) {
     
 }
 
@@ -9,6 +10,7 @@ void TransmitterInterface::update() {
     if ( r9.read(&channels[0], &failSafe, &lostFrames) ) {
         enabled = channels[4] > 1500;
         autonomous = false;
+        watchdog.feed();
     }
 
 //    if (sa >= 0 && sa <= 180)
@@ -35,3 +37,6 @@ bool TransmitterInterface::wantsAutonomous() {
     return autonomous;
 }
 
+bool TransmitterInterface::isConnected() {
+    return !watchdog.hungry();
+}

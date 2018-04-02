@@ -35,5 +35,10 @@ extern RobotState currentState;
 #define HEARTBEAT_AUTO_HZ 10
 #define HEARTBEAT_TELEOP_HZ 5
 
+// R9 transmitter
+// Timeout before we consider the transmitter disconnected
+#define TX_TIMEOUT 2000
+#define TX_SERIALPORT Serial1
+
 #endif
 
