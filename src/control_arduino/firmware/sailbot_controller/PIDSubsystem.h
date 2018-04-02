@@ -9,7 +9,7 @@
 class PIDSubsystem {
 public:
     PIDSubsystem(const char* name, int analogSensorPin, int pwmPin, double kP, double kI, double kD, ros::NodeHandle* _nh);
-    PIDSubsystem(const char* name, int analogSensorPin, int pwmPin, double adcOffset, double adcConversion, double kP, double kI, double kD, ros::NodeHandle* _nh);
+    PIDSubsystem(const char* name, int _analogSensorPin, int pwmPin, double _adcOffset, double _adcConversion, double kP, double kI, double kD, ros::NodeHandle* _nh);
 
     void configSetpointUnits(double adcOffset, double adcConversion);
 

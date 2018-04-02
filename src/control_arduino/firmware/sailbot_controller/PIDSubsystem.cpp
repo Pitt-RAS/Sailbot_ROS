@@ -2,10 +2,9 @@
 #include <Arduino.h>
 #include "PIDSubsystem.h"
 
-PIDSubsystem::PIDSubsystem(const char* name, int analogSensorPin, int pwmPin, double kP, double kI, double kD, ros::NodeHandle* _nh)
-    : pwm(pwmPin), pid(kP, kI, kD) {
-    this->analogSensorPin = analogSensorPin;
-    this->nh = _nh;
+PIDSubsystem::PIDSubsystem(const char* name, int _analogSensorPin, int pwmPin, double _adcOffset, double _adcConversion, double kP, double kI, double kD, ros::NodeHandle* _nh)
+    : nh(_nh), analogSensorPin(_analogSensorPin), pwm(pwmPin), pid(kP, kI, kD), adcOffset(_adcOffset), adcConversion(_adcConversion) {
+
     if ( shouldUseROS ) {
         char topic[64];
         sprintf(topic, "/pidsubsystem/%s/p", name);
@@ -21,12 +20,8 @@ PIDSubsystem::PIDSubsystem(const char* name, int analogSensorPin, int pwmPin, do
     }
 }
 
-PIDSubsystem::PIDSubsystem(const char* name, int analogSensorPin, int pwmPin, double adcOffset, double adcConversion, double kP, double kI, double kD, ros::NodeHandle* _nh)
-    : PIDSubsystem(name, analogSensorPin, pwmPin, kP, kI, kD, _nh)
-{
-    this->adcOffset = adcOffset;
-    this->adcConversion = adcConversion;
-}
+PIDSubsystem::PIDSubsystem(const char* name, int analogSensorPin, int pwmPin, double kP, double kI, double kD, ros::NodeHandle* _nh)
+    : PIDSubsystem(name, analogSensorPin, pwmPin, 0, 1, kP, kI, kD, _nh) {}
 
 void PIDSubsystem::configGains(double kP, double kI, double kD) {
     pid.configGains(kP, kI, kD);
