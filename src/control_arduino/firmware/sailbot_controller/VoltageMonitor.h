@@ -1,5 +1,5 @@
-#ifndef VOLTAGE_MONITOR
-#define VOLTAGE_MONITOR
+#ifndef VOLTAGE_MONITOR_H
+#define VOLTAGE_MONITOR_H
 
 double getVoltage();
 

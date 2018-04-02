@@ -1,12 +1,14 @@
 #include "RobotState.h"
 #include "PIDSubsystem.h"
 #include "TransmitterInterface.h"
+#include "Windsensors.h"
 #include "config.h"
-//#include <AS5045.h>
 #include <ros.h>
 #include <std_msgs/Int32.h>
+#include "Rate.h"
 
-bool shouldUseROS = false;
+bool shouldUseROS = true;
+bool heartbeatLEDState = true;
 
 RobotState currentState = MODE_DISABLED;
 
@@ -16,35 +18,40 @@ PIDSubsystem* rightRudder;
 
 TransmitterInterface tx;
 
+Windsensors* windsensors;
+
 ros::NodeHandle nh;
 
-std_msgs::Int32 windSensorTick;
-ros::Publisher windSensorTickPublisher("wind_sensor_tick", &windSensorTick);
-
-std_msgs::Int32 relativeWindDirection;
-ros::Publisher relativeWindDirectionPublisher("/relative_wind_direction/raw", &relativeWindDirection);
-
-//AS5045 angleSensor(A2, A3, A4) ;
+Rate loopRate(100);
+Rate heartbeatLEDLimiter(HEARTBEAT_DISABLED_HZ);
 
 void setup() {
     if ( shouldUseROS ) {
         nh.initNode();
-
-        nh.advertise(windSensorTickPublisher);
-        nh.advertise(relativeWindDirectionPublisher);
     }
-    
+
+    windsensors = new Windsensors(&nh);
+
     sail = new PIDSubsystem("sail", SAIL_POT, SAIL_PWM, SAIL_P, SAIL_I, SAIL_D, &nh);
     leftRudder = new PIDSubsystem("leftRudder", RUDDER_LEFT_POT, RUDDER_LEFT_PWM, RUDDER_LEFT_P, RUDDER_LEFT_I, RUDDER_RIGHT_D, &nh);
     rightRudder = new PIDSubsystem("rightRudder", RUDDER_RIGHT_POT, RUDDER_RIGHT_PWM, RUDDER_RIGHT_P, RUDDER_RIGHT_I, RUDDER_RIGHT_D, &nh);
+
     pinMode(2, INPUT);
+    pinMode(HEARTBEAT_LED, OUTPUT);
+    disabledInit();
 }
 
 void alwaysPeriodic() {
+    if ( heartbeatLEDLimiter.needsRun() ) {
+        digitalWrite(HEARTBEAT_LED, heartbeatLEDState ? HIGH : LOW);
+        heartbeatLEDState = !heartbeatLEDState;
+    }
 
+    windsensors->update();
 }
 
 void teleopInit() {
+    heartbeatLEDLimiter.setRate(HEARTBEAT_TELEOP_HZ);
 }
 
 void teleopPeriodic() {
@@ -52,7 +59,7 @@ void teleopPeriodic() {
 }
 
 void autonomousInit() {
-
+    heartbeatLEDLimiter.setRate(HEARTBEAT_AUTO_HZ);
 }
 
 void autonomousPeriodic() {
@@ -69,12 +76,14 @@ void enabledPeriodic() {
 }
 
 void disabledInit() {
+    heartbeatLEDLimiter.setRate(HEARTBEAT_DISABLED_HZ);
 }
 
 void disabledPeriodic() {
 }
 
 void loop() {
+
     if ( currentState != MODE_DISABLED && tx.wantsEnable() ) {
         enabledInit();
     }
@@ -109,5 +118,11 @@ void loop() {
         enabledPeriodic();
 
     alwaysPeriodic();
+
+    if ( shouldUseROS ) {
+        nh.spinOnce();
+    }
+
+    loopRate.sleep();
 }
 

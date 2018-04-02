@@ -14,7 +14,6 @@ void windISR() {
   windSensorDtUpdated = true;
 }
 
-
 ros::NodeHandle nh;
 
 std_msgs::Int32 windSensorTick;
@@ -27,17 +26,16 @@ AS5045 angleSensor(A2, A3, A4) ;
 
 void setup() {
   angleSensor.begin();
-  
+
   pinMode(2, INPUT);
   attachInterrupt(digitalPinToInterrupt(2), windISR, RISING);
   nh.initNode();
-  
+
   nh.advertise(windSensorTickPublisher);
   nh.advertise(relativeWindDirectionPublisher);
 }
 
 void loop() {
-
   if ( windSensorDtUpdated ) {
     windSensorTick.data = windSensorDt;
     windSensorTickPublisher.publish(&windSensorTick);
@@ -49,5 +47,4 @@ void loop() {
   nh.spinOnce();
   delay(10);
 }
-
 

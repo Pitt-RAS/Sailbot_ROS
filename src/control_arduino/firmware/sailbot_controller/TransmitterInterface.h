@@ -1,6 +1,8 @@
 #ifndef TRANSMITTER_INTERFACE_H
 #define TRANSMITTER_INTERFACE_H
 
+#include <SBUS.h>
+
 class TransmitterInterface {
 public:
     TransmitterInterface();
@@ -11,9 +13,13 @@ public:
     bool wantsEnable();
     bool wantsAutonomous();
     
-    void update(double sa, double ra, bool e, bool a);
+    void update();
     
 private:
+    SBUS r9;
+    uint16_t channels[16];
+    uint8_t failSafe;
+    uint16_t lostFrames = 0;
 
     double sailAngle;
     double rudderAngle;

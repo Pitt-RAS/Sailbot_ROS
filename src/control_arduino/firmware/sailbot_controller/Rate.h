@@ -6,7 +6,7 @@ public:
     Rate(int);
     bool needsRun();
     void sleep();
-    
+    void setRate(int rate);
 private:
     unsigned long periodUs;
     unsigned long lastUs;

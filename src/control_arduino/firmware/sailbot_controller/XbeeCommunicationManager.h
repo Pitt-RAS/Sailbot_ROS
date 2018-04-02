@@ -1,13 +1,13 @@
 #ifndef XBEE_COMM_MGR_H
 #define XBEE_COMM_MGR_H
 
-#include <ros/ros.h>
 #include "config.h"
-#include <tf/transform_broadcaster>
-#include <nav_msgs/Odometry.h>
-#include <geometry_msgs/NatSatFix.h>
+#include <ros.h>
+#include <std_msgs/Float32.h>
+#include <std_msgs/Int32.h>
+#include <sensor_msgs/NavSatFix.h>
 #include <geometry_msgs/PointStamped.h>
-#include "sensors/msg/TrueWind.h"
+#include <sailbot_sim/TrueWind.h>
 
 struct serial_packet {
     int32_t serial_start;
@@ -33,18 +33,18 @@ public:
 private:
     ros::NodeHandle* nh;
 
+    serial_packet xbee_info;
+
     int32_t serial_startval;
     void batteryCb(const std_msgs::Int32&);
-    void trueWindCb(const sensors::msg::TrueWind&);
-    void goalCb(const geometry_msgs::PointStamped&);
-    void odomCb(const nav_msgs::Odometry&);
-    void gpsCb(const sensor_msgs::NatSatFix&);
+    void trueWindCb(const sailbot_sim::TrueWind&);
+    void goalPointCb(const geometry_msgs::PointStamped&);
+    void gpsCb(const sensor_msgs::NavSatFix&);
 
-    ros::Subscriber<std_msgs::Float32, XbeeCommunicationManager>* batterySub;
-    ros::Subscriber<sensors::msg::TrueWind, XbeeCommunicationManager>* trueWindSub;
+    ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>* batterySub;
+    ros::Subscriber<sailbot_sim::TrueWind, XbeeCommunicationManager>* trueWindSub;
     ros::Subscriber<geometry_msgs::PointStamped, XbeeCommunicationManager>* goalPointSub;
-    ros::Subscriber<nav_msgs::Odometry, XbeeCommunicationManager>* odomSub;
-    ros::Subscriber<sensor_msgs::NatSatFix, XbeeCommunicationManager>* gpsSub;
+    ros::Subscriber<sensor_msgs::NavSatFix, XbeeCommunicationManager>* gpsSub;
 };
 
 #endif

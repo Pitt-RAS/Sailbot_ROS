@@ -30,4 +30,10 @@ extern RobotState currentState;
 
 #define BATTERY_VOLTAGE A1
 
+#define HEARTBEAT_LED 13
+#define HEARTBEAT_DISABLED_HZ 1
+#define HEARTBEAT_AUTO_HZ 10
+#define HEARTBEAT_TELEOP_HZ 5
+
 #endif
+

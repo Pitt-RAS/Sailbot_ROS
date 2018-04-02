@@ -1,18 +1,18 @@
 #include "Arduino.h"
 #include "PIDSubsystem.h"
 
-PIDSubsystem::PIDSubsystem(char* name, int analogSensorPin, int pwmPin, double kP, double kI, double kD, ros::NodeHandle* _nh)
+PIDSubsystem::PIDSubsystem(const char* name, int analogSensorPin, int pwmPin, double kP, double kI, double kD, ros::NodeHandle* _nh)
     : pwm(pwmPin), pid(kP, kI, kD) {
     this->analogSensorPin = analogSensorPin;
     this->nh = _nh;
     if ( nh != NULL ) {
         char topic[64];
         sprintf(topic, "/pidsubsystem/%s/p", name);
-        pConfigSub = new ros::Subscriber<std_msgs::Float64, PIDSubsystem>(topic, &PIDSubsystem::updatePTerm, this);
+        pConfigSub = new ros::Subscriber<std_msgs::Float64, PIDSubsystem>(strdup(topic), &PIDSubsystem::updatePTerm, this);
         sprintf(topic, "/pidsubsystem/%s/i", name);
-        iConfigSub = new ros::Subscriber<std_msgs::Float64, PIDSubsystem>(topic, &PIDSubsystem::updateITerm, this);
+        iConfigSub = new ros::Subscriber<std_msgs::Float64, PIDSubsystem>(strdup(topic), &PIDSubsystem::updateITerm, this);
         sprintf(topic, "/pidsubsystem/%s/d", name);
-        dConfigSub = new ros::Subscriber<std_msgs::Float64, PIDSubsystem>(topic, &PIDSubsystem::updateDTerm, this);
+        dConfigSub = new ros::Subscriber<std_msgs::Float64, PIDSubsystem>(strdup(topic), &PIDSubsystem::updateDTerm, this);
 
         nh->subscribe(*pConfigSub);
         nh->subscribe(*iConfigSub);
@@ -20,7 +20,7 @@ PIDSubsystem::PIDSubsystem(char* name, int analogSensorPin, int pwmPin, double k
     }
 }
 
-PIDSubsystem::PIDSubsystem(char* name, int analogSensorPin, int pwmPin, double adcOffset, double adcConversion, double kP, double kI, double kD, ros::NodeHandle* _nh)
+PIDSubsystem::PIDSubsystem(const char* name, int analogSensorPin, int pwmPin, double adcOffset, double adcConversion, double kP, double kI, double kD, ros::NodeHandle* _nh)
     : PIDSubsystem(name, analogSensorPin, pwmPin, kP, kI, kD, _nh)
 {
     this->adcOffset = adcOffset;

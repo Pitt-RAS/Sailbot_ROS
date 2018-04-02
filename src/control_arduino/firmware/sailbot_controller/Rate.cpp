@@ -2,8 +2,12 @@
 #include <Arduino.h>
 
 Rate::Rate(int hz) {
-    periodUs = (1.0/(double)hz) * 1000000;
+    setRate(hz);
     lastUs = 0;
+}
+
+void Rate::setRate(int hz) {
+    periodUs = (1.0/(double)hz) * 1000000;
 }
 
 bool Rate::needsRun() {
