@@ -1,9 +1,9 @@
 #include "config.h"
 #include "TransmitterInterface.h"
 
-TransmitterInterface::TransmitterInterface(): 
+TransmitterInterface::TransmitterInterface():
     sailAngle(0), rudderAngle(0), enabled(false), autonomous(false), r9(TX_SERIALPORT), watchdog(TX_TIMEOUT) {
-    
+    r9.begin();
 }
 
 void TransmitterInterface::update() {
@@ -30,13 +30,13 @@ double TransmitterInterface::getRudderAngle() {
 }
 
 bool TransmitterInterface::wantsEnable() {
-    return enabled;
+    return enabled && isConnected();
 }
 
 bool TransmitterInterface::wantsAutonomous() {
-    return autonomous;
+    return autonomous && isConnected();
 }
 
 bool TransmitterInterface::isConnected() {
-    return !watchdog.hungry();
+    return !watchdog.hungry() && !failSafe;
 }

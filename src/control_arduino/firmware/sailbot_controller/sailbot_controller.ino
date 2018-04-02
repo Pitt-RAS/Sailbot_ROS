@@ -48,6 +48,7 @@ void alwaysPeriodic() {
     }
 
     windsensors->update();
+    tx.update();
 }
 
 void teleopInit() {
