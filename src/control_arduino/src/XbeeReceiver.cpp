@@ -1,6 +1,11 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <ros.h>
+#include <std_msgs/Float32.h>
+#include <std_msgs/Int32.h>
+#include <sensor_msgs/NavSatFix.h>
+#include <geometry_msgs/PointStamped.h>
+#include <sailbot_sim/TrueWind.h>
 #include "XbeeReceiver.h"
 
 XbeeReceiver::XbeeReceiver(ros::NodeHandle _nh) : nh(_nh)
@@ -13,7 +18,7 @@ XbeeReceiver::XbeeReceiver(ros::NodeHandle _nh) : nh(_nh)
 
 void XbeeReceiver::update() //receives and publishes from xbee
 {
-    serial_packet recvd_packet =  receive();
+    serial_packet recvd_packet = receive();
     publish(recvd_packet);
 }
 
@@ -28,7 +33,7 @@ serial_packet XbeeReceiver::receive()
     uint8_t byte_buf = 0;
     uint32_t temp = 0;
     
-    while(bytes_read!=sizeof(serial_packet)) //reads all bytes in struct
+    while(bytes_read!=sizeof(serial_packet)) //blocks until all bytes in struct are read
     {        
         fread(&byte_buf, sizeof(uint8_t), 1, f_ptr); //reads byte
         start_buf = (uint32_t)start_buf >> 8; //shift inserts byte into start buffer
@@ -39,7 +44,7 @@ serial_packet XbeeReceiver::receive()
         
         bytes_read++;
         
-        if(start_buf==start_val) //restarts reading if start value is read
+        if(start_buf==start_val) //restarts reading if start value is read (dropped packet)
             bytes_read = 0;
     }
     
