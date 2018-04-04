@@ -4,13 +4,13 @@ import rospy
 from visualization_msgs.msg import Marker
 from tf.transformations import quaternion_from_euler
 from math import radians
-from std_msgs.msg import Int32
+from std_msgs.msg import Float32
 from sailbot_sim.msg import TrueWind
 
 class WindMarkerPub:
     def __init__(self):
         self.trueWindSub = rospy.Subscriber("/true_wind", TrueWind, self.updateTrueWind)
-        self.relativeWindSub = rospy.Subscriber("/wind_direction", Int32, self.updateRelativeWind)
+        self.relativeWindSub = rospy.Subscriber("/wind_direction", Float32, self.updateRelativeWind)
 
         # Create true wind marker for rviz
         self.trueWindMarker = Marker()

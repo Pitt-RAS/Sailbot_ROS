@@ -50,10 +50,12 @@ class Navigation_Node:
 		
 	def update(self):
 		disstance = self.disstance_over_ground(self.x, self.y, self.current_goal)
-		if disstance < 10:
+		if disstance < 0.5:
 			if (self.current_goal == self.buoy1):
+                                print("Moved to goal 2")
 				self.current_goal = self.buoy2
 			elif (self.current_goal == self.buoy2):
+                                print("moved to goal 3")
 				self.current_goal =self.buoy3
 
 		msg = Goal()
