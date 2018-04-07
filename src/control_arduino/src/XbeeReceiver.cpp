@@ -7,7 +7,7 @@
 #include <geometry_msgs/PointStamped.h>
 #include <objective/Goal.h>
 #include <sailbot_sim/TrueWind.h>
-#include <visualization/BoatState.h>
+//#include <visualization/BoatState.h>
 #include "XbeeReceiver.h"
 
 XbeeReceiver::XbeeReceiver(ros::NodeHandle* _nh) : 
@@ -18,7 +18,7 @@ XbeeReceiver::XbeeReceiver(ros::NodeHandle* _nh) :
     cmd_sail_pub(nh->advertise<std_msgs::Int32>("cmd_sail_angle", 10)),
     curr_rudder_pub(nh->advertise<std_msgs::Int32>("curr_rudder_angle", 10)),
     curr_sail_pub(nh->advertise<std_msgs::Int32>("curr_sail_angle", 10)),
-    state_pub(nh->advertise<visualization::BoatState>("state", 10)),
+    //state_pub(nh->advertise<visualization::BoatState>("state", 10)),
     goal_pub(nh->advertise<objective::Goal>("goal", 10)),
     curr_heading_pub(nh->advertise<std_msgs::Float32>("curr_heading", 10)),
     vel_pub(nh->advertise<std_msgs::Float32>("velocity", 10)),
@@ -31,10 +31,10 @@ XbeeReceiver::XbeeReceiver(ros::NodeHandle* _nh) :
     buoy_pub_4(nh->advertise<geometry_msgs::PointStamped>("buoy/4", 10))
 {    
     std::string port_name; //gets port name and opens
-    nh->param<std::string>("port", port_name, "/dev/usbtty0");
+    nh->param<std::string>("port", port_name, "/dev/ttyUSB0");
     FILE* f_ptr = fopen(port_name.c_str(), "r");
 
-    nh->getParam("start_value", start_val); //gets start value
+    nh->getParam("start_value", start_val, -1386103603); //gets start value
 }
 
 void XbeeReceiver::update()
@@ -117,7 +117,7 @@ void XbeeReceiver::publish(serial_packet* packet_to_pub)
     curr_rudder_msg.data = packet_to_pub->curr_rudder_angle;
     curr_sail_pub.publish(curr_rudder_msg);
     
-    state_msg.header.stamp = last_recvd;
+    /*state_msg.header.stamp = last_recvd;
     state_msg.disabled = packet_to_pub->state[0];
     state_msg.autonomous = packet_to_pub->state[1];
     state_msg.transmittingROS = packet_to_pub->state[2];
@@ -125,7 +125,7 @@ void XbeeReceiver::publish(serial_packet* packet_to_pub)
     state_msg.longDistance = packet_to_pub->state[4];
     state_msg.search = packet_to_pub->state[5];
     state_msg.stationKeeping = packet_to_pub->state[6];
-    state_pub.publish(state_msg);
+    state_pub.publish(state_msg);*/
    
     goal_msg.header.stamp = last_recvd;
     goal_msg.goalType = packet_to_pub->goal_type;
