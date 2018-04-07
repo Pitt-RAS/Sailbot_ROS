@@ -61,10 +61,15 @@ void PIDSubsystem::updateDTerm(const std_msgs::Float64& dTerm) {
     pid.configD(dTerm.data);
 }
 
+double PIDSubsystem::getActual() {
+    return actualPosition;
+}
+
 void PIDSubsystem::update() {
     if ( !controlActive )
         return;
     int actual = analogRead(analogSensorPin);
+    actualPosition = (actual-adcOffset) / adcConversion;
     double output = pid.calculate(actual);
     pwm.set(output);
 }
