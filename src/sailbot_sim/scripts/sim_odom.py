@@ -44,12 +44,12 @@ class OdomSim:
         radSec = rospy.get_param("~maxomega", 3.14)
         self.dTheta = radSec / rate
 
-        self.angleSetpointSubscriber = rospy.Subscriber("cmd_heading", Int32, self.updateAngleSetpoint, queue_size=10)
+        self.angleSetpointSubscriber = rospy.Subscriber("cmd_heading", Float32, self.updateAngleSetpoint, queue_size=10)
         self.odomPublisher = rospy.Publisher("odometry/filtered", Odometry, queue_size=10)
         self.resetPoseService = rospy.Service("sim_reset_pose", ResetPose, self.resetPose)
 
-        self.wind_direction_pub = rospy.Publisher("wind_direction", Int32, queue_size=10)
-        self.wind_speed_pub = rospy.Publisher("wind_speed", Int32, queue_size=10)
+        self.wind_direction_pub = rospy.Publisher("wind_direction", Float32, queue_size=10)
+        self.wind_speed_pub = rospy.Publisher("wind_speed", Float32, queue_size=10)
 
         self.tfBroadcaster = tf.TransformBroadcaster()
 
@@ -83,8 +83,9 @@ class OdomSim:
 
                 if abs(error) < self.dTheta:
                     self.heading = self.commandHeading
-                self.heading += self.dTheta*np.sign(error)
-                self.heading = boundAngle(self.heading, 2*pi)
+                else:
+                    self.heading += self.dTheta*np.sign(error)
+                    self.heading = boundAngle(self.heading, 2*pi)
 
             self.y += velocity * dt * sin(self.heading)
             self.x += velocity * dt * cos(self.heading)
@@ -112,8 +113,8 @@ class OdomSim:
                                             "odom");
 
             relative_wind_vector = self.calculateRelativeWindVector(odom.twist.twist.linear, self.windVector, self.heading)
-            relative_wind_speed = Int32(sqrt(relative_wind_vector.x**2 + relative_wind_vector.y**2))
-            relative_wind_direction = Int32(degrees(atan2(relative_wind_vector.y, relative_wind_vector.x)))
+            relative_wind_speed = Float32(sqrt(relative_wind_vector.x**2 + relative_wind_vector.y**2))
+            relative_wind_direction = Float32(degrees(atan2(relative_wind_vector.y, relative_wind_vector.x)))
 
             self.wind_speed_pub.publish(relative_wind_speed)
             self.wind_direction_pub.publish(relative_wind_direction)

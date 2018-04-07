@@ -18,6 +18,8 @@ public:
     void setSetpoint(double setpoint);
     void setOpenLoop(double speed);
 
+    double getActual();
+
     void update();
 private:
     ros::NodeHandle* nh;
@@ -32,6 +34,7 @@ private:
     void updateITerm(const std_msgs::Float64& iTerm);
     void updateDTerm(const std_msgs::Float64& dTerm);
 
+    double actualPosition;
     ros::Subscriber<std_msgs::Float64, PIDSubsystem>* pConfigSub;
     ros::Subscriber<std_msgs::Float64, PIDSubsystem>* iConfigSub;
     ros::Subscriber<std_msgs::Float64, PIDSubsystem>* dConfigSub;
