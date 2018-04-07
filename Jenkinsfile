@@ -9,7 +9,6 @@ pipeline {
         stage ('Setup-Dependencies') {
             steps {
                 sh '''
-                    set -x
                     cd $WORKSPACE
                     source /opt/ros/kinetic/setup.bash
                     if [[ ! -f "$WORKSPACE/.rosinstall" ]]; then
@@ -27,9 +26,9 @@ pipeline {
         stage ('Build') {
             steps {
                 sh '''
-                    set -x
                     cd $WORKSPACE
                     source /opt/ros/kinetic/setup.bash
+                    catkin_make clean
                     catkin_make
                     '''
             }
@@ -37,7 +36,6 @@ pipeline {
         stage ('Test') {
             steps {
                 sh '''
-                    set -x
                     cd $WORKSPACE
                     source /opt/ros/kinetic/setup.bash
                     source devel/setup.bash
