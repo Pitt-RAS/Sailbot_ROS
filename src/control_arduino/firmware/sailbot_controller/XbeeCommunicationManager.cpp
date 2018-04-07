@@ -4,21 +4,21 @@
 XbeeCommunicationManager::XbeeCommunicationManager(ros::NodeHandle* _nh) : nh(_nh) {
     if ( shouldUseROS ) {
         trueWindSub = new ros::Subscriber<sailbot_sim::TrueWind, XbeeCommunicationManager>("trueWind",&XbeeCommunicationManager::trueWindCb, this);
-	cmdHeadingSub = new ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>("cmd_heading",&XbeeCommunicationManager::cmdHeadingCb, this);
-	cmdSailSub = new ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>("cmd_sail_angle",&XbeeCommunicationManager::cmdSailCb, this);
-	cmdRudderSub = new ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>("cmd_rudder_angle",&XbeeCommunicationManager::cmdRudderCb, this);
-        goalSub = new ros::Subscriber<objective::msg::Goal, XbeeCommunicationManager>("goal", &XbeeCommunicationManager::goalCb, this);
-	headingSub = new ros::Subscriber<sensor_msgs::Imu, XbeeCommunicationManager>("imu/data",&XbeeCommunicationManager::headingCb, this);
-	velocitySub = new ros::Subscriber<geometry_msgs::TwistStamped, XbeeCommunicationManager>("gps/vel",&XbeeCommunicationManager::velocityCb, this);
+        cmdHeadingSub = new ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>("cmd_heading",&XbeeCommunicationManager::cmdHeadingCb, this);
+	      cmdSailSub = new ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>("cmd_sail_angle",&XbeeCommunicationManager::cmdSailCb, this);
+	      cmdRudderSub = new ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>("cmd_rudder_angle",&XbeeCommunicationManager::cmdRudderCb, this);
+        goalSub = new ros::Subscriber<objective::Goal, XbeeCommunicationManager>("goal", &XbeeCommunicationManager::goalCb, this);
+	      headingSub = new ros::Subscriber<sensor_msgs::Imu, XbeeCommunicationManager>("imu/data",&XbeeCommunicationManager::headingCb, this);
+	      velocitySub = new ros::Subscriber<geometry_msgs::TwistStamped, XbeeCommunicationManager>("gps/vel",&XbeeCommunicationManager::velocityCb, this);
         gpsSub = new ros::Subscriber<sensor_msgs::NavSatFix, XbeeCommunicationManager>("gps/fix", &XbeeCommunicationManager::gpsCb, this);
 
         nh->subscribe(*trueWindSub);
-	nh->subscribe(*cmdHeadingSub);
-	nh->subscribe(*cmdSailSub);
-	nh->subscribe(*cmdRudderSub);
+	      nh->subscribe(*cmdHeadingSub);
+	      nh->subscribe(*cmdSailSub);
+	      nh->subscribe(*cmdRudderSub);
         nh->subscribe(*goalSub);
-	nh->subscribe(*headingSub);
-	nh->subscribe(*velocitySub);
+	      nh->subscribe(*headingSub);
+	      nh->subscribe(*velocitySub);
         nh->subscribe(*gpsSub);
     }
 
@@ -54,25 +54,25 @@ void XbeeCommunicationManager::cmdRudderCb(const std_msgs::Int32& rudder) {
 }
 
 //update current sail angle
-void XbeeCommunicationManager::updateSailAngle() {
-    xbee_info.curr_sail_angle = PIDSubsystem.getActual();
+void XbeeCommunicationManager::updateSailAngle(PIDSubsystem sailPID) {
+    xbee_info.curr_sail_angle = sailPID.getActual();
 }
 
 //update current rudder angle
-void XbeeCommunicationManager::updateRudderAngle() {
-    xbee_info.curr_rudder_angle = PIDSubsystem.getActual();
+void XbeeCommunicationManager::updateRudderAngle(PIDSubsystem rudderPID) {
+    xbee_info.curr_rudder_angle = rudderPID.getActual();
 }
 
 //update state
 void XbeeCommunicationManager::updateState() {
     if ( shouldUseROS )
-        xbee_info.state = 1;
+        xbee_info.state[2] = true;
     else
-        xbee_info.state = 0;
+        xbee_info.state[2] = false;
 }
 
 //update goal
-void XbeeCommunicationManager::goalCb(const objective::msg::Goal& goal) {
+void XbeeCommunicationManager::goalCb(const objective::Goal& goal) {
     xbee_info.goal_type = goal.goalType;
     xbee_info.goal_point[0] = goal.goalPoint.x;
     xbee_info.goal_point[1] = goal.goalPoint.y;
