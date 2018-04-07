@@ -27,7 +27,6 @@ class SailbotNav:
 
     def updateOdom(self, odom):
         self.odom = odom
-        self.update()
 
     def updateTrueWind(self, trueWind):
         self.trueWind = trueWind
@@ -67,5 +66,9 @@ class SailbotNav:
 # Init node and spin
 rospy.init_node("sailbot_nav")
 nav = SailbotNav()
-rospy.spin()
+
+rate = rospy.Rate(10)
+while not rospy.is_shutdown():
+    nav.update()
+    rate.sleep()
 
