@@ -9,7 +9,7 @@
 #include <geometry_msgs/PointStamped.h>
 #include <objective/Goal.h>
 #include <sailbot_sim/TrueWind.h>
-#include <visualization/BoatState.h>
+//#include <visualization/BoatState.h>
 
 struct string_packet {
     uint8_t size;
@@ -18,8 +18,8 @@ struct string_packet {
 
 struct serial_packet {
     uint8_t size;
-    int32_t true_wind_speed;
-    int32_t true_wind_dir;
+    float true_wind_speed;
+    float true_wind_dir;
     float cmd_heading;
     int32_t cmd_sail_angle;
     int32_t cmd_rudder_angle;
@@ -49,7 +49,7 @@ private:
     std_msgs::Int32 cmd_rudder_msg;
     std_msgs::Int32 curr_sail_msg;
     std_msgs::Int32 curr_rudder_msg;
-    visualization::BoatState state_msg;
+    //visualization::BoatState state_msg;
     objective::Goal goal_msg;
     std_msgs::Float32 curr_heading_msg;
     std_msgs::Float32 vel_msg;
@@ -66,7 +66,7 @@ private:
     ros::Publisher cmd_sail_pub;
     ros::Publisher curr_rudder_pub;
     ros::Publisher curr_sail_pub;
-    ros::Publisher state_pub;
+    //ros::Publisher state_pub;
     ros::Publisher goal_pub;
     ros::Publisher curr_heading_pub;
     ros::Publisher vel_pub;
