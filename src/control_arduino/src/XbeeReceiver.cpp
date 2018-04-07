@@ -34,7 +34,7 @@ XbeeReceiver::XbeeReceiver(ros::NodeHandle* _nh) :
     nh->param<std::string>("port", port_name, "/dev/ttyUSB0");
     FILE* f_ptr = fopen(port_name.c_str(), "r");
 
-    nh->getParam("start_value", start_val, -1386103603); //gets start value
+    nh->param("start_value", start_val, -1386103603); //gets start value
 }
 
 void XbeeReceiver::update()
