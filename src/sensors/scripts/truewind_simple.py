@@ -6,7 +6,7 @@ from math import sin, cos, atan2, radians, degrees
 
 from std_msgs.msg import Float32, Int32
 from nav_msgs.msg import Odometry
-from sailbot_sim.msg import TrueWind
+from sensors.msg import TrueWind
 from tf.transformations import euler_from_quaternion
 
 def boundAngle(theta, limit):

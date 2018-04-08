@@ -7,8 +7,8 @@ from algorithm import heading
 
 from std_msgs.msg import Int32, Float32
 from nav_msgs.msg import Odometry
-from sailbot_sim.msg import TrueWind
 from objective.msg import Goal
+from sensors.msg import TrueWind
 from geometry_msgs.msg import Vector3, PointStamped
 
 

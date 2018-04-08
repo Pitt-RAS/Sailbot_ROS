@@ -5,7 +5,7 @@ from visualization_msgs.msg import Marker
 from tf.transformations import quaternion_from_euler
 from math import radians
 from std_msgs.msg import Float32
-from sailbot_sim.msg import TrueWind
+from sensors.msg import TrueWind
 
 class WindMarkerPub:
     def __init__(self):
