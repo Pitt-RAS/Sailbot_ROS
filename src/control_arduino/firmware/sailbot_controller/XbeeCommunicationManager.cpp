@@ -5,20 +5,18 @@ XbeeCommunicationManager::XbeeCommunicationManager(ros::NodeHandle* _nh) : nh(_n
     if ( shouldUseROS ) {
         trueWindSub = new ros::Subscriber<sailbot_sim::TrueWind, XbeeCommunicationManager>("trueWind",&XbeeCommunicationManager::trueWindCb, this);
         cmdHeadingSub = new ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>("cmd_heading",&XbeeCommunicationManager::cmdHeadingCb, this);
-	      cmdSailSub = new ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>("cmd_sail_angle",&XbeeCommunicationManager::cmdSailCb, this);
-	      cmdRudderSub = new ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>("cmd_rudder_angle",&XbeeCommunicationManager::cmdRudderCb, this);
+	cmdSailSub = new ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>("cmd_sail_angle",&XbeeCommunicationManager::cmdSailCb, this);
+	cmdRudderSub = new ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>("cmd_rudder_angle",&XbeeCommunicationManager::cmdRudderCb, this);
         goalSub = new ros::Subscriber<objective::Goal, XbeeCommunicationManager>("goal", &XbeeCommunicationManager::goalCb, this);
-	      headingSub = new ros::Subscriber<sensor_msgs::Imu, XbeeCommunicationManager>("imu/data",&XbeeCommunicationManager::headingCb, this);
-	      velocitySub = new ros::Subscriber<geometry_msgs::TwistStamped, XbeeCommunicationManager>("gps/vel",&XbeeCommunicationManager::velocityCb, this);
+	velocitySub = new ros::Subscriber<geometry_msgs::TwistStamped, XbeeCommunicationManager>("gps/vel",&XbeeCommunicationManager::velocityCb, this);
         gpsSub = new ros::Subscriber<sensor_msgs::NavSatFix, XbeeCommunicationManager>("gps/fix", &XbeeCommunicationManager::gpsCb, this);
 
         nh->subscribe(*trueWindSub);
-	      nh->subscribe(*cmdHeadingSub);
-	      nh->subscribe(*cmdSailSub);
-	      nh->subscribe(*cmdRudderSub);
+	nh->subscribe(*cmdHeadingSub);
+	nh->subscribe(*cmdSailSub);
+	nh->subscribe(*cmdRudderSub);
         nh->subscribe(*goalSub);
-	      nh->subscribe(*headingSub);
-	      nh->subscribe(*velocitySub);
+	nh->subscribe(*velocitySub);
         nh->subscribe(*gpsSub);
     }
 
@@ -71,7 +69,7 @@ void XbeeCommunicationManager::updateState() {
         xbee_info.state[2] = false;
 }
 
-//update goal
+//update goal info
 void XbeeCommunicationManager::goalCb(const objective::Goal& goal) {
     xbee_info.goal_type = goal.goalType;
     xbee_info.goal_point[0] = goal.goalPoint.x;
@@ -80,12 +78,8 @@ void XbeeCommunicationManager::goalCb(const objective::Goal& goal) {
 }
 
 //update current heading
-void XbeeCommunicationManager::headingCb(const sensor_msgs::Imu& imu) {
-    float roll, pitch, yaw;
-    tf::Quaternion quater;
-    tf::quaternionMsgToTF(imu.orientation, quater);
-    tf::Matrix3x3(quater).getRPY(roll, pitch, yaw);
-    xbee_info.curr_heading = yaw;
+void XbeeCommunicationManager::updateHeading() {
+    xbee_info.curr_heading = imu.getHeading();
 }
 
 //update current velocity
@@ -105,9 +99,10 @@ void XbeeCommunicationManager::gpsCb(const sensor_msgs::NavSatFix& gps) {
 
 //update battery voltage
 void XbeeCommunicationManager::updateBattery() {
-    xbee_info.battery_volt = VoltageMonitor::getBattery();
+    xbee_info.battery_volt = voltageMonitor.getBattery();
 }
 
+//public method to write to xbee
 void WriteToXbee(const std::string& input) {
     std::strcpy(message, input.c_str());
     str_count = input.length();
@@ -118,6 +113,7 @@ void XbeeCommunicationManager::update() {
     this->updateSailAngle();
     this->updateRudderAngle();
     this->updateState();
+    this->updateHeading();
     this->updateBattery();
 
     //send serial package with data

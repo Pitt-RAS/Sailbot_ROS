@@ -4,6 +4,7 @@
 #include "config.h"
 #include "VoltageMonitor.h"
 #include "PIDSubsystem.h"
+#include "IMU.h"
 #include <ros.h>
 #include <tf/transform_broadcaster.h>
 #include <tf/tf.h>
@@ -20,8 +21,8 @@
 struct serial_packet {
     int32_t start;
     uint8_t size;
-    int32_t true_wind_speed;
-    int32_t true_wind_dir;
+    float true_wind_speed;
+    float true_wind_dir;
     float cmd_heading;
     int32_t cmd_sail_angle;
     int32_t cmd_rudder_angle;
@@ -66,7 +67,7 @@ private:
     void updateRudderAngle(PIDSubsystem);
     void updateState();
     void goalCb(const objective::Goal&);
-    void headingCb(const sensor_msgs::Imu&);
+    void updateHeading();
     void velocityCb(const geometry_msgs::TwistStamped&);
     void gpsCb(const sensor_msgs::NavSatFix&);
     void updateBattery();
@@ -76,7 +77,6 @@ private:
     ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>* cmdRudderSub;
     ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>* cmdSailSub;
     ros::Subscriber<objective::Goal, XbeeCommunicationManager>* goalSub;
-    ros::Subscriber<sensor_msgs::Imu, XbeeCommunicationManager>* headingSub;
     ros::Subscriber<geometry_msgs::TwistStamped, XbeeCommunicationManager>* velocitySub;
     ros::Subscriber<sensor_msgs::NavSatFix, XbeeCommunicationManager>* gpsSub;
 };
