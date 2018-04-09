@@ -56,7 +56,10 @@ void teleopInit() {
 }
 
 void teleopPeriodic() {
-
+    sail->setSetpoint(tx.getSailAngle());
+    double ra = tx.getRudderAngle();
+    leftRudder->setSetpoint(ra);
+    rightRudder->setSetpoint(ra);
 }
 
 void autonomousInit() {
@@ -126,4 +129,5 @@ void loop() {
 
     loopRate.sleep();
 }
+
 
