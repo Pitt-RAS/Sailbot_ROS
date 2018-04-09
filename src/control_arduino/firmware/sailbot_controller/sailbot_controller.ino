@@ -6,6 +6,7 @@
 #include <ros.h>
 #include <std_msgs/Int32.h>
 #include "Rate.h"
+#include "Watchdog.h"
 
 bool shouldUseROS = true;
 bool heartbeatLEDState = true;
@@ -25,6 +26,8 @@ ros::NodeHandle nh;
 Rate loopRate(100);
 Rate heartbeatLEDLimiter(HEARTBEAT_DISABLED_HZ);
 
+Watchdog hard;
+
 void setup() {
     if ( shouldUseROS ) {
         nh.initNode();
@@ -39,6 +42,16 @@ void setup() {
     pinMode(2, INPUT);
     pinMode(HEARTBEAT_LED, OUTPUT);
     disabledInit();
+
+    noInterrupts();
+    WDOG_UNLOCK = WDOG_UNLOCK_SEQ1;                         
+    WDOG_UNLOCK = WDOG_UNLOCK_SEQ2;
+    delayMicroseconds(1);                                   
+
+    WDOG_STCTRLH |= WDOG_STCTRLH_ALLOWUPDATE |
+        WDOG_STCTRLH_WDOGEN | WDOG_STCTRLH_WAITEN |
+        WDOG_STCTRLH_STOPEN | WDOG_STCTRLH_CLKSRC;
+    interrupts();
 }
 
 void alwaysPeriodic() {
@@ -49,6 +62,7 @@ void alwaysPeriodic() {
 
     windsensors->update();
     tx.update();
+    hard.feed();
 }
 
 void teleopInit() {
@@ -129,5 +143,3 @@ void loop() {
 
     loopRate.sleep();
 }
-
-
