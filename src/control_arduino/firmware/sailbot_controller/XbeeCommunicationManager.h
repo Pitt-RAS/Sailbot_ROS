@@ -16,7 +16,7 @@
 #include <geometry_msgs/PointStamped.h>
 #include <sailbot_sim/TrueWind.h>
 #include <objective/Goal.h>
-#include <string>
+#include <string.h>
 
 struct serial_packet {
     int32_t start;
@@ -36,7 +36,7 @@ struct serial_packet {
     float velocity;
     double gps[2];
     float battery_volt;
-    double buoy_pos[2][4];
+    double buoy_pos[4][2];
 };
 
 struct serial_string {
@@ -48,8 +48,8 @@ struct serial_string {
 class XbeeCommunicationManager {
 public:
     XbeeCommunicationManager(ros::NodeHandle*);
-    void update();
-    void WriteToXbee(const std::string&);
+    void update(PIDSubsystem, PIDSubsystem, Imu, VoltageMonitor);
+    void WriteToXbee(char*);
 private:
     ros::NodeHandle* nh;
 
@@ -66,16 +66,19 @@ private:
     void updateSailAngle(PIDSubsystem);
     void updateRudderAngle(PIDSubsystem);
     void updateState();
+    void boatStateCb();
     void goalCb(const objective::Goal&);
-    void updateHeading();
+    void updateHeading(IMU);
     void velocityCb(const geometry_msgs::TwistStamped&);
     void gpsCb(const sensor_msgs::NavSatFix&);
-    void updateBattery();
+    void updateBattery(VoltageMonitor);
+    void updateBuoy();
 
     ros::Subscriber<sailbot_sim::TrueWind, XbeeCommunicationManager>* trueWindSub;
     ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>* cmdHeadingSub;
     ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>* cmdRudderSub;
     ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>* cmdSailSub;
+    ros::Subscriber<visualization::BoatState, XbeeCommunicationManager>* boatStateSub;
     ros::Subscriber<objective::Goal, XbeeCommunicationManager>* goalSub;
     ros::Subscriber<geometry_msgs::TwistStamped, XbeeCommunicationManager>* velocitySub;
     ros::Subscriber<sensor_msgs::NavSatFix, XbeeCommunicationManager>* gpsSub;
