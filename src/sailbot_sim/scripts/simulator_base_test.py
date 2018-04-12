@@ -5,7 +5,7 @@ import unittest
 import numpy as np
 from math import atan2, degrees
 
-from sailbot_sim.msg import TrueWind
+from sensors.msg import TrueWind
 
 class SailbotSimulatorTest(unittest.TestCase):
 

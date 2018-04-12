@@ -8,7 +8,7 @@ import tf
 from math import atan2, degrees, pi
 from tf.transformations import quaternion_from_euler, euler_from_quaternion
 
-from sailbot_sim.msg import TrueWind
+from sensors.msg import TrueWind
 from sensor_msgs.msg import Imu, NavSatFix
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import TwistStamped
