@@ -1,11 +1,17 @@
-//the subscriber sample
-//look at rospy.Subscriber() method. One of the args is callback function. Process one frame each time callback function is used. no need for while loop anymore
-http://wiki.ros.org/rospy_tutorials/Tutorials/WritingImagePublisherSubscriber
+//things to do this week
 
-//code to the track.py, this is the track code
-https://github.com/Pitt-RAS/Sailbot_ROS/tree/test/src/test_loc/src
+publish the state of boat
 
-//when testing, just build a publisher and publish a image and use your subscriber to receive the image
+ros.getparam, the variable is "event"(event is a string)
+//get the string here
+
+bool navigation
+bool longDistance
+bool search
+bool stationKeeping
+//one of them set to true, whichever event is string, set it to true
+//one of them is a string
 
 
-//Start CvBridge instance (from cv_bridge import CvBridge, then bridge = CvBridge(), then  img = bridge.imgmsg_to_cv2(data_from_ros, "bgr8") to cv2 shit, read the link carlos sent
+//kind of like a struct, create a header and then set header.disabled.... to true
+and then pass it to the publisher
