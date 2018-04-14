@@ -63,7 +63,7 @@ void XbeeCommunicationManager::updateState() {
   if(currentState == MODE_DISABLED)
     serial_to_send.state[0] = true;
   else
-    serial_to_send.state[1] = false;
+    serial_to_send.state[0] = false;
 
   if(currentState == MODE_AUTONOMOUS)
     serial_to_send.state[1] = true;

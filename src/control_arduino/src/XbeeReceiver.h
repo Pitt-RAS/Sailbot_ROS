@@ -1,14 +1,16 @@
 #ifndef XBEE_RECEIVER_H
 #define XBEE_RECEIVER_H
 
+#include <stdlib.h>
 #include <stdint.h>
+#include <float.h>
 #include <ros/ros.h>
 #include <std_msgs/Float64.h>
 #include <std_msgs/Float32.h>
 #include <std_msgs/Int32.h>
 #include <geometry_msgs/PointStamped.h>
 #include <objective/Goal.h>
-#include <sailbot_sim/TrueWind.h>
+#include <sensors/TrueWind.h>
 //#include <visualization/BoatState.h>
 
 struct string_packet {
@@ -33,7 +35,7 @@ struct serial_packet {
     float velocity;
     double gps[2];
     float battery_volt;
-    double buoy_pos[2][4];
+    double buoy_pos[4][2];
 };
 
 class XbeeReceiver
@@ -43,7 +45,7 @@ public:
     void update();
 private:
     ros::NodeHandle* nh;
-    sailbot_sim::TrueWind true_wind_msg;
+    sensors::TrueWind true_wind_msg;
     std_msgs::Float32 cmd_heading_msg;
     std_msgs::Int32 cmd_sail_msg;
     std_msgs::Int32 cmd_rudder_msg;

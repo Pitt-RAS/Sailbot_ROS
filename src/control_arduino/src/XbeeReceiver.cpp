@@ -1,18 +1,8 @@
-#include <stdlib.h>
-#include <stdint.h>
-#include <ros/ros.h>
-#include <std_msgs/Float64.h>
-#include <std_msgs/Float32.h>
-#include <std_msgs/Int32.h>
-#include <geometry_msgs/PointStamped.h>
-#include <objective/Goal.h>
-#include <sailbot_sim/TrueWind.h>
-//#include <visualization/BoatState.h>
 #include "XbeeReceiver.h"
 
 XbeeReceiver::XbeeReceiver(ros::NodeHandle* _nh) : 
     nh(_nh),
-    true_wind_pub(nh->advertise<sailbot_sim::TrueWind>("trueWind", 10)),
+    true_wind_pub(nh->advertise<sensors::TrueWind>("trueWind", 10)),
     cmd_heading_pub(nh->advertise<std_msgs::Float32>("cmd_heading", 10)),
     cmd_rudder_pub(nh->advertise<std_msgs::Int32>("cmd_rudder_angle", 10)),
     cmd_sail_pub(nh->advertise<std_msgs::Int32>("cmd_sail_angle", 10)),
@@ -97,26 +87,44 @@ char* XbeeReceiver::receive()
 
 void XbeeReceiver::publish(serial_packet* packet_to_pub)
 {
-    true_wind_msg.header.stamp = last_recvd;
-    true_wind_msg.direction = packet_to_pub->true_wind_dir;
-    true_wind_msg.speed = packet_to_pub->true_wind_speed;
-    true_wind_pub.publish(true_wind_msg);
+    if((packet_to_pub->true_wind_dir != FLT_MAX) && (packet_to_pub->true_wind_speed != FLT_MAX))
+    {
+        true_wind_msg.header.stamp = last_recvd;
+        true_wind_msg.direction = packet_to_pub->true_wind_dir;
+        true_wind_msg.speed = packet_to_pub->true_wind_speed;
+        true_wind_pub.publish(true_wind_msg);
+    }
     
-    cmd_heading_msg.data = packet_to_pub->cmd_heading;
-    cmd_heading_pub.publish(cmd_heading_msg);   
-    
-    cmd_sail_msg.data = packet_to_pub->cmd_sail_angle;
-    cmd_rudder_pub.publish(cmd_sail_msg);
-
-    cmd_rudder_msg.data = packet_to_pub->cmd_rudder_angle;
-    cmd_sail_pub.publish(cmd_rudder_msg);
-   
-    curr_sail_msg.data = packet_to_pub->curr_sail_angle;
-    curr_rudder_pub.publish(curr_sail_msg);
+    if(packet_to_pub->cmd_heading != FLT_MAX)
+    {
+        cmd_heading_msg.data = packet_to_pub->cmd_heading;
+        cmd_heading_pub.publish(cmd_heading_msg);   
+    }    
      
-    curr_rudder_msg.data = packet_to_pub->curr_rudder_angle;
-    curr_sail_pub.publish(curr_rudder_msg);
+    if(packet_to_pub->cmd_sail_angle != INT32_MAX)
+    {        
+        cmd_sail_msg.data = packet_to_pub->cmd_sail_angle;
+        cmd_rudder_pub.publish(cmd_sail_msg);
+    }
     
+    if(packet_to_pub->cmd_rudder_angle != INT32_MAX)
+    {
+        cmd_rudder_msg.data = packet_to_pub->cmd_rudder_angle;
+        cmd_sail_pub.publish(cmd_rudder_msg);
+    }   
+
+    if(packet_to_pub->curr_sail_angle != INT32_MAX)
+    {       
+        curr_sail_msg.data = packet_to_pub->curr_sail_angle;
+        curr_rudder_pub.publish(curr_sail_msg);
+    }
+    
+    if(packet_to_pub->curr_rudder_angle != INT32_MAX)
+    {             
+        curr_rudder_msg.data = packet_to_pub->curr_rudder_angle;
+        curr_sail_pub.publish(curr_rudder_msg);
+    }
+             
     /*state_msg.header.stamp = last_recvd;
     state_msg.disabled = packet_to_pub->state[0];
     state_msg.autonomous = packet_to_pub->state[1];
@@ -126,51 +134,81 @@ void XbeeReceiver::publish(serial_packet* packet_to_pub)
     state_msg.search = packet_to_pub->state[5];
     state_msg.stationKeeping = packet_to_pub->state[6];
     state_pub.publish(state_msg);*/
-   
-    goal_msg.header.stamp = last_recvd;
-    goal_msg.goalType = packet_to_pub->goal_type;
-    goal_msg.goalPoint.x = packet_to_pub->goal_point[0];
-    goal_msg.goalPoint.y = packet_to_pub->goal_point[1];
-    goal_msg.goalPoint.z = 0;
-    goal_msg.goalDirection = packet_to_pub->goal_direction;
-    goal_pub.publish(goal_msg);
-    
-    curr_heading_msg.data = packet_to_pub->curr_heading;
-    curr_heading_pub.publish(curr_heading_msg);
-    
-    vel_msg.data = packet_to_pub->velocity;
-    vel_pub.publish(vel_msg);
-   
-    lat_msg.data = packet_to_pub->gps[0];
-    lat_pub.publish(lat_msg);
-    
-    long_msg.data = packet_to_pub->gps[1];
-    long_pub.publish(long_msg);
-   
-    volt_msg.data = packet_to_pub->battery_volt;
-    volt_pub.publish(volt_msg); 
-    
-    buoy_msg_1.header.stamp = last_recvd;
-    buoy_msg_1.point.x = packet_to_pub->buoy_pos[0][0];
-    buoy_msg_1.point.y = packet_to_pub->buoy_pos[1][0];
-    buoy_msg_1.point.z = 0;
-    buoy_pub_1.publish(buoy_msg_1);
 
-    buoy_msg_2.header.stamp = last_recvd;
-    buoy_msg_2.point.x = packet_to_pub->buoy_pos[0][1];
-    buoy_msg_2.point.y = packet_to_pub->buoy_pos[1][1];
-    buoy_msg_2.point.z = 0;
-    buoy_pub_2.publish(buoy_msg_2);
+    if((packet_to_pub->goal_type != INT32_MAX) && (packet_to_pub->goal_point[0] != DBL_MAX) && (packet_to_pub->goal_point[1] != DBL_MAX) && (packet_to_pub->goal_direction != INT32_MAX))
+    {          
+        goal_msg.header.stamp = last_recvd;
+        goal_msg.goalType = packet_to_pub->goal_type;
+        goal_msg.goalPoint.x = packet_to_pub->goal_point[0];
+        goal_msg.goalPoint.y = packet_to_pub->goal_point[1];
+        goal_msg.goalPoint.z = 0;
+        goal_msg.goalDirection = packet_to_pub->goal_direction;
+        goal_pub.publish(goal_msg);
+    }
     
-    buoy_msg_3.header.stamp = last_recvd;
-    buoy_msg_3.point.x = packet_to_pub->buoy_pos[0][2];
-    buoy_msg_3.point.y = packet_to_pub->buoy_pos[1][2];
-    buoy_msg_3.point.z = 0;
-    buoy_pub_3.publish(buoy_msg_3);
+    if(packet_to_pub->curr_heading != FLT_MAX)
+    {               
+        curr_heading_msg.data = packet_to_pub->curr_heading;
+        curr_heading_pub.publish(curr_heading_msg);
+    }
     
-    buoy_msg_4.header.stamp = last_recvd;
-    buoy_msg_4.point.x = packet_to_pub->buoy_pos[0][3];
-    buoy_msg_4.point.y = packet_to_pub->buoy_pos[1][3];
-    buoy_msg_4.point.z = 0;
-    buoy_pub_4.publish(buoy_msg_4);
+    if(packet_to_pub->velocity != FLT_MAX)
+    {           
+        vel_msg.data = packet_to_pub->velocity;
+        vel_pub.publish(vel_msg);
+    }
+
+    if(packet_to_pub->gps[0] != DBL_MAX)
+    {          
+        lat_msg.data = packet_to_pub->gps[0];
+        lat_pub.publish(lat_msg);
+    }
+
+    if(packet_to_pub->gps[1] != DBL_MAX)
+    {               
+        long_msg.data = packet_to_pub->gps[1];
+        long_pub.publish(long_msg);
+    }
+    
+    if(packet_to_pub->battery_volt != FLT_MAX)
+    {              
+        volt_msg.data = packet_to_pub->battery_volt;
+        volt_pub.publish(volt_msg); 
+    }
+
+    if((packet_to_pub->buoy_pos[0][0] != DBL_MAX) && (packet_to_pub->buoy_pos[0][1] != DBL_MAX))
+    {           
+        buoy_msg_1.header.stamp = last_recvd;
+        buoy_msg_1.point.x = packet_to_pub->buoy_pos[0][0];
+        buoy_msg_1.point.y = packet_to_pub->buoy_pos[0][1];
+        buoy_msg_1.point.z = 0;
+        buoy_pub_1.publish(buoy_msg_1);
+    }
+    
+    if((packet_to_pub->buoy_pos[1][0] != DBL_MAX) && (packet_to_pub->buoy_pos[1][1] != DBL_MAX))
+    {       
+        buoy_msg_2.header.stamp = last_recvd;
+        buoy_msg_2.point.x = packet_to_pub->buoy_pos[1][0];
+        buoy_msg_2.point.y = packet_to_pub->buoy_pos[1][1];
+        buoy_msg_2.point.z = 0;
+        buoy_pub_2.publish(buoy_msg_2);
+    }
+
+    if((packet_to_pub->buoy_pos[2][0] != DBL_MAX) && (packet_to_pub->buoy_pos[2][1] != DBL_MAX))
+    {               
+        buoy_msg_3.header.stamp = last_recvd;
+        buoy_msg_3.point.x = packet_to_pub->buoy_pos[2][0];
+        buoy_msg_3.point.y = packet_to_pub->buoy_pos[2][1];
+        buoy_msg_3.point.z = 0;
+        buoy_pub_3.publish(buoy_msg_3);
+    }
+
+    if((packet_to_pub->buoy_pos[3][0] != DBL_MAX) && (packet_to_pub->buoy_pos[3][1] != DBL_MAX))
+    {           
+        buoy_msg_4.header.stamp = last_recvd;
+        buoy_msg_4.point.x = packet_to_pub->buoy_pos[3][0];
+        buoy_msg_4.point.y = packet_to_pub->buoy_pos[3][1];
+        buoy_msg_4.point.z = 0;
+        buoy_pub_4.publish(buoy_msg_4);
+    }
 }
