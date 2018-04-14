@@ -5,7 +5,7 @@ import numpy as np
 from tf.transformations import quaternion_from_euler
 from std_msgs.msg import Float32, Int32
 from geometry_msgs.msg import Vector3, Quaternion
-from sailbot_sim.msg import TrueWind
+from sensors.msg import TrueWind
 from nav_msgs.msg import Odometry
 from sailbot_sim.srv import ResetPose, ResetPoseResponse
 from math import sqrt, sin, cos, atan2, pi, radians, degrees
