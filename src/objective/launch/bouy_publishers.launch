@@ -1,0 +1,6 @@
+<launch>
+    <node name="static_buoy1_publisher" pkg="objective" type="static_buoy_pub.py" args="1" />
+    <node name="static_buoy2_publisher" pkg="objective" type="static_buoy_pub.py" args="2" />
+    <node name="static_buoy3_publisher" pkg="objective" type="static_buoy_pub.py" args="3" />
+    <rosparam command="load" file="$(find objective)/param/buoy_navigation.yaml" />
+</launch>
