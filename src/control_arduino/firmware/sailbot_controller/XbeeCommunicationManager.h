@@ -13,7 +13,7 @@
 #include <sensor_msgs/Imu.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <geometry_msgs/PointStamped.h>
-#include <sailbot_sim/TrueWind.h>
+#include <sensors/TrueWind.h>
 #include <objective/Goal.h>
 #include <string.h>
 
@@ -55,7 +55,7 @@ private:
   serial_packet serial_to_send;
   string_packet console_to_send;
 
-  void trueWindCb(const sailbot_sim::TrueWind&); 
+  void trueWindCb(const sensors::TrueWind&); 
   void cmdHeadingCb(const std_msgs::Int32&);
   void cmdSailCb(const std_msgs::Int32&);
   void cmdRudderCb(const std_msgs::Int32&);
@@ -70,7 +70,7 @@ private:
   void updateBattery(VoltageMonitor);
   void updateBuoy();
 
-  ros::Subscriber<sailbot_sim::TrueWind, XbeeCommunicationManager>* trueWindSub;
+  ros::Subscriber<sensors::TrueWind, XbeeCommunicationManager>* trueWindSub;
   ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>* cmdHeadingSub;
   ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>* cmdRudderSub;
   ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>* cmdSailSub;

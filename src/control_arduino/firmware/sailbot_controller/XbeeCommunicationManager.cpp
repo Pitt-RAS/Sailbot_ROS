@@ -3,7 +3,7 @@
 
 XbeeCommunicationManager::XbeeCommunicationManager(ros::NodeHandle* _nh) : nh(_nh) {
   if ( shouldUseROS ) {
-    trueWindSub = new ros::Subscriber<sailbot_sim::TrueWind, XbeeCommunicationManager>("trueWind",&XbeeCommunicationManager::trueWindCb, this);
+    trueWindSub = new ros::Subscriber<sensors::TrueWind, XbeeCommunicationManager>("trueWind",&XbeeCommunicationManager::trueWindCb, this);
     cmdHeadingSub = new ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>("cmd_heading",&XbeeCommunicationManager::cmdHeadingCb, this);
     cmdSailSub = new ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>("cmd_sail_angle",&XbeeCommunicationManager::cmdSailCb, this);
     cmdRudderSub = new ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>("cmd_rudder_angle",&XbeeCommunicationManager::cmdRudderCb, this);
@@ -28,7 +28,7 @@ XbeeCommunicationManager::XbeeCommunicationManager(ros::NodeHandle* _nh) : nh(_n
 }
 
 //update true wind speed and direction
-void XbeeCommunicationManager::trueWindCb(const sailbot_sim::TrueWind& truewind) {
+void XbeeCommunicationManager::trueWindCb(const sensors::TrueWind& truewind) {
   serial_to_send.true_wind_speed = truewind.speed;
   serial_to_send.true_wind_dir = truewind.direction;
 }
