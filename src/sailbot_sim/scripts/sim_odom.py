@@ -111,6 +111,7 @@ class OdomSim:
                                             now,
                                             "boat",
                                             "odom");
+            self.tfBroadcaster.sendTransform((0, 0, 0), (0, 0, 0, 1), now, "odom", "utm")
 
             relative_wind_vector = self.calculateRelativeWindVector(odom.twist.twist.linear, self.windVector, self.heading)
             relative_wind_speed = Float32(sqrt(relative_wind_vector.x**2 + relative_wind_vector.y**2))
