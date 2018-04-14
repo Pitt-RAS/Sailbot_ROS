@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 
 from Tkinter import *
+import threading
 import rospy
 from sensors.msg import TrueWind
 from geometry_msgs.msg import PointStamped
@@ -11,7 +12,6 @@ from objective.msg import Goal
 class ShoreVisualize:
     def __init__(self):
             
-        self.currentState = self.State()
         self.battery = -1
         self.windDirection = -1
         self.windSpeed = -1
@@ -24,6 +24,11 @@ class ShoreVisualize:
         self.goalPoint = -1
         self.goalDir = -1
         self.goalType = -1
+
+        self.transmissionString = 'Transmission not initialized'
+        self.stateString = 'Boat state not initialized'
+        self.eventString = 'Event not initialized'
+        self.operationalString = 'Operational not initialized'
 
         self.stateSub = rospy.Subscriber("state", BoatState, self.updateState, queue_size = 10)
         self.batterySub = rospy.Subscriber("battery_voltage", Float32, self.updateBattery, queue_size = 10)
@@ -41,21 +46,32 @@ class ShoreVisualize:
 
         root = Tk()
         self.app = self.TkApp(master = root)
-        self.app.mainloop()
-        root.destroy() 
-        
+      
     def updateState(self, newState):
         self.currentState.disabled = newState.disabled
         self.currentState.autonomous = newState.autonomous
         self.currentState.transmittingROS = newState.transmittingROS
+       
+        if self.currentState.autonomous:
+            self.stateString = "Autonomous Navigation"
+        else:
+            self.stateString = "Remote Control"
+        if self.currentState.disabled:
+            self.operationalString = "Boat Disabled"
+        else: 
+            self.operationalString = " "
+        if self.currentState.transmittingROS:
+            self.transmissionString = "Transmitting ROS"
+        else:
+            self.transmissionString = "Transmitting Teensy only"
         if newState.navigation:
-            self.currentState.event = "Navigation" 
+            self.eventString = "Navigation" 
         if newState.stationKeeping:
             self.currentState.event = "StationKeeping"
         if newState.search:
-            self.currentState.event = "Search"
+            self.eventString = "Search"
         if newState.longDistance:
-              self.currentState.event = "LongDistance"
+              self.eventString = "LongDistance"
 
     def updateBattery(self, newBattery):
         self.battery = newBattery
@@ -89,15 +105,7 @@ class ShoreVisualize:
         self.goalDir = newGoal.Direction
         
     def update(self):
-        statestring = " "
-        objectiveString = " "
-        transmissionString = " "
-        
-        if self.currentState.transmittingROS:
-            transmissionString = "Transmitting ROS"
-        else:
-            transmissionString = "Transmitting Teensy only"
-        
+        # print('Getting to the update')
         if self.goalType == 0:
             goalPointStamped = PointStamped()
             goalPointStamped.header.stamp = rospy.Time.now()
@@ -105,18 +113,15 @@ class ShoreVisualize:
             goalPointPub.publish(goalPointStamped)
         elif self.goalType == 1:
             goalDirectionPub.publish(goalDirection)
-        self.app.updateTKWidgets()           
-        
-    class State:
-        def __init__(self):
-            self.disabled = False
-            self.autonomous = False
-            self.transmittingROS = False
-            self.event = ""
+        self.app.updateStateLabels(self.eventString, self.stateString, self.transmissionString, self.operationalString)           
 
     class TkApp(Frame): 
-        def updateTkWidgets(self):
-            self.eventLabel['text'] = self.event
+        def updateStateLabels(self, eventString, stateString, transmissionString, operationalString):
+            #  print('Updating widgets')
+            self.eventLabel['text'] = eventString
+            self.autonomousLabel['text'] = stateString
+            self.transmissionLabel['text'] = transmissionString
+            self.operationalLabel['text'] = operationalString
 
         def __init__(self, master=None):
             Frame.__init__(self, master)
@@ -125,20 +130,33 @@ class ShoreVisualize:
             self.quitButton["text"] = "QUIT"
             self.quitButton["fg"] = "red"
             self.quitButton["command"] = self.quit
-            self.quitButton.grid(column=0, row=0)
+            self.quitButton.grid(column=0, row=4)
             
             self.eventLabel = Label(self)
-            self.eventLabel['text'] = "testing"
-            self.eventLabel.grid(column=1, row=0)
+            self.eventLabel.grid(column=0, row=3)
+
+            self.autonomousLabel = Label(self)
+            self.autonomousLabel.grid(column=0, row=1)
+
+            self.transmissionLabel = Label(self)
+            self.transmissionLabel.grid(column=0, row=2)
+
+            self.operationalLabel = Label(self)
+            self.operationalLabel.grid(column=0, row=0)
+
 
 rospy.init_node("shore_visualization")
-rate = rospy.Rate(rospy.get_param("~rate", 60))
-node = ShoreVisualize()
 
-while not rospy.is_shutdown():
-    node.update()
-    rate.sleep()
-            
-            
-                
-            
+node = ShoreVisualize()
+def updateROS():
+  global node
+  rate = rospy.Rate(rospy.get_param("~rate", 60))
+
+  while not rospy.is_shutdown():
+      node.update()
+      rate.sleep()
+
+myThread = threading.Thread(target = updateROS)
+myThread.start()
+node.app.mainloop()  
+
