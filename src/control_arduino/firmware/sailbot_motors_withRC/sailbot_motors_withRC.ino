@@ -16,6 +16,8 @@
 
 SBUS r9(Serial1);
 uint16_t channels[16];
+uint8_t failSafe;
+uint16_t lostFrames = 0;
 
 int rudder_rc;
 int sail_rc;
@@ -91,16 +93,20 @@ HackyStepper mystepper(SPR, 14, 15, 16, 17);
 ros::NodeHandle  nh;
 
 void rudderCb(const std_msgs::Int32 &rudderHeading){
-  myservo.write(rudderHeading.data); //changes rudder heading
+  if(!manualMode)
+    myservo.write(rudderHeading.data); //changes rudder heading
 }
 
 void sailCb(const std_msgs::Int32 &sailAngle){
-  int stepGoal = sailAngle.data;
-  
-  if(stepGoal>70)
-    stepGoal = 70;
-   
-  mystepper.setGoal(map(stepGoal, 0, 70, 0, 1500));
+  if(!manualMode)
+  {
+    int stepGoal = sailAngle.data;
+    
+    if(stepGoal>70)
+      stepGoal = 70;
+     
+    mystepper.setGoal(map(stepGoal, 0, 70, 0, 1500));
+  }
 }
 
 ros::Subscriber<std_msgs::Int32> rudderSub("cmd_rudder_angle", &rudderCb );
@@ -127,13 +133,15 @@ void setup()
   bno.begin(Adafruit_BNO055::OPERATION_MODE_IMUPLUS);
   
   imu_msg.header.frame_id = "boat";
+
+  r9.begin();
 }
 
 void loop()
 { 
   digitalWrite(13, HIGH);
 
-  if(r9.read(&channels[0], NULL, NULL))
+  if(r9.read(&channels[0], &failSafe, &lostFrames))
   {
     int manual_value = channels[4];
     if(manual_value>1500){
@@ -143,45 +151,50 @@ void loop()
       manualMode = false;
     }
     rudder_rc = map(channels[1],172,1808,0,180);
+    rudder_rc = abs(rudder_rc - 180); //flips 
     sail_rc = map(channels[0],172,1811,0,70);
   }
+
+//  char debug[128];
+//  sprintf(debug, "manual = %d, rudder = %d, sail = %d", manualMode, rudder_rc, sail_rc);
+//  nh.logwarn(debug);
   
   mystepper.update();
   
-  if(!manualMode){
-    if(pause==100)
-    {
-      imu::Quaternion imuQuat = bno.getQuat();
-      imu::Vector<3> linearAccel = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
-      imu::Vector<3> angularVel = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
-    
-      imu_msg.header.stamp = nh.now();
-    
-      imu_msg.orientation.x = imuQuat.x();
-      imu_msg.orientation.y = imuQuat.y();
-      imu_msg.orientation.z = imuQuat.z();
-      imu_msg.orientation.w = imuQuat.w();
-    
-      imu_msg.angular_velocity.x = angularVel.x();
-      imu_msg.angular_velocity.y = angularVel.y();
-      imu_msg.angular_velocity.z = angularVel.z();
-    
-      imu_msg.linear_acceleration.x = linearAccel.x();
-      imu_msg.linear_acceleration.y = linearAccel.y();
-      imu_msg.linear_acceleration.z = linearAccel.z();
-    
-      imuPub.publish(&imu_msg);
+  if(pause==100)
+  {
+    imu::Quaternion imuQuat = bno.getQuat();
+    imu::Vector<3> linearAccel = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
+    imu::Vector<3> angularVel = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
+  
+    imu_msg.header.stamp = nh.now();
+  
+    imu_msg.orientation.x = imuQuat.x();
+    imu_msg.orientation.y = imuQuat.y();
+    imu_msg.orientation.z = imuQuat.z();
+    imu_msg.orientation.w = imuQuat.w();
+  
+    imu_msg.angular_velocity.x = angularVel.x();
+    imu_msg.angular_velocity.y = angularVel.y();
+    imu_msg.angular_velocity.z = angularVel.z();
+  
+    imu_msg.linear_acceleration.x = linearAccel.x();
+    imu_msg.linear_acceleration.y = linearAccel.y();
+    imu_msg.linear_acceleration.z = linearAccel.z();
+  
+    imuPub.publish(&imu_msg);
 
 
-      //char debug[128];
-      //sprintf(debug, "at %d, target is %d", mystepper.getPosition(), mystepper.getGoal());
-      //nh.logwarn(debug);
+    //char debug[128];
+    //sprintf(debug, "at %d, target is %d", mystepper.getPosition(), mystepper.getGoal());
+    //nh.logwarn(debug);
 
-      pause= 0;
-    }
-    pause++;
+    pause= 0;
   }
-  else{ //manual mode
+  pause++;
+
+  if(manualMode)
+  {
     myservo.write(rudder_rc); //changes rudder heading
     mystepper.setGoal(map(sail_rc, 0, 70, 0, 1500));
   }
@@ -191,4 +204,3 @@ void loop()
 
   delay(1);
 }
-

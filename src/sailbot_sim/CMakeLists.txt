@@ -10,11 +10,6 @@ add_service_files(
   ResetPose.srv
 )
 
-add_message_files(
-    FILES
-    TrueWind.msg
-)
-
 generate_messages(
     DEPENDENCIES
     std_msgs
@@ -24,4 +19,7 @@ catkin_package(
     CATKIN_DEPENDS message_runtime
 )
 
-
+if(CATKIN_ENABLE_TESTING)
+  find_package(rostest REQUIRED)
+  add_rostest(test/test_simulator.test)
+endif()

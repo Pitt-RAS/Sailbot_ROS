@@ -1,0 +1,6 @@
+<launch>
+    <include file="$(find sensors)/launch/gps.launch" />
+    <include file="$(find gps_odom)/launch/gps_odom.launch" />
+    <include file="$(find sensors)/launch/base.launch" />
+</launch>
+

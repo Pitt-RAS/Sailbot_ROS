@@ -1,0 +1,12 @@
+<launch>
+    <arg name="sim_wind_x" default="-2" />
+    <arg name="sim_wind_y" default="0" />
+ 
+    <include file="$(find sailbot_sim)/launch/sim.launch">
+        <arg name="sim_wind_x" value="$(arg sim_wind_x)" />
+        <arg name="sim_wind_y" value="$(arg sim_wind_y)" />
+    </include>
+
+    <test test-name="simulator_base_test" pkg="sailbot_sim" type="simulator_base_test.py" />
+</launch>
+

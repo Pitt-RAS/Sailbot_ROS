@@ -5,18 +5,19 @@ from math import atan2, sqrt, degrees, radians, pi
 from tf.transformations import euler_from_quaternion
 from algorithm import heading
 
-from std_msgs.msg import Int32
+from std_msgs.msg import Int32, Float32
 from nav_msgs.msg import Odometry
-from sailbot_sim.msg import TrueWind
+from objective.msg import Goal
+from sensors.msg import TrueWind
 from geometry_msgs.msg import Vector3, PointStamped
 
 
 class SailbotNav:
     def __init__(self):
-        self.newHeadingPub = rospy.Publisher("/cmd_heading", Int32, queue_size=10)
+        self.newHeadingPub = rospy.Publisher("/cmd_heading", Float32, queue_size=10)
         self.odomSub = rospy.Subscriber("/odometry/filtered", Odometry, self.updateOdom)
         self.trueWindSub = rospy.Subscriber("/true_wind", TrueWind, self.updateTrueWind)
-        self.goalPointSub = rospy.Subscriber("/goal", PointStamped, self.updateGoalPoint)
+        self.goalPointSub = rospy.Subscriber("/goal", Goal, self.updateGoalPoint)
 
         self.beatingParam = rospy.get_param("~beating_parameter", 5)
 
@@ -26,13 +27,12 @@ class SailbotNav:
 
     def updateOdom(self, odom):
         self.odom = odom
-        self.update()
 
     def updateTrueWind(self, trueWind):
         self.trueWind = trueWind
 
     def updateGoalPoint(self, goal):
-        self.goal = goal
+        self.goal = goal.goalPoint
 
     def update(self):
         # If we don't know the robot state, don't update the planner
@@ -49,18 +49,26 @@ class SailbotNav:
 
         boatVelocity = self.odom.twist.twist.linear.x
         boatPosition = [self.odom.pose.pose.position.x, self.odom.pose.pose.position.y]
-        goalPoint = [self.goal.point.x, self.goal.point.y]
+        goalPoint = [self.goal.x, self.goal.y]
 
         # Run the algorithm
         newHeading = degrees(heading(boatPosition, boatHeading, goalPoint, windSpeed, windHeading, self.beatingParam))
 
         # Send new heading
-        newHeadingMsg = Int32(newHeading)
+        newHeadingMsg = Float32(newHeading)
         self.newHeadingPub.publish(newHeadingMsg)
+
+        # Don't operate on stale data
+        self.odom = None
+        self.trueWind = None
 
 
 # Init node and spin
 rospy.init_node("sailbot_nav")
 nav = SailbotNav()
-rospy.spin()
+
+rate = rospy.Rate(10)
+while not rospy.is_shutdown():
+    nav.update()
+    rate.sleep()
 
