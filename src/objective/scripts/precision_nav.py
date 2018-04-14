@@ -23,6 +23,19 @@ class Navigation_Node:
 		self.buoy2 = rospy.get_param("buoy2")
 		self.buoy3 = rospy.get_param("buoy3")
 
+
+		if (self.buoy3[0]>0):
+			self.buoy2a = [buoy2[0]-5, bouy2[1]]	
+			self.buoy2b = [buoy2[0], bouy2[1]+5]
+			self.buoy3a = [buoy3[0]+5, bouy3[1]+5]
+			self.buoy3b = [buoy3[0]-5, bouy3[1]-5]
+		elif(self.buoy3[0]<0):
+			self.buoy2a = [buoy2[0]+5, bouy2[1]]
+			self.buoy2b = [buoy2[0], bouy2[1]+5]
+			self.buoy3a = [buoy3[0]-5, bouy3[1]-5]
+			self.buoy3b = [buoy3[0]+5, bouy3[1]+5]
+
+
 		self.current_goal = self.buoy1
 		
 		self.goalPublisher = rospy.Publisher("goal", Goal, queue_size=10)
@@ -52,9 +65,15 @@ class Navigation_Node:
 		disstance = self.disstance_over_ground(self.x, self.y, self.current_goal)
 		if disstance < 10:
 			if (self.current_goal == self.buoy1):
-				self.current_goal = self.buoy2
-			elif (self.current_goal == self.buoy2):
-				self.current_goal =self.buoy3
+				self.current_goal = self.buoy2a
+			elif (self.current_goal == self.buoy2a):
+				self.current_goal =self.buoy2b
+			elif (self.current_goal == buoy2b):
+				self.current_goal = self.buoy3a
+			elif (self.current_goal == buoy3a):
+				self.current_goal = self.buoy3b
+			elif (self.current_goal == self.buoy3b):
+				self.current_goal = bouy1
 
 		msg = Goal()
 		msg.goalType = 0 
