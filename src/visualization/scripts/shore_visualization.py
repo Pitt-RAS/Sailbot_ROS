@@ -1,5 +1,7 @@
 # ros header
 
+from Tkinter import *
+
 class ShoreVisualize:
     def __init(self):
             
@@ -33,7 +35,16 @@ class ShoreVisualize:
         self.transmissionPub = rospy.Publisher("transmission_string", String, queue_size = 10)
         self.goalPointPub = rospy.Publisher("goal_point", PointStamped, queue_size = 10)
         self.goalDirectionPub = rospy.Publisher("goal_direction", Int32, queue_size = 10)
-        
+
+        def createTKWidgets(self):
+            self.QUIT = Button(self)
+            self.QUIT["text"] "QUIT"
+            self.QUIT["fg"] "red"
+            self.QUIT["command"] = self.quit
+            self.QUIT.pack({"side": "left"})
+
+
+                  
         
         def updateState(self, newState):
             self.currentState.disabled = newState.disabled
