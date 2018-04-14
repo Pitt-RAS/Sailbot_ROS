@@ -16,6 +16,8 @@
 #include <sensors/TrueWind.h>
 #include <objective/Goal.h>
 #include <string.h>
+#include <float.h>
+#include <stdint.h>
 
 struct serial_packet {
   int32_t start;
@@ -68,7 +70,10 @@ private:
   void velocityCb(const geometry_msgs::TwistStamped&);
   void gpsCb(const sensor_msgs::NavSatFix&);
   void updateBattery(VoltageMonitor);
-  void updateBuoy();
+  void buoy1Cb(const geometry_msgs::PointStamped&);
+  void buoy2Cb(const geometry_msgs::PointStamped&);
+  void buoy3Cb(const geometry_msgs::PointStamped&);
+  void buoy4Cb(const geometry_msgs::PointStamped&);
 
   ros::Subscriber<sensors::TrueWind, XbeeCommunicationManager>* trueWindSub;
   ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>* cmdHeadingSub;
@@ -78,6 +83,10 @@ private:
   ros::Subscriber<objective::Goal, XbeeCommunicationManager>* goalSub;
   ros::Subscriber<geometry_msgs::TwistStamped, XbeeCommunicationManager>* velocitySub;
   ros::Subscriber<sensor_msgs::NavSatFix, XbeeCommunicationManager>* gpsSub;
+  ros::Subscriber<geometry_msgs::PointStamped, XbeeCommunicationManager>* buoy1Sub;
+  ros::Subscriber<geometry_msgs::PointStamped, XbeeCommunicationManager>* buoy2Sub;
+  ros::Subscriber<geometry_msgs::PointStamped, XbeeCommunicationManager>* buoy3Sub;
+  ros::Subscriber<geometry_msgs::PointStamped, XbeeCommunicationManager>* buoy4Sub;
 };
 
 #endif
