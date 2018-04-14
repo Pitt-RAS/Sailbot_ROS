@@ -6,7 +6,7 @@ from math import sin, cos, atan2, radians, degrees
 
 from std_msgs.msg import Float32, Int32
 from nav_msgs.msg import Odometry
-from sailbot_sim.msg import TrueWind
+from sensors.msg import TrueWind
 from tf.transformations import euler_from_quaternion
 
 def boundAngle(theta, limit):
@@ -20,8 +20,8 @@ class TrueWindNode:
     def __init__(self):
         self._lock = threading.Lock()
         self._odom = rospy.Subscriber("/odometry/filtered", Odometry, self._update_odom)
-        self.wind_direction_sub = rospy.Subscriber("wind_direction", Int32, self._update_wind_direction)
-        self.wind_speed_sub = rospy.Subscriber("wind_speed", Int32, self._update_wind_speed)
+        self.wind_direction_sub = rospy.Subscriber("wind_direction", Float32, self._update_wind_direction)
+        self.wind_speed_sub = rospy.Subscriber("wind_speed", Float32, self._update_wind_speed)
         self.true_wind_pub = rospy.Publisher("true_wind", TrueWind, queue_size=10)
 
         self._boat_velocity_vector = None
@@ -58,6 +58,11 @@ class TrueWindNode:
                 wind_msg.direction = boundAngle(degrees(atan2(true_wind_vector[1], true_wind_vector[0])), 360)
                 wind_msg.speed = np.linalg.norm(true_wind_vector)
                 self.true_wind_pub.publish(wind_msg)
+
+                # Don't operate on stale data
+                self._boat_velocity_vector = None
+                self._wind_direction = None
+                self._wind_speed = None
 
 
 rospy.init_node("true_wind", anonymous = False)

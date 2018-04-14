@@ -10,11 +10,6 @@ add_service_files(
   ResetPose.srv
 )
 
-add_message_files(
-    FILES
-    TrueWind.msg
-)
-
 generate_messages(
     DEPENDENCIES
     std_msgs
