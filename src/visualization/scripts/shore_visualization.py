@@ -4,11 +4,14 @@ from Tkinter import *
 import rospy
 from sensors.msg import TrueWind
 from geometry_msgs.msg import PointStamped
+from visualization.msg import BoatState
+from std_msgs.msg import Float32, Int32
+from objective.msg import Goal
 
 class ShoreVisualize:
-    def __init(self):
+    def __init__(self):
             
-        self.currentState = State()
+        self.currentState = self.State()
         self.battery = -1
         self.windDirection = -1
         self.windSpeed = -1
@@ -22,8 +25,6 @@ class ShoreVisualize:
         self.goalDir = -1
         self.goalType = -1
 
-        self.eventLabel
-  
         self.stateSub = rospy.Subscriber("state", BoatState, self.updateState, queue_size = 10)
         self.batterySub = rospy.Subscriber("battery_voltage", Float32, self.updateBattery, queue_size = 10)
         self.trueWindSub = rospy.Subscriber("true_wind", TrueWind, self.updateWind, queue_size = 10)
@@ -39,7 +40,7 @@ class ShoreVisualize:
         self.goalDirectionPub = rospy.Publisher("goal_direction", Int32, queue_size = 10)
 
         root = Tk()
-        self.app = TkApp(master = root)
+        self.app = self.TkApp(master = root)
         self.app.mainloop()
         root.destroy() 
         
@@ -84,15 +85,15 @@ class ShoreVisualize:
     def updateGoal(self, newGoal):
         self.goalType = newGoal.goalType
         self.goalPoint = newGoal.goalPoint
-        # TODO: stamp the goal point for rvis
+        # todo: stamp the goal point for rvis
         self.goalDir = newGoal.Direction
         
     def update(self):
-        stateString = " "
+        statestring = " "
         objectiveString = " "
         transmissionString = " "
         
-        if self.currentState.trasmittingROS:
+        if self.currentState.transmittingROS:
             transmissionString = "Transmitting ROS"
         else:
             transmissionString = "Transmitting Teensy only"
@@ -106,33 +107,29 @@ class ShoreVisualize:
             goalDirectionPub.publish(goalDirection)
         self.app.updateTKWidgets()           
         
-        class State:  
+    class State:
+        def __init__(self):
             self.disabled = False
             self.autonomous = False
             self.transmittingROS = False
             self.event = ""
 
     class TkApp(Frame): 
-        
-        def createTkWidgets(self):
-            self.quitButton = Button(self)
-            self.quitButton["text"] = "QUIT"
-            self.quitButton["fg"] = "red"
-            self.quitButton["command"] = self.quit
-            self.quitButton.pack({"side": "left"})
-            
-            self.eventLabel = Label(self)
-            self.eventLabel['text'] = " "
-            self.eventLabel.pack({'side': 'left'})
-            
         def updateTkWidgets(self):
             self.eventLabel['text'] = self.event
 
         def __init__(self, master=None):
             Frame.__init__(self, master)
             self.pack()
-            self.createWidgets()
-
+            self.quitButton = Button(self)
+            self.quitButton["text"] = "QUIT"
+            self.quitButton["fg"] = "red"
+            self.quitButton["command"] = self.quit
+            self.quitButton.grid(column=0, row=0)
+            
+            self.eventLabel = Label(self)
+            self.eventLabel['text'] = "testing"
+            self.eventLabel.grid(column=1, row=0)
 
 rospy.init_node("shore_visualization")
 rate = rospy.Rate(rospy.get_param("~rate", 60))
