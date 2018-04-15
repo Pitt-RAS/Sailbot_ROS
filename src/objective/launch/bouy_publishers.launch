@@ -3,4 +3,5 @@
     <node name="static_buoy2_publisher" pkg="objective" type="static_buoy_pub.py" args="2" />
     <node name="static_buoy3_publisher" pkg="objective" type="static_buoy_pub.py" args="3" />
     <rosparam command="load" file="$(find objective)/param/buoy_navigation.yaml" />
+    <node name="static_buoy_tf_publisher" pkg="objective" type="static_buoy_tf_pub.py" />
 </launch>
