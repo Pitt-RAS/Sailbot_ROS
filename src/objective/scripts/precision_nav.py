@@ -24,16 +24,16 @@ class Navigation_Node:
 		self.buoy3 = rospy.get_param("buoy3")
 
 
-		if (self.buoy3[0]>0):
-			self.buoy2a = [buoy2[0]-5, bouy2[1]]	
-			self.buoy2b = [buoy2[0], bouy2[1]+5]
+		if (self.buoy3[1]>0):
+			self.buoy2a = [buoy2[0], bouy2[1]-5]	
+			self.buoy2b = [buoy2[0]+5, bouy2[1]]
 			self.buoy3a = [buoy3[0]+5, bouy3[1]+5]
+			self.buoy3b = [buoy3[0]-5, bouy3[1]+5]
+		elif(self.buoy3[1]<0):
+			self.buoy2a = [buoy2[0], bouy2[1]+5]
+			self.buoy2b = [buoy2[0]+5, bouy2[1]]
+			self.buoy3a = [buoy3[0]+5, bouy3[1]-5]
 			self.buoy3b = [buoy3[0]-5, bouy3[1]-5]
-		elif(self.buoy3[0]<0):
-			self.buoy2a = [buoy2[0]+5, bouy2[1]]
-			self.buoy2b = [buoy2[0], bouy2[1]+5]
-			self.buoy3a = [buoy3[0]-5, bouy3[1]-5]
-			self.buoy3b = [buoy3[0]+5, bouy3[1]+5]
 
 
 		self.current_goal = self.buoy1
