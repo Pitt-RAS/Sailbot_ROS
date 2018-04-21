@@ -13,6 +13,8 @@
 #include <sensors/TrueWind.h>
 //#include <visualization/BoatState.h>
 
+#define SERIAL_DEBUG
+
 struct string_packet {
     uint8_t size;
     char buffer[256];
@@ -27,7 +29,7 @@ struct serial_packet {
     int32_t cmd_rudder_angle;
     int32_t curr_sail_angle;
     int32_t curr_rudder_angle;
-    bool state[7];
+    int8_t state[7];
     int32_t goal_type;
     double goal_point[2];
     int32_t goal_direction;
@@ -36,15 +38,23 @@ struct serial_packet {
     double gps[2];
     float battery_volt;
     double buoy_pos[4][2];
-};
+} __attribute__((packed));
 
-class XbeeReceiver
-{
+class XbeeReceiver {
 public:
-    XbeeReceiver(ros::NodeHandle* nh);
+    XbeeReceiver();
+    int file;
     void update();
 private:
-    ros::NodeHandle* nh;
+    int sock;
+    int32_t startPktBuffer;
+    int bufPos;
+    serial_packet packet;
+    bool processedPacket;
+
+    bool hasByte();
+    char getByte();
+
     sensors::TrueWind true_wind_msg;
     std_msgs::Float32 cmd_heading_msg;
     std_msgs::Int32 cmd_sail_msg;
@@ -79,13 +89,6 @@ private:
     ros::Publisher buoy_pub_2;
     ros::Publisher buoy_pub_3;
     ros::Publisher buoy_pub_4;
-    
-    FILE* f_ptr;
-    int32_t start_val;
-    ros::Time last_recvd;
-    
-    char* receive();
-    void publish(serial_packet*);
 };
 
 #endif

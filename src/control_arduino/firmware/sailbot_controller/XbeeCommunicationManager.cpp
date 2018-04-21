@@ -2,6 +2,8 @@
 #include "XbeeCommunicationManager.h"
 
 XbeeCommunicationManager::XbeeCommunicationManager(ros::NodeHandle* _nh) : nh(_nh) {
+  XBEE_SERIALPORT.begin(9600);
+
   if ( shouldUseROS ) {
     trueWindSub = new ros::Subscriber<sensors::TrueWind, XbeeCommunicationManager>("trueWind",&XbeeCommunicationManager::trueWindCb, this);
     cmdHeadingSub = new ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>("cmd_heading",&XbeeCommunicationManager::cmdHeadingCb, this);
@@ -57,8 +59,6 @@ XbeeCommunicationManager::XbeeCommunicationManager(ros::NodeHandle* _nh) : nh(_n
     for(int j = 0; j < 2; j++)
       serial_to_send.buoy_pos[i][j] = DBL_MAX;
 
-  //Bypass mode for Xbees
-  XBEE_SERIALPORT.write('B');
 }
 
 //update true wind speed and direction
@@ -83,28 +83,28 @@ void XbeeCommunicationManager::cmdRudderCb(const std_msgs::Int32& rudder) {
 }
 
 //update current sail angle
-void XbeeCommunicationManager::updateSailAngle(PIDSubsystem sailPID) {
-  serial_to_send.curr_sail_angle = sailPID.getActual();
+void XbeeCommunicationManager::updateSailAngle(PIDSubsystem* sailPID) {
+  serial_to_send.curr_sail_angle = sailPID->getActual();
 }
 
 //update current rudder angle
-void XbeeCommunicationManager::updateRudderAngle(PIDSubsystem rudderPID) {
-  serial_to_send.curr_rudder_angle = rudderPID.getActual();
+void XbeeCommunicationManager::updateRudderAngle(PIDSubsystem* rudderPID) {
+  serial_to_send.curr_rudder_angle = rudderPID->getActual();
 }
 
 //update state
 void XbeeCommunicationManager::updateState() {
-  if(currentState == MODE_DISABLED)
+  if ( currentState == MODE_DISABLED )
     serial_to_send.state[0] = true;
   else
     serial_to_send.state[0] = false;
 
-  if(currentState == MODE_AUTONOMOUS)
+  if ( currentState == MODE_AUTONOMOUS )
     serial_to_send.state[1] = true;
   else
     serial_to_send.state[1] = false;
   
-  if (shouldUseROS)
+  if ( shouldUseROS )
     serial_to_send.state[2] = true;
   else
     serial_to_send.state[2] = false;
@@ -119,80 +119,80 @@ void XbeeCommunicationManager::updateState() {
 
 //update goal info
 void XbeeCommunicationManager::goalCb(const objective::Goal& goal) {
-  serial_to_send.goal_type = goal.goalType;
-  serial_to_send.goal_point[0] = goal.goalPoint.x;
-  serial_to_send.goal_point[1] = goal.goalPoint.y;
-  serial_to_send.goal_direction = goal.goalDirection;
+    serial_to_send.goal_type = goal.goalType;
+    serial_to_send.goal_point[0] = goal.goalPoint.x;
+    serial_to_send.goal_point[1] = goal.goalPoint.y;
+    serial_to_send.goal_direction = goal.goalDirection;
 }
 
 //update current heading
-void XbeeCommunicationManager::updateHeading(IMU imu) {
-  serial_to_send.curr_heading = imu.getHeading();
+void XbeeCommunicationManager::updateHeading(IMU* imu) {
+    serial_to_send.curr_heading = imu->getHeading();
 }
 
 //update current velocity
 void XbeeCommunicationManager::velocityCb(const geometry_msgs::TwistStamped& vel) {
-  float x, y, velo;
-  x = vel.twist.linear.x;
-  y = vel.twist.linear.y;
-  velo = pow((pow(x, 2) + pow(y, 2)), 0.5);
-  serial_to_send.velocity = velo;
+    float x, y, velo;
+    x = vel.twist.linear.x;
+    y = vel.twist.linear.y;
+    velo = pow((pow(x, 2) + pow(y, 2)), 0.5);
+    serial_to_send.velocity = velo;
 }
 
 //update current latitude and longitude
 void XbeeCommunicationManager::gpsCb(const sensor_msgs::NavSatFix& gps) {
-  serial_to_send.gps[0] = gps.latitude;
-  serial_to_send.gps[1] = gps.longitude;
+    serial_to_send.gps[0] = gps.latitude;
+    serial_to_send.gps[1] = gps.longitude;
 }
 
 //update battery voltage
-void XbeeCommunicationManager::updateBattery(VoltageMonitor voltage) {
-  serial_to_send.battery_volt = voltage.getVoltage();
+void XbeeCommunicationManager::updateBattery(VoltageMonitor* voltage) {
+    serial_to_send.battery_volt = voltage->getVoltage();
 }
 
 //update buoy positions
 void XbeeCommunicationManager::buoy1Cb(const geometry_msgs::PointStamped& buoy1) {
-  serial_to_send.buoy_pos[0][0] = buoy1.point.x;
-  serial_to_send.buoy_pos[0][1] = buoy1.point.y;
+    serial_to_send.buoy_pos[0][0] = buoy1.point.x;
+    serial_to_send.buoy_pos[0][1] = buoy1.point.y;
 }
 
 void XbeeCommunicationManager::buoy2Cb(const geometry_msgs::PointStamped& buoy2) {
-  serial_to_send.buoy_pos[1][0] = buoy2.point.x;
-  serial_to_send.buoy_pos[1][1] = buoy2.point.y;
+    serial_to_send.buoy_pos[1][0] = buoy2.point.x;
+    serial_to_send.buoy_pos[1][1] = buoy2.point.y;
 }
 
 void XbeeCommunicationManager::buoy3Cb(const geometry_msgs::PointStamped& buoy3) {
-  serial_to_send.buoy_pos[2][0] = buoy3.point.x;
-  serial_to_send.buoy_pos[2][1] = buoy3.point.y;
+    serial_to_send.buoy_pos[2][0] = buoy3.point.x;
+    serial_to_send.buoy_pos[2][1] = buoy3.point.y;
 }
 
 void XbeeCommunicationManager::buoy4Cb(const geometry_msgs::PointStamped& buoy4) {
-  serial_to_send.buoy_pos[3][0] = buoy4.point.x;
-  serial_to_send.buoy_pos[3][1] = buoy4.point.y;
+    serial_to_send.buoy_pos[3][0] = buoy4.point.x;
+    serial_to_send.buoy_pos[3][1] = buoy4.point.y;
 }
 
 //public method to write to xbee
 int XbeeCommunicationManager::sendConsole(String msg) {
-  if(msg.length()>256)
-    return(1);
+    if(msg.length()>256)
+        return 1;
 
-  char msg_as_array[256] = {'\0'};
-  msg.toCharArray(msg_as_array, 256);
+    char msg_as_array[256] = {'\0'};
+    msg.toCharArray(msg_as_array, 256);
+      
+    console_to_send.size = msg.length();
+    memcpy(console_to_send.buffer, msg_as_array, sizeof(console_to_send.buffer));
     
-  console_to_send.size = msg.length();
-  memcpy(console_to_send.buffer, msg_as_array, sizeof(console_to_send.buffer));
-
-  XBEE_SERIALPORT.write((byte*)&console_to_send, sizeof(string_packet));
-  
-  return(0);
+    XBEE_SERIALPORT.write((byte*)&console_to_send, sizeof(string_packet));
+    
+    return 0;
 }
 
-void XbeeCommunicationManager::update(PIDSubsystem sailPID, PIDSubsystem rudderPID, IMU imu, VoltageMonitor voltage) {
+void XbeeCommunicationManager::update(PIDSubsystem* sailPID, PIDSubsystem* rudderPID, IMU* imu, VoltageMonitor* voltage) {
   //update info from teensy
   this->updateSailAngle(sailPID);
   this->updateRudderAngle(rudderPID);
   this->updateState();
-  this->updateHeading(imu);
+//  this->updateHeading(imu);
   this->updateBattery(voltage);
   
   //send serial package with data

@@ -29,7 +29,7 @@ struct serial_packet {
   int32_t cmd_rudder_angle;
   int32_t curr_sail_angle;
   int32_t curr_rudder_angle;
-  bool state[7];
+  int8_t state[7];
   int32_t goal_type;
   double goal_point[2];
   int32_t goal_direction;
@@ -38,7 +38,7 @@ struct serial_packet {
   double gps[2];
   float battery_volt;
   double buoy_pos[4][2];
-};
+} __attribute__((packed));
 
 struct string_packet {
   int32_t start;
@@ -49,7 +49,7 @@ struct string_packet {
 class XbeeCommunicationManager {
 public:
   XbeeCommunicationManager(ros::NodeHandle*);
-  void update(PIDSubsystem, PIDSubsystem, IMU, VoltageMonitor);
+  void update(PIDSubsystem*, PIDSubsystem*, IMU*, VoltageMonitor*);
   int sendConsole(String);
 private:
   ros::NodeHandle* nh;
@@ -61,15 +61,15 @@ private:
   void cmdHeadingCb(const std_msgs::Int32&);
   void cmdSailCb(const std_msgs::Int32&);
   void cmdRudderCb(const std_msgs::Int32&);
-  void updateSailAngle(PIDSubsystem);
-  void updateRudderAngle(PIDSubsystem);
+  void updateSailAngle(PIDSubsystem*);
+  void updateRudderAngle(PIDSubsystem*);
   void updateState();
   //void boatStateCb();
   void goalCb(const objective::Goal&);
-  void updateHeading(IMU);
+  void updateHeading(IMU*);
   void velocityCb(const geometry_msgs::TwistStamped&);
   void gpsCb(const sensor_msgs::NavSatFix&);
-  void updateBattery(VoltageMonitor);
+  void updateBattery(VoltageMonitor*);
   void buoy1Cb(const geometry_msgs::PointStamped&);
   void buoy2Cb(const geometry_msgs::PointStamped&);
   void buoy3Cb(const geometry_msgs::PointStamped&);
