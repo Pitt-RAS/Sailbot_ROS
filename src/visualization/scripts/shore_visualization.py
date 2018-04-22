@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 
 from Tkinter import *
-import threading
 import rospy
 from sensors.msg import TrueWind
 from geometry_msgs.msg import PointStamped
@@ -46,7 +45,7 @@ class ShoreVisualize:
 
         root = Tk()
         self.app = self.TkApp(master = root)
-      
+        
     def updateState(self, newState):
         self.currentState.disabled = newState.disabled
         self.currentState.autonomous = newState.autonomous
@@ -105,7 +104,7 @@ class ShoreVisualize:
         self.goalDir = newGoal.Direction
         
     def update(self):
-        # print('Getting to the update')
+        print('Getting to the update')
         if self.goalType == 0:
             goalPointStamped = PointStamped()
             goalPointStamped.header.stamp = rospy.Time.now()
@@ -113,50 +112,86 @@ class ShoreVisualize:
             goalPointPub.publish(goalPointStamped)
         elif self.goalType == 1:
             goalDirectionPub.publish(goalDirection)
-        self.app.updateStateLabels(self.eventString, self.stateString, self.transmissionString, self.operationalString)           
+        self.app.updateTkWidgets()           
 
     class TkApp(Frame): 
-        def updateStateLabels(self, eventString, stateString, transmissionString, operationalString):
-            #  print('Updating widgets')
-            self.eventLabel['text'] = eventString
-            self.autonomousLabel['text'] = stateString
-            self.transmissionLabel['text'] = transmissionString
-            self.operationalLabel['text'] = operationalString
+        def updateTkWidgets(self):
+            print('Updating widgets')
+            self.eventLabel['text'] = self.eventString
+            self.autonomousLabel['text'] = self.autonomousString
+            self.transmissionLabel['text'] = self.transmissionString
+            self.operationalLabel['text'] = self.operationalString
+
+            self.goalRudderLabel['text'] = 'Rudder goal: ' + str(self.cmdRudder)
+            self.trueWindDirLabel['text'] = 'Wind angle: ' + str(self.windDirection)
+            self.trueWindSpeedLabel['text'] = 'Wind speed: ' + str(self.windSpeed) + ' m/s'
+            self.goalSailLabel['text'] = 'Sail goal: ' + str(self.cmdSail)
+            self.rudderAngleLabel['text'] = 'Rudder angle: ' + str(self.currRudder)
+            self.sailAngleLabel['text'] = 'Sail angle: ' + str(self.currSail)
+
 
         def __init__(self, master=None):
             Frame.__init__(self, master)
             self.pack()
-            self.quitButton = Button(self)
-            self.quitButton["text"] = "QUIT"
-            self.quitButton["fg"] = "red"
-            self.quitButton["command"] = self.quit
-            self.quitButton.grid(column=0, row=4)
             
+            self.stateTitle = Label(self, text='Boat State', font=('Helvetica', 16))
+            self.stateTitle.grid(column=0, row=0)
+
             self.eventLabel = Label(self)
-            self.eventLabel.grid(column=0, row=3)
+            self.eventLabel.grid(column=0, row=4)
 
             self.autonomousLabel = Label(self)
-            self.autonomousLabel.grid(column=0, row=1)
+            self.autonomousLabel.grid(column=0, row=2)
 
             self.transmissionLabel = Label(self)
-            self.transmissionLabel.grid(column=0, row=2)
+            self.transmissionLabel.grid(column=0, row=3)
 
             self.operationalLabel = Label(self)
-            self.operationalLabel.grid(column=0, row=0)
+            self.operationalLabel.grid(column=0, row=1)
 
+            self.sensorTitle = Label(self, text='Boat Sensors', font=('Helvetica', 16))
+            self.sensorTitle.grid(column=1, row=0)
+
+            self.trueWindDirLabel = Label(self)
+            self.trueWindDirLabel.grid(column=1, row=1)
+
+            self.trueWindSpeedLabel = Label(self)
+            self.trueWindSpeedLabel.grid(column=1, row=2)
+
+            self.sailAngleLabel = Label(self)
+            self.sailAngleLabel.grid(column=1, row=3)
+
+            self.rudderAngleLabel = Label(self)
+            self.rudderAngleLabel.grid(column=1, row=4)
+
+            self.goalTitle = Label(self, text='Boat Goals', font=('Helvetica', 16))
+            self.goalTitle.grid(column=2, row=0)
+
+            self.goalHeadingLabel = Label(self)
+            self.goalHeadingLabel.grid(column=2, row=1)
+
+            self.goalRudderLabel = Label(self)
+            self.goalRudderLabel.grid(column=2, row=2)
+
+            self.goalSailLabel = Label(self)
+            self.goalSailLabel.grid(column=2, row=3)
+
+
+
+# def InitGUI(self, threading.Thread, app):
+    
 
 rospy.init_node("shore_visualization")
-
+rate = rospy.Rate(rospy.get_param("~rate", 60))
 node = ShoreVisualize()
-def updateROS():
-  global node
-  rate = rospy.Rate(rospy.get_param("~rate", 60))
 
-  while not rospy.is_shutdown():
-      node.update()
-      rate.sleep()
+node.app.mainloop()
 
-myThread = threading.Thread(target = updateROS)
-myThread.start()
-node.app.mainloop()  
 
+while not rospy.is_shutdown():
+    node.update()
+    rate.sleep()
+            
+            
+                
+            
