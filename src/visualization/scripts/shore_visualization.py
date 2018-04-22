@@ -112,33 +112,42 @@ class ShoreVisualize:
             goalPointPub.publish(goalPointStamped)
         elif self.goalType == 1:
             goalDirectionPub.publish(goalDirection)
-        self.app.updateTkWidgets()           
+        self.app.updateState(self.eventString, self.stateString, self.transmissionString, self.operationalString)
+        self.app.updateSensors(self.currRudder, self.currSail, self.windSpeed, self.windDirection)
+        self.app.updateGoals(self.cmdRudder, self.cmdSail)
 
     class TkApp(Frame): 
-        def updateTkWidgets(self):
+        def updateState(self, eventStr, autonomousStr, transmissionStr, opStr):
             print('Updating widgets')
-            self.eventLabel['text'] = self.eventString
-            self.autonomousLabel['text'] = self.autonomousString
-            self.transmissionLabel['text'] = self.transmissionString
-            self.operationalLabel['text'] = self.operationalString
+            self.eventLabelText.set("Testing")
+            #self.autonomousLabel['text'] = autonomousStr
+            #self.transmissionLabel['text'] = transmissionStr
+            #self.operationalLabel['text'] = opStr
 
-            self.goalRudderLabel['text'] = 'Rudder goal: ' + str(self.cmdRudder)
-            self.trueWindDirLabel['text'] = 'Wind angle: ' + str(self.windDirection)
-            self.trueWindSpeedLabel['text'] = 'Wind speed: ' + str(self.windSpeed) + ' m/s'
-            self.goalSailLabel['text'] = 'Sail goal: ' + str(self.cmdSail)
-            self.rudderAngleLabel['text'] = 'Rudder angle: ' + str(self.currRudder)
-            self.sailAngleLabel['text'] = 'Sail angle: ' + str(self.currSail)
+        def updateSensors(self, rudderAng, sailAng, windSpeed, windDir):
+            print('Updating sensors')
+            #self.trueWindDirLabel["text"] = 'Wind angle: ' + str(windDir)
+            #self.trueWindSpeedLabel['text'] = 'Wind speed: ' + str(windSpeed) + ' m/s'
+            #self.rudderAngleLabel['text'] = 'Rudder angle: ' + str(rudderAng)
+            #self.sailAngleLabel['text'] = 'Sail angle: ' + str(sailAng)
 
+        def updateGoals(self, rudderGoal, sailGoal):
+            print('Updating goals')
+            #self.goalRudderLabel['text'] = 'Rudder goal: ' + str(rudderGoal)
+            #self.goalSailLabel['text'] = 'Sail goal: ' + str(sailGoal)
 
         def __init__(self, master=None):
             Frame.__init__(self, master)
             self.pack()
-            
+           
+            self.eventLabelText = StringVar()
+
             self.stateTitle = Label(self, text='Boat State', font=('Helvetica', 16))
             self.stateTitle.grid(column=0, row=0)
 
-            self.eventLabel = Label(self)
+            self.eventLabel = Label(self, textvariable=self.eventLabelText)
             self.eventLabel.grid(column=0, row=4)
+            self.eventLabelText.set("Testing1")
 
             self.autonomousLabel = Label(self)
             self.autonomousLabel.grid(column=0, row=2)
