@@ -6,6 +6,7 @@ PWM::PWM(int pin) {
     set(0);
 }
 
+
 void PWM::set(double speed) {
     if ( fabs(speed) > 1 )
         speed = copysign(1, speed);

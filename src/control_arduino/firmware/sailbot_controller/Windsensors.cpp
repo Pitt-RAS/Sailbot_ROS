@@ -4,9 +4,10 @@ Windsensors* isrInstance = NULL;
 void setupWindsensorISR(Windsensors* instance);
 
 Windsensors::Windsensors(ros::NodeHandle *_nh) :
-    nh(_nh), angleSensor(24, 25, 26, 27)
+    nh(_nh), angleSensor(24, 25, 26, 27), windSensorDtUpdated(false)
 {
     setupWindsensorISR(this);
+
     if ( nh != NULL ) {
         windSensorTickPublisher = new ros::Publisher("wind_sensor_tick", &windSensorTick);
         relativeWindDirectionPublisher = new ros::Publisher("/relative_wind_direction/raw", &relativeWindDirection);
@@ -37,6 +38,6 @@ void windISR() {
 
 void setupWindsensorISR(Windsensors *instance) {
     isrInstance = instance;
-    attachInterrupt(digitalPinToInterrupt(2), windISR, RISING);
+    attachInterrupt(2, windISR, RISING);
 }
 
