@@ -47,6 +47,20 @@ class ShoreVisualize:
         root = Tk()
         self.app = self.TkApp(master = root)
         
+        self.headingMarkerPub = rospy.Publisher("/boat_heading_marker", Marker, queue_size=10)
+        self.headingMarker = Marker()
+        self.headingMarker.header.frame_id = "boat"
+        self.headingMarker.scale.x = 1
+        self.headingMarker.scale.y = 1
+        self.headingMarker.scale.z = 0.01
+        self.headingMarker.pose.position.x = 0
+        self.headingMarker.pose.position.y = 0
+        self.headingMarker.color.a = 1.0
+        self.headingMarker.color.r = 1.0
+        self.headingMarker.color.g = 0.0
+        self.headingMarker.color.b = 0.0
+        self.headingMarker.type = 0
+
     def updateState(self, newState):
         self.currentState.disabled = newState.disabled
         self.currentState.autonomous = newState.autonomous
@@ -182,8 +196,6 @@ class ShoreVisualize:
 
             self.goalSailLabel = Label(self)
             self.goalSailLabel.grid(column=2, row=3)
-
-
 
 rospy.init_node("shore_visualization")
 node = ShoreVisualize()
