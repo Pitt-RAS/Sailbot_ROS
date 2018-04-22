@@ -7,6 +7,7 @@
 #include <std_msgs/Int32.h>
 #include "Rate.h"
 #include "Watchdog.h"
+#include "XbeeCommunicationManager.h"
 
 bool shouldUseROS = true;
 bool heartbeatLEDState = true;
@@ -25,6 +26,8 @@ ros::NodeHandle nh;
 
 Rate loopRate(100);
 Rate heartbeatLEDLimiter(HEARTBEAT_DISABLED_HZ);
+
+XbeeCommunicationManager* xbee;
 
 Watchdog hard;
 
@@ -48,13 +51,15 @@ void setup() {
     leftRudder->configSetpointLimits(10, 1000);
 
 
+    //xbee = new XbeeCommunicationManager(&nh);
+
     pinMode(HEARTBEAT_LED, OUTPUT);
     disabledInit();
 
     noInterrupts();
-    WDOG_UNLOCK = WDOG_UNLOCK_SEQ1;                         
+    WDOG_UNLOCK = WDOG_UNLOCK_SEQ1;
     WDOG_UNLOCK = WDOG_UNLOCK_SEQ2;
-    delayMicroseconds(1);                                   
+    delayMicroseconds(1);
 
     WDOG_STCTRLH |= WDOG_STCTRLH_ALLOWUPDATE |
         WDOG_STCTRLH_WDOGEN | WDOG_STCTRLH_WAITEN |
@@ -76,6 +81,7 @@ void alwaysPeriodic() {
     leftRudder->debug();
     rightRudder->debug();
 
+    //xbee->update(sail, leftRudder, NULL, NULL);
 }
 
 void teleopInit() {

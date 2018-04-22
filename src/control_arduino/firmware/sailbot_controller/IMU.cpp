@@ -12,7 +12,8 @@ IMU::IMU(ros::NodeHandle* _nh) : nh(_nh), bno(55) {
 }
 
 double IMU::getHeading() {
-    return 0;
+    imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+    return(euler.z());
 }
 
 void IMU::update() {

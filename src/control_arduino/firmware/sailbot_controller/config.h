@@ -42,5 +42,9 @@ extern RobotState currentState;
 #define TX_TIMEOUT 2000
 #define TX_SERIALPORT Serial5
 
+// XBee
+#define XBEE_SERIALPORT Serial1
+#define SERIAL_START_VAL -1386103603
+
 #endif
 
