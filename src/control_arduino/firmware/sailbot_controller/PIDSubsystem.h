@@ -24,6 +24,7 @@ public:
 
     void update();
 
+    void configLimit(double limit);
     void debug();
 private:
     ros::NodeHandle* nh;
@@ -37,6 +38,7 @@ private:
     void updatePTerm(const std_msgs::Float64& pTerm);
     void updateITerm(const std_msgs::Float64& iTerm);
     void updateDTerm(const std_msgs::Float64& dTerm);
+
 
     double highSetpointLimit;
     double lowSetpointLimit;
