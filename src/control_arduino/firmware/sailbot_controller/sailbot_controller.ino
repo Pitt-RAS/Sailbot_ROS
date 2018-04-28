@@ -46,6 +46,10 @@ void setup() {
     rightRudder->configSetpointUnits(480, 1);
     rightRudder->configSetpointUnits(350, 1);
 
+    leftRudder->configLimit(0.4);
+    rightRudder->configLimit(0.4);
+
+
 
     leftRudder->configSetpointLimits(10, 1000);
     leftRudder->configSetpointLimits(10, 1000);

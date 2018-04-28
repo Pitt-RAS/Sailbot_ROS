@@ -7,8 +7,10 @@ class PWM {
 public:
     PWM(int pin);
     void set(double speed);
+    void configLimit(double limit);
 private:
     Servo pwm;
+    double limit;
 };
 
 #endif

@@ -47,6 +47,10 @@ void PIDSubsystem::setSetpoint(double setpoint) {
     setRawSetpoint(setpoint);
 }
 
+void PIDSubsystem::configLimit(double limit) {
+    pwm.configLimit(limit);
+}
+
 void PIDSubsystem::setRawSetpoint(int setpoint) {
     if ( setpoint < lowSetpointLimit )
         setpoint = lowSetpointLimit;
