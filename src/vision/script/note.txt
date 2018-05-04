@@ -1,0 +1,17 @@
+//things to do this week
+
+publish the state of boat
+
+ros.getparam, the variable is "event"(event is a string)
+//get the string here
+
+bool navigation
+bool longDistance
+bool search
+bool stationKeeping
+//one of them set to true, whichever event is string, set it to true
+//one of them is a string
+
+
+//kind of like a struct, create a header and then set header.disabled.... to true
+and then pass it to the publisher
