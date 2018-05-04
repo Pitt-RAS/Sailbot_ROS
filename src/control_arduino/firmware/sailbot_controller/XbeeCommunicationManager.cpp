@@ -4,7 +4,7 @@
 XbeeCommunicationManager::XbeeCommunicationManager(ros::NodeHandle* _nh) : nh(_nh) {
     if ( shouldUseROS ) {
         batterySub = new ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>("/battery", &XbeeCommunicationManager::batteryCb, this);
-        trueWindSub = new ros::Subscriber<sailbot_sim::TrueWind, XbeeCommunicationManager>("/trueWind",&XbeeCommunicationManager::trueWindCb, this);
+        trueWindSub = new ros::Subscriber<sensors::TrueWind, XbeeCommunicationManager>("/trueWind",&XbeeCommunicationManager::trueWindCb, this);
         goalPointSub = new ros::Subscriber<geometry_msgs::PointStamped, XbeeCommunicationManager>("/goal", &XbeeCommunicationManager::goalPointCb, this);
         gpsSub = new ros::Subscriber<sensor_msgs::NavSatFix, XbeeCommunicationManager>("/gps/fix", &XbeeCommunicationManager::gpsCb, this);
 
@@ -23,7 +23,7 @@ void XbeeCommunicationManager::batteryCb(const std_msgs::Int32& batt) {
     xbee_info.battery_volt = batt.data;
 }
 
-void XbeeCommunicationManager::trueWindCb(const sailbot_sim::TrueWind& truewind) {
+void XbeeCommunicationManager::trueWindCb(const sensors::TrueWind& truewind) {
     xbee_info.true_wind_speed = truewind.speed;
     xbee_info.true_wind_dir = truewind.direction;
 }

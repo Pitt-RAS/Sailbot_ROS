@@ -39,7 +39,19 @@ void setup() {
     leftRudder = new PIDSubsystem("leftRudder", RUDDER_LEFT_POT, RUDDER_LEFT_PWM, RUDDER_LEFT_P, RUDDER_LEFT_I, RUDDER_RIGHT_D, &nh);
     rightRudder = new PIDSubsystem("rightRudder", RUDDER_RIGHT_POT, RUDDER_RIGHT_PWM, RUDDER_RIGHT_P, RUDDER_RIGHT_I, RUDDER_RIGHT_D, &nh);
 
-    pinMode(2, INPUT);
+    leftRudder->configSetpointUnits(500, 1);
+    rightRudder->configSetpointUnits(480, 1);
+    rightRudder->configSetpointUnits(350, 1);
+
+    leftRudder->configLimit(0.4);
+    rightRudder->configLimit(0.4);
+
+
+
+    leftRudder->configSetpointLimits(10, 1000);
+    leftRudder->configSetpointLimits(10, 1000);
+
+
     pinMode(HEARTBEAT_LED, OUTPUT);
     disabledInit();
 
@@ -63,6 +75,11 @@ void alwaysPeriodic() {
     windsensors->update();
     tx.update();
     hard.feed();
+
+    sail->debug();
+    leftRudder->debug();
+    rightRudder->debug();
+
 }
 
 void teleopInit() {
@@ -72,8 +89,14 @@ void teleopInit() {
 void teleopPeriodic() {
     sail->setSetpoint(tx.getSailAngle());
     double ra = tx.getRudderAngle();
+    double sa = tx.getSailAngle();
+//    char buf[100];
+//    sprintf(buf, "setting sail %2.2f", sa);
+//    nh.loginfo(buf);
     leftRudder->setSetpoint(ra);
     rightRudder->setSetpoint(ra);
+
+    sail->setSetpoint(sa);
 }
 
 void autonomousInit() {
@@ -81,6 +104,8 @@ void autonomousInit() {
 }
 
 void autonomousPeriodic() {
+    leftRudder->setSetpoint(0);
+    rightRudder->setSetpoint(0);
 
 }
 

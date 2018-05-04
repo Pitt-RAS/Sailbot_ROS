@@ -19,6 +19,7 @@ public:
     void configI(double kI);
     void configD(double kD);
     void setSetpoint(double setpoint);
+    double getLastError();
     double calculate(double actual);
     double now();
 };
