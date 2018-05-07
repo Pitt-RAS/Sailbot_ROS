@@ -7,6 +7,7 @@
 #include <std_msgs/Int32.h>
 #include "Rate.h"
 #include "Watchdog.h"
+#include "XbeeCommunicationManager.h"
 
 bool shouldUseROS = true;
 bool heartbeatLEDState = true;
@@ -26,6 +27,8 @@ ros::NodeHandle nh;
 Rate loopRate(100);
 Rate heartbeatLEDLimiter(HEARTBEAT_DISABLED_HZ);
 
+XbeeCommunicationManager* xbee;
+
 Watchdog hard;
 
 void setup() {
@@ -39,6 +42,8 @@ void setup() {
     leftRudder = new PIDSubsystem("leftRudder", RUDDER_LEFT_POT, RUDDER_LEFT_PWM, RUDDER_LEFT_P, RUDDER_LEFT_I, RUDDER_RIGHT_D, &nh);
     rightRudder = new PIDSubsystem("rightRudder", RUDDER_RIGHT_POT, RUDDER_RIGHT_PWM, RUDDER_RIGHT_P, RUDDER_RIGHT_I, RUDDER_RIGHT_D, &nh);
 
+    xbee = new XbeeCommunicationManager(&nh);
+    
     leftRudder->configSetpointUnits(500, 1);
     rightRudder->configSetpointUnits(480, 1);
     rightRudder->configSetpointUnits(350, 1);
@@ -46,19 +51,16 @@ void setup() {
     leftRudder->configLimit(0.4);
     rightRudder->configLimit(0.4);
 
-
-
     leftRudder->configSetpointLimits(10, 1000);
     leftRudder->configSetpointLimits(10, 1000);
-
 
     pinMode(HEARTBEAT_LED, OUTPUT);
     disabledInit();
 
     noInterrupts();
-    WDOG_UNLOCK = WDOG_UNLOCK_SEQ1;                         
+    WDOG_UNLOCK = WDOG_UNLOCK_SEQ1;
     WDOG_UNLOCK = WDOG_UNLOCK_SEQ2;
-    delayMicroseconds(1);                                   
+    delayMicroseconds(1);
 
     WDOG_STCTRLH |= WDOG_STCTRLH_ALLOWUPDATE |
         WDOG_STCTRLH_WDOGEN | WDOG_STCTRLH_WAITEN |
@@ -76,10 +78,10 @@ void alwaysPeriodic() {
     tx.update();
     hard.feed();
 
+    xbee->update(sail, leftRudder, NULL, NULL);
     sail->debug();
     leftRudder->debug();
     rightRudder->debug();
-
 }
 
 void teleopInit() {
