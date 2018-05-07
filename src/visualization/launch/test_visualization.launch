@@ -1,0 +1,13 @@
+<launch>
+    <node name="sim_odom" pkg="sailbot_sim" type="sim_odom.py" />
+    <node name="visualization_markers" pkg="visualization" type="marker_pub.py" />
+    <node name="shore_visualization" pkg="visualization" type="shore_visualization.py" />
+    <node name="true_wind" pkg="sensors" type="truewind_simple.py" />
+    <node name="rviz_sim" pkg="rviz" type="rviz" args="-d $(find sailbot_sim)/rviz/sim.rviz" />
+   
+    <arg name="sim_wind_x" default="-2" />
+    <arg name="sim_wind_y" default="0" />
+    <param name="sim_wind_vector/x" type="double" value="$(arg sim_wind_x)" />
+    <param name="sim_wind_vector/y" type="double" value="$(arg sim_wind_y)" />
+    <param name="robot_description" command="cat $(find sailbot_sim)/urdf/boat.urdf" />
+</launch>

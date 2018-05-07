@@ -5,6 +5,7 @@ import threading
 import rospy
 from sensors.msg import TrueWind
 from geometry_msgs.msg import PointStamped
+from visualization_msgs.msg import Marker
 from visualization.msg import BoatState
 from std_msgs.msg import Float32, Int32
 from objective.msg import Goal
