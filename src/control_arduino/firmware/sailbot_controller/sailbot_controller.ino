@@ -56,9 +56,9 @@ void setup() {
     disabledInit();
 
     noInterrupts();
-    WDOG_UNLOCK = WDOG_UNLOCK_SEQ1;                         
+    WDOG_UNLOCK = WDOG_UNLOCK_SEQ1;
     WDOG_UNLOCK = WDOG_UNLOCK_SEQ2;
-    delayMicroseconds(1);                                   
+    delayMicroseconds(1);
 
     WDOG_STCTRLH |= WDOG_STCTRLH_ALLOWUPDATE |
         WDOG_STCTRLH_WDOGEN | WDOG_STCTRLH_WAITEN |

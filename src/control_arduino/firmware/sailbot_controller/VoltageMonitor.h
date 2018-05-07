@@ -7,7 +7,7 @@
 class VoltageMonitor {
 public:
     VoltageMonitor(ros::NodeHandle* _nh);
-    
+
     double getVoltage();
     void update();
 private:
