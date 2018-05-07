@@ -33,6 +33,8 @@ void setup() {
         nh.initNode();
     }
 
+    analogReadResolution(13);
+
     windsensors = new Windsensors(&nh);
 
     sail = new PIDSubsystem("sail", SAIL_POT, SAIL_PWM, SAIL_P, SAIL_I, SAIL_D, &nh);
