@@ -7,7 +7,7 @@
 #include <std_msgs/Int32.h>
 #include <sensor_msgs/NavSatFix.h>
 #include <geometry_msgs/PointStamped.h>
-#include <sailbot_sim/TrueWind.h>
+#include <sensors/TrueWind.h>
 
 struct serial_packet {
     int32_t serial_start;
@@ -37,12 +37,12 @@ private:
 
     int32_t serial_startval;
     void batteryCb(const std_msgs::Int32&);
-    void trueWindCb(const sailbot_sim::TrueWind&);
+    void trueWindCb(const sensors::TrueWind&);
     void goalPointCb(const geometry_msgs::PointStamped&);
     void gpsCb(const sensor_msgs::NavSatFix&);
 
     ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>* batterySub;
-    ros::Subscriber<sailbot_sim::TrueWind, XbeeCommunicationManager>* trueWindSub;
+    ros::Subscriber<sensors::TrueWind, XbeeCommunicationManager>* trueWindSub;
     ros::Subscriber<geometry_msgs::PointStamped, XbeeCommunicationManager>* goalPointSub;
     ros::Subscriber<sensor_msgs::NavSatFix, XbeeCommunicationManager>* gpsSub;
 };

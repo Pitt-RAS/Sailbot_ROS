@@ -18,9 +18,14 @@ public:
     void setSetpoint(double setpoint);
     void setOpenLoop(double speed);
 
+    void configSetpointLimits(double low, double high);
+
     double getActual();
 
     void update();
+
+    void configLimit(double limit);
+    void debug();
 private:
     ros::NodeHandle* nh;
     int analogSensorPin;
@@ -34,10 +39,21 @@ private:
     void updateITerm(const std_msgs::Float64& iTerm);
     void updateDTerm(const std_msgs::Float64& dTerm);
 
+
+    double highSetpointLimit;
+    double lowSetpointLimit;
+
+
     double actualPosition;
     ros::Subscriber<std_msgs::Float64, PIDSubsystem>* pConfigSub;
     ros::Subscriber<std_msgs::Float64, PIDSubsystem>* iConfigSub;
     ros::Subscriber<std_msgs::Float64, PIDSubsystem>* dConfigSub;
+    ros::Publisher* actualPub;
+    ros::Publisher* errorPub;
+
+    std_msgs::Float64 actualPositionMsg;
+    std_msgs::Float64 errorPositionMsg;
+
 };
 
 #endif
