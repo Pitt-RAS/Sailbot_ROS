@@ -42,10 +42,11 @@ struct serial_packet {
 
 class XbeeReceiver {
 public:
-    XbeeReceiver();
+    XbeeReceiver(ros::NodeHandle&);
     int file;
     void update();
 private:
+    ros::NodeHandle& nh;
     int sock;
     int32_t startPktBuffer;
     int bufPos;
@@ -54,6 +55,8 @@ private:
 
     bool hasByte();
     char getByte();
+
+    void handleSerialPacket();
 
     sensors::TrueWind true_wind_msg;
     std_msgs::Float32 cmd_heading_msg;

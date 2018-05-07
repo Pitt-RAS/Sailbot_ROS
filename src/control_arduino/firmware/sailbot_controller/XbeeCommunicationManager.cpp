@@ -3,7 +3,6 @@
 
 XbeeCommunicationManager::XbeeCommunicationManager(ros::NodeHandle* _nh) : nh(_nh) {
   XBEE_SERIALPORT.begin(9600);
-
   if ( shouldUseROS ) {
     trueWindSub = new ros::Subscriber<sensors::TrueWind, XbeeCommunicationManager>("trueWind",&XbeeCommunicationManager::trueWindCb, this);
     cmdHeadingSub = new ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>("cmd_heading",&XbeeCommunicationManager::cmdHeadingCb, this);
@@ -128,6 +127,11 @@ void XbeeCommunicationManager::goalCb(const objective::Goal& goal) {
 //update current heading
 void XbeeCommunicationManager::updateHeading(IMU* imu) {
     serial_to_send.curr_heading = imu->getHeading();
+}
+
+void XbeeCommunicationManager::trueWindCb(const sensors::TrueWind& truewind) {
+    xbee_info.true_wind_speed = truewind.speed;
+    xbee_info.true_wind_dir = truewind.direction;
 }
 
 //update current velocity

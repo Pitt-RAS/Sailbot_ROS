@@ -58,3 +58,7 @@ void PID::configD(double kD) {
     this->kD = kD;
 }
 
+double PID::getLastError() {
+    return lastError;
+}
+

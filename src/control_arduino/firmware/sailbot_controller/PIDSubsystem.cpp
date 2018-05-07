@@ -5,6 +5,8 @@
 PIDSubsystem::PIDSubsystem(const char* name, int _analogSensorPin, int pwmPin, double _adcOffset, double _adcConversion, double kP, double kI, double kD, ros::NodeHandle* _nh)
     : nh(_nh), analogSensorPin(_analogSensorPin), pwm(pwmPin), pid(kP, kI, kD), adcOffset(_adcOffset), adcConversion(_adcConversion) {
 
+    configSetpointLimits(10, 1000);
+
     if ( shouldUseROS ) {
         char topic[64];
         sprintf(topic, "/pidsubsystem/%s/p", name);
@@ -13,10 +15,16 @@ PIDSubsystem::PIDSubsystem(const char* name, int _analogSensorPin, int pwmPin, d
         iConfigSub = new ros::Subscriber<std_msgs::Float64, PIDSubsystem>(strdup(topic), &PIDSubsystem::updateITerm, this);
         sprintf(topic, "/pidsubsystem/%s/d", name);
         dConfigSub = new ros::Subscriber<std_msgs::Float64, PIDSubsystem>(strdup(topic), &PIDSubsystem::updateDTerm, this);
+        sprintf(topic, "/pidsubsystem/%s/actual", name);
+        actualPub = new ros::Publisher(strdup(topic), &actualPositionMsg);
+        sprintf(topic, "/pidsubsystem/%s/error", name);
+        errorPub = new ros::Publisher(strdup(topic), &errorPositionMsg);
 
         nh->subscribe(*pConfigSub);
         nh->subscribe(*iConfigSub);
         nh->subscribe(*dConfigSub);
+        nh->advertise(*actualPub);
+        nh->advertise(*errorPub);
     }
 }
 
@@ -39,9 +47,23 @@ void PIDSubsystem::setSetpoint(double setpoint) {
     setRawSetpoint(setpoint);
 }
 
+void PIDSubsystem::configLimit(double limit) {
+    pwm.configLimit(limit);
+}
+
 void PIDSubsystem::setRawSetpoint(int setpoint) {
+    if ( setpoint < lowSetpointLimit )
+        setpoint = lowSetpointLimit;
+    if ( setpoint > highSetpointLimit )
+        setpoint = highSetpointLimit;
+
     controlActive = true;
-    pwm.set(0);
+    pid.setSetpoint(setpoint);
+}
+
+void PIDSubsystem::configSetpointLimits(double low, double high) {
+    highSetpointLimit = high;
+    lowSetpointLimit = low;
 }
 
 void PIDSubsystem::setOpenLoop(double speed) {
@@ -65,10 +87,22 @@ double PIDSubsystem::getActual() {
     return actualPosition;
 }
 
+void PIDSubsystem::debug() {
+    int actual = analogRead(analogSensorPin);
+    double actualPosition = (actual-adcOffset) / adcConversion;
+
+    actualPositionMsg.data = actualPosition;
+    actualPub->publish(&actualPositionMsg);
+
+    errorPositionMsg.data = pid.getLastError();
+    errorPub->publish(&errorPositionMsg);
+}
+
 void PIDSubsystem::update() {
     if ( !controlActive )
         return;
     int actual = analogRead(analogSensorPin);
+
     actualPosition = (actual-adcOffset) / adcConversion;
     double output = pid.calculate(actual);
     pwm.set(output);

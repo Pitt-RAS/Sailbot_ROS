@@ -6,21 +6,21 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 
-XbeeReceiver::XbeeReceiver(ros::NodeHandle* _nh) :
+XbeeReceiver::XbeeReceiver(ros::NodeHandle& _nh) :
     nh(_nh),
-    true_wind_pub(nh->advertise<sensors::TrueWind>("trueWind", 10)),
-    cmd_heading_pub(nh->advertise<std_msgs::Float32>("cmd_heading", 10)),
-    cmd_rudder_pub(nh->advertise<std_msgs::Int32>("cmd_rudder_angle", 10)),
-    cmd_sail_pub(nh->advertise<std_msgs::Int32>("cmd_sail_angle", 10)),
-    curr_rudder_pub(nh->advertise<std_msgs::Int32>("curr_rudder_angle", 10)),
-    curr_sail_pub(nh->advertise<std_msgs::Int32>("curr_sail_angle", 10)),
+    true_wind_pub(nh.advertise<sensors::TrueWind>("trueWind", 10)),
+    cmd_heading_pub(nh.advertise<std_msgs::Float32>("cmd_heading", 10)),
+    cmd_rudder_pub(nh.advertise<std_msgs::Int32>("cmd_rudder_angle", 10)),
+    cmd_sail_pub(nh.advertise<std_msgs::Int32>("cmd_sail_angle", 10)),
+    curr_rudder_pub(nh.advertise<std_msgs::Int32>("curr_rudder_angle", 10)),
+    curr_sail_pub(nh.advertise<std_msgs::Int32>("curr_sail_angle", 10)),
     //state_pub(nh->advertise<visualization::BoatState>("state", 10)),
-    goal_pub(nh->advertise<objective::Goal>("goal", 10)),
-    curr_heading_pub(nh->advertise<std_msgs::Float32>("curr_heading", 10)),
-    vel_pub(nh->advertise<std_msgs::Float32>("velocity", 10)),
-    lat_pub(nh->advertise<std_msgs::Float64>("latitude", 10)),
-    long_pub(nh->advertise<std_msgs::Float64>("longitude", 10)),
-    volt_pub(nh->advertise<std_msgs::Float32>("battery_voltage", 10))
+    goal_pub(nh.advertise<objective::Goal>("goal", 10)),
+    curr_heading_pub(nh.advertise<std_msgs::Float32>("curr_heading", 10)),
+    vel_pub(nh.advertise<std_msgs::Float32>("velocity", 10)),
+    lat_pub(nh.advertise<std_msgs::Float64>("latitude", 10)),
+    long_pub(nh.advertise<std_msgs::Float64>("longitude", 10)),
+    volt_pub(nh.advertise<std_msgs::Float32>("battery_voltage", 10))
 {
     sock = open("/dev/ttyACM0", O_RDWR);
     if ( sock == -1 ) {
@@ -92,6 +92,8 @@ void XbeeReceiver::update() {
 }
 
 void XbeeReceiver::handleSerialPacket() {
+
+    ros::Time last_recvd = ros::Time::now();
     if((packet.true_wind_dir != FLT_MAX) && (packet.true_wind_speed != FLT_MAX))
     {
         true_wind_msg.header.stamp = last_recvd;
