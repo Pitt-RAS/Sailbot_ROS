@@ -1,7 +1,7 @@
 #ifndef WATCHDOG_H
 #define WATCHDOG_H
 
-class Watchdog{
+class Watchdog {
 public:
   Watchdog();
   void feed();

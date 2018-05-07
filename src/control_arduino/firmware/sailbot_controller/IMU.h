@@ -17,7 +17,6 @@ private:
     Adafruit_BNO055 bno;
     sensor_msgs::Imu imu_msg;
     ros::Publisher* imuPub;
-    
 };
 
 #endif

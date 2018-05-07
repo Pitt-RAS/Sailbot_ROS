@@ -14,9 +14,9 @@ public:
     bool wantsEnable();
     bool wantsAutonomous();
     bool isConnected();
-    
+
     void update();
-    
+
 private:
     SBUS r9;
     SoftWatchdog watchdog;
