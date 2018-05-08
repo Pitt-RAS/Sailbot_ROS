@@ -4,8 +4,10 @@ Windsensors* isrInstance = NULL;
 void setupWindsensorISR(Windsensors* instance);
 
 Windsensors::Windsensors(ros::NodeHandle *_nh) :
-    nh(_nh), angleSensor(24, 25, 26, 27), windSensorDtUpdated(false) {
+    nh(_nh), angleSensor(WINDSENSOR_CS, WINDSENSOR_CLK, WINDSENSOR_DO), windSensorDtUpdated(false) {
     setupWindsensorISR(this);
+
+    angleSensor.begin();
 
     if ( nh != NULL ) {
         windSensorTickPublisher = new ros::Publisher("wind_sensor_tick", &windSensorTick);
