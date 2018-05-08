@@ -47,7 +47,10 @@
   <run_depend>roscpp</run_depend>
   <run_depend>std_msgs</run_depend>
   <build_depend>visualization</build_depend>
+  <build_depend>objective</build_depend>
+  <build_depend>sensors</build_depend>
 
+  <run_depend>objective</run_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
