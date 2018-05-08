@@ -4,4 +4,9 @@
 Header header
 int32 goalType
 geometry_msgs/Point goalPoint 
-int32 goalDirection
+float32 goalDirection
+bool useBox
+geometry_msgs/Point box1
+geomtry_msgs/Point box2
+geometry_msgs/Point box3
+geometry_msgs/Point box4

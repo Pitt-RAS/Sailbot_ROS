@@ -3,6 +3,7 @@
 import rospy
 from math import atan2, sqrt, degrees, radians, pi
 from tf.transformations import euler_from_quaternion
+import tf
 from algorithm import heading
 
 from std_msgs.msg import Int32, Float32
@@ -17,13 +18,23 @@ class SailbotNav:
         self.newHeadingPub = rospy.Publisher("/cmd_heading", Float32, queue_size=10)
         self.odomSub = rospy.Subscriber("/odometry/filtered", Odometry, self.updateOdom)
         self.trueWindSub = rospy.Subscriber("/true_wind", TrueWind, self.updateTrueWind)
-        self.goalPointSub = rospy.Subscriber("/goal", Goal, self.updateGoalPoint)
+        self.goalSub = rospy.Subscriber("/goal", Goal, self.updateGoal)
 
         self.beatingParam = rospy.get_param("~beating_parameter", 5)
 
+        self.listener = tf.TransformListener()
+
         self.odom = None
         self.trueWind = None
-        self.goal = None
+        self.goalPoint = None
+        self.goalType = 0
+        self.goalDir = 0
+        self.stationaryBox = [None None None None]
+        self.startStationKeeping = false
+
+        # Meters along diagonal line between boat and corner of station keeping box
+        # Might want to make this a param at some point
+        self.defaultBoxWidth = 10
 
     def updateOdom(self, odom):
         self.odom = odom
@@ -32,7 +43,21 @@ class SailbotNav:
         self.trueWind = trueWind
 
     def updateGoalPoint(self, goal):
-        self.goal = goal.goalPoint
+        if self.goalType != 2 and goal.goalType == 2:
+            self.goalType = goal.goalType
+            self.startStationKeeping = true
+            if goal.useBox:
+                self.stationaryBox = [goal.box1, goal.box2, goal.box3, goal.box4]
+            else:
+                boatPosX = self.odom.pose.pose.position.x
+                boatPosY =  self.odom.pose.pose.position.y
+                (trans, rot) = self.listener.lookupTransform('odom', 'utm', 0)
+                boatPosX += trans.x
+                boatPosY += trans.y
+                corner1 = Point()
+                
+        self.goalPoint = goal.goalPoint
+        self.goalDir = goal.goalDirection
 
     def update(self):
         # If we don't know the robot state, don't update the planner
@@ -49,18 +74,30 @@ class SailbotNav:
 
         boatVelocity = self.odom.twist.twist.linear.x
         boatPosition = [self.odom.pose.pose.position.x, self.odom.pose.pose.position.y]
-        goalPoint = [self.goal.x, self.goal.y]
+        
+        # Goal is to sail to a point
+        if self.goalType == 0:
+            goalPoint = [self.goal.x, self.goal.y]
 
-        # Run the algorithm
-        newHeading = degrees(heading(boatPosition, boatHeading, goalPoint, windSpeed, windHeading, self.beatingParam))
+            # Run the algorithm
+            newHeading = degrees(heading(boatPosition, boatHeading, goalPoint, windSpeed, windHeading, self.beatingParam))
 
-        # Send new heading
-        newHeadingMsg = Float32(newHeading)
-        self.newHeadingPub.publish(newHeadingMsg)
+            # Send new heading
+            newHeadingMsg = Float32(newHeading)
+            self.newHeadingPub.publish(newHeadingMsg)
 
-        # Don't operate on stale data
-        self.odom = None
-        self.trueWind = None
+            # Don't operate on stale data
+            self.odom = None
+            self.trueWind = None
+        
+        # Goal is to sail in a direction
+        elif self.goalType == 1:
+            # TODO: implement this
+        
+        # Goal is to stay in place
+        elif self.goalType == 2:
+            if (goal
+            
 
 
 # Init node and spin
