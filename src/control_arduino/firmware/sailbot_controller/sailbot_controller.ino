@@ -8,6 +8,7 @@
 #include "Rate.h"
 #include "Watchdog.h"
 #include "XbeeCommunicationManager.h"
+#include "VoltageMonitor.h"
 
 bool shouldUseROS = true;
 bool heartbeatLEDState = true;
@@ -17,6 +18,8 @@ RobotState currentState = MODE_DISABLED;
 PIDSubsystem* sail;
 PIDSubsystem* leftRudder;
 PIDSubsystem* rightRudder;
+
+VoltageMonitor* voltageMonitor;
 
 TransmitterInterface tx;
 
@@ -43,6 +46,8 @@ void setup() {
     rightRudder = new PIDSubsystem("rightRudder", RUDDER_RIGHT_POT, RUDDER_RIGHT_PWM, RUDDER_RIGHT_P, RUDDER_RIGHT_I, RUDDER_RIGHT_D, &nh);
 
     xbee = new XbeeCommunicationManager(&nh);
+
+    voltageMonitor = new VoltageMonitor(&nh);
     
     leftRudder->configSetpointUnits(500, 1);
     rightRudder->configSetpointUnits(480, 1);
@@ -82,6 +87,8 @@ void alwaysPeriodic() {
     sail->debug();
     leftRudder->debug();
     rightRudder->debug();
+
+    voltageMonitor->update();
 }
 
 void teleopInit() {
