@@ -129,11 +129,6 @@ void XbeeCommunicationManager::updateHeading(IMU* imu) {
     serial_to_send.curr_heading = imu->getHeading();
 }
 
-void XbeeCommunicationManager::trueWindCb(const sensors::TrueWind& truewind) {
-    xbee_info.true_wind_speed = truewind.speed;
-    xbee_info.true_wind_dir = truewind.direction;
-}
-
 //update current velocity
 void XbeeCommunicationManager::velocityCb(const geometry_msgs::TwistStamped& vel) {
     float x, y, velo;
