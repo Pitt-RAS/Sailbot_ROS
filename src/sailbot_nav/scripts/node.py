@@ -5,6 +5,7 @@ from math import atan2, sqrt, degrees, radians, pi
 from tf.transformations import euler_from_quaternion
 import tf
 from algorithm import heading
+import StationKeeping
 
 from std_msgs.msg import Int32, Float32
 from nav_msgs.msg import Odometry
@@ -29,11 +30,10 @@ class SailbotNav:
         self.goalPoint = None
         self.goalType = 0
         self.goalDir = 0
-        self.stationaryBox = [None None None None]
         self.startStationKeeping = false
 
-        # Meters along diagonal line between boat and corner of station keeping box
         # Might want to make this a param at some point
+        # Width of the station keeping box if one is not specified
         self.defaultBoxWidth = 10
 
     def updateOdom(self, odom):
@@ -47,7 +47,7 @@ class SailbotNav:
             self.goalType = goal.goalType
             self.startStationKeeping = true
             if goal.useBox:
-                self.stationaryBox = [goal.box1, goal.box2, goal.box3, goal.box4]
+                stationaryBox = [goal.box1, goal.box2, goal.box3, goal.box4]
             else:
                 boatPosX = self.odom.pose.pose.position.x
                 boatPosY =  self.odom.pose.pose.position.y
@@ -55,7 +55,24 @@ class SailbotNav:
                 boatPosX += trans.x
                 boatPosY += trans.y
                 corner1 = Point()
-                
+                corner1.x = boatPosX + self.defaultBoxWidth/2
+                corner1.y = boatPosY + self.defaultBoxWidth/2
+                corner1.z = 0
+                corner2 = Point()
+                corner2.x = boatPosX + self.defaultBoxWidth/2
+                corner2.y = boatPosY - self.defaultBoxWidth/2
+                corner2.z = 0
+                corner3 = Point()
+                corner3.x = boatPosX - self.defaultBoxWidth/2
+                corner3.y = boatPosY + self.defaultBoxWidth/2
+                corner3.z = 0
+                corner4 = Point()
+                corner4.x = boatPosX - self.defaultBoxWidth/2
+                corner4.y = boatPosY - self.defaultBoxWidth/2
+                corner4.z = 0
+                stationaryBox = [corner1, corner2, corner3, corner4]   
+            self.stationKeeping = StationKeeping(stationaryBox)             
+
         self.goalPoint = goal.goalPoint
         self.goalDir = goal.goalDirection
 
@@ -77,26 +94,30 @@ class SailbotNav:
         
         # Goal is to sail to a point
         if self.goalType == 0:
-            goalPoint = [self.goal.x, self.goal.y]
+            goalPoint = [self.goalPoint.x, self.goalPoint.y]
 
             # Run the algorithm
             newHeading = degrees(heading(boatPosition, boatHeading, goalPoint, windSpeed, windHeading, self.beatingParam))
 
-            # Send new heading
-            newHeadingMsg = Float32(newHeading)
-            self.newHeadingPub.publish(newHeadingMsg)
-
-            # Don't operate on stale data
-            self.odom = None
-            self.trueWind = None
         
         # Goal is to sail in a direction
         elif self.goalType == 1:
-            # TODO: implement this
+            # TODO: implement this so you can sail into the wind
+            newHeading = self.goalDir
         
         # Goal is to stay in place
         elif self.goalType == 2:
-            if (goal
+            goalPoint = stationKeeping.getHeading(boatPosition, boatHeading, windSpeed, windHeading)
+            newHeading = degrees(heading(boatPosition, boatHeading, goalPoint, windSpeed, windHeading, self.beatingParam))
+        
+        # Send new heading
+        newHeadingMsg = Float32(newHeading)
+        self.newHeadingPub.publish(newHeadingMsg)
+
+        # Don't operate on stale data
+        self.odom = None
+        self.trueWind = None
+
             
 
 
