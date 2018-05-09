@@ -108,7 +108,10 @@ class SailbotNav:
         
         # Goal is to stay in place
         elif self.goalType == 2:
-            goalPoint = stationKeeping.getHeading(boatPosition, boatHeading, windSpeed, windHeading)
+            (trans, rot) = self.listener.lookupTransform('odom', 'utm', 0)
+            boatUTM[0] = boatPosition[0] + trans.x
+            boatUTM[1] = boatPosition[1] + trans.y
+            goalPoint = stationKeeping.getGoal(boatUTM, boatHeading, windSpeed, windHeading)
             newHeading = degrees(heading(boatPosition, boatHeading, goalPoint, windSpeed, windHeading, self.beatingParam))
         
         # Send new heading
