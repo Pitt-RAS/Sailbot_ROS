@@ -1,4 +1,5 @@
 #include "Windsensors.h"
+#include "config.h"
 
 Windsensors* isrInstance = NULL;
 void setupWindsensorISR(Windsensors* instance);
