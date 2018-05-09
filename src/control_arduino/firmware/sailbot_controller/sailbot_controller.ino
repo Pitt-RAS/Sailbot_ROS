@@ -9,6 +9,7 @@
 #include "Watchdog.h"
 #include "XbeeCommunicationManager.h"
 #include "VoltageMonitor.h"
+#include "AutonomousCommandBridge.h"
 
 bool shouldUseROS = true;
 bool heartbeatLEDState = true;
@@ -34,6 +35,8 @@ Rate debugInfoRate(DEBUG_LOOP_HZ);
 
 XbeeCommunicationManager* xbee;
 
+AutonomousCommandBridge *autoBridge;
+
 Watchdog hard;
 
 void setup() {
@@ -48,9 +51,9 @@ void setup() {
     rightRudder = new PIDSubsystem("rightRudder", RUDDER_RIGHT_POT, RUDDER_RIGHT_PWM, RUDDER_RIGHT_P, RUDDER_RIGHT_I, RUDDER_RIGHT_D, &nh);
 
     xbee = new XbeeCommunicationManager(&nh);
-
     voltageMonitor = new VoltageMonitor(&nh);
-    
+    autoBridge = new AutonomousCommandBridge(&nh);
+
     leftRudder->configSetpointUnits(500, 1);
     rightRudder->configSetpointUnits(480, 1);
     rightRudder->configSetpointUnits(350, 1);
@@ -59,7 +62,7 @@ void setup() {
     rightRudder->configLimit(0.4);
 
     leftRudder->configSetpointLimits(10, 1000);
-    leftRudder->configSetpointLimits(10, 1000);
+    rightRudder->configSetpointLimits(10, 1000);
 
     pinMode(HEARTBEAT_LED, OUTPUT);
     disabledInit();
@@ -116,12 +119,11 @@ void teleopPeriodic() {
 
 void autonomousInit() {
     heartbeatLEDLimiter.setRate(HEARTBEAT_AUTO_HZ);
+    autoBridge->reset();
 }
 
 void autonomousPeriodic() {
-    leftRudder->setSetpoint(0);
-    rightRudder->setSetpoint(0);
-
+    autoBridge->update(leftRudder, rightRudder, sail);
 }
 
 void enabledInit() {
