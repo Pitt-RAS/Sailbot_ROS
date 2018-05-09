@@ -27,8 +27,10 @@ Windsensors* windsensors;
 
 ros::NodeHandle nh;
 
-Rate loopRate(100);
+Rate loopRate(MAIN_LOOP_HZ);
 Rate heartbeatLEDLimiter(HEARTBEAT_DISABLED_HZ);
+Rate xbeeRate(XBEE_LOOP_HZ);
+Rate debugInfoRate(DEBUG_LOOP_HZ);
 
 XbeeCommunicationManager* xbee;
 
@@ -83,10 +85,14 @@ void alwaysPeriodic() {
     tx.update();
     hard.feed();
 
-    xbee->update(sail, leftRudder, NULL, NULL);
-    sail->debug();
-    leftRudder->debug();
-    rightRudder->debug();
+    if ( xbeeRate.needsRun() )
+        xbee->update(sail, leftRudder, NULL, NULL);
+
+    if ( debugInfoRate.needsRun() ) {
+        sail->debug();
+        leftRudder->debug();
+        rightRudder->debug();
+    }
 
     voltageMonitor->update();
 }

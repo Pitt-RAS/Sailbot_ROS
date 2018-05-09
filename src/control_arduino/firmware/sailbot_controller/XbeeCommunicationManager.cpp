@@ -2,7 +2,7 @@
 #include "XbeeCommunicationManager.h"
 
 XbeeCommunicationManager::XbeeCommunicationManager(ros::NodeHandle* _nh) : nh(_nh) {
-  XBEE_SERIALPORT.begin(9600);
+  XBEE_SERIALPORT.begin(XBEE_BAUD);
   if ( shouldUseROS ) {
     trueWindSub = new ros::Subscriber<sensors::TrueWind, XbeeCommunicationManager>("trueWind",&XbeeCommunicationManager::trueWindCb, this);
     cmdHeadingSub = new ros::Subscriber<std_msgs::Int32, XbeeCommunicationManager>("cmd_heading",&XbeeCommunicationManager::cmdHeadingCb, this);

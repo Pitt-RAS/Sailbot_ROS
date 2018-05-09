@@ -48,7 +48,13 @@ extern RobotState currentState;
 
 // XBee
 #define XBEE_SERIALPORT Serial1
+#define XBEE_BAUD 115200
 #define SERIAL_START_VAL -1386103603
+
+// Loop rates
+#define MAIN_LOOP_HZ 100
+#define XBEE_LOOP_HZ 3
+#define DEBUG_LOOP_HZ 5
 
 #endif
 
