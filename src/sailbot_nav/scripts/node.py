@@ -51,6 +51,7 @@ class SailbotNav:
             else:
                 boatPosX = self.odom.pose.pose.position.x
                 boatPosY =  self.odom.pose.pose.position.y
+                # Boat position in the utm frame to find permanent box coordinates
                 (trans, rot) = self.listener.lookupTransform('odom', 'utm', 0)
                 boatPosX += trans.x
                 boatPosY += trans.y
@@ -64,13 +65,13 @@ class SailbotNav:
                 corner2.z = 0
                 corner3 = Point()
                 corner3.x = boatPosX - self.defaultBoxWidth/2
-                corner3.y = boatPosY + self.defaultBoxWidth/2
+                corner3.y = boatPosY - self.defaultBoxWidth/2
                 corner3.z = 0
                 corner4 = Point()
                 corner4.x = boatPosX - self.defaultBoxWidth/2
-                corner4.y = boatPosY - self.defaultBoxWidth/2
+                corner4.y = boatPosY + self.defaultBoxWidth/2
                 corner4.z = 0
-                stationaryBox = [corner1, corner2, corner3, corner4]   
+                stationaryBox = [corner1, corner2, corner3, corner4]
             self.stationKeeping = StationKeeping(stationaryBox)             
 
         self.goalPoint = goal.goalPoint
