@@ -5,6 +5,7 @@
 #include <geometry_msgs/Quaternion.h>
 #include <sensor_msgs/Imu.h>
 #include <Adafruit_BNO055.h>
+#include <sensors/ImuState.h>
 
 class IMU {
 public:
@@ -17,6 +18,8 @@ private:
     Adafruit_BNO055 bno;
     sensor_msgs::Imu imu_msg;
     ros::Publisher* imuPub;
+    sensors::ImuState imu_state_msg;
+    ros::Publisher* imuStatePub;
 };
 
 #endif

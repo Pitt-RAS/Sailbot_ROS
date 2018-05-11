@@ -10,6 +10,7 @@
 #include "XbeeCommunicationManager.h"
 #include "VoltageMonitor.h"
 #include "AutonomousCommandBridge.h"
+#include "IMU.h"
 
 bool shouldUseROS = true;
 bool heartbeatLEDState = true;
@@ -39,6 +40,8 @@ AutonomousCommandBridge *autoBridge;
 
 Watchdog hard;
 
+IMU* bno055;
+
 void setup() {
     if ( shouldUseROS ) {
         nh.initNode();
@@ -53,6 +56,8 @@ void setup() {
     xbee = new XbeeCommunicationManager(&nh);
     voltageMonitor = new VoltageMonitor(&nh);
     autoBridge = new AutonomousCommandBridge(&nh);
+
+    bno055 = new IMU(&nh);
 
     leftRudder->configSetpointUnits(500, 1);
     rightRudder->configSetpointUnits(480, 1);
@@ -98,6 +103,8 @@ void alwaysPeriodic() {
     }
 
     voltageMonitor->update();
+
+    bno055->update();
 }
 
 void teleopInit() {
