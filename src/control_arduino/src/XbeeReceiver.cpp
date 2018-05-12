@@ -14,7 +14,7 @@ XbeeReceiver::XbeeReceiver(ros::NodeHandle& _nh) :
     cmd_sail_pub(nh.advertise<std_msgs::Int32>("cmd_sail_angle", 10)),
     curr_rudder_pub(nh.advertise<std_msgs::Int32>("curr_rudder_angle", 10)),
     curr_sail_pub(nh.advertise<std_msgs::Int32>("curr_sail_angle", 10)),
-    //state_pub(nh->advertise<visualization::BoatState>("state", 10)),
+//    state_pub(nh->advertise<visualization::BoatState>("state", 10)),
     goal_pub(nh.advertise<objective::Goal>("goal", 10)),
     curr_heading_pub(nh.advertise<std_msgs::Float32>("curr_heading", 10)),
     vel_pub(nh.advertise<std_msgs::Float32>("velocity", 10)),
@@ -32,7 +32,7 @@ XbeeReceiver::XbeeReceiver(ros::NodeHandle& _nh) :
     struct termios settings;
     // Set baud rate
     tcgetattr(sock, &settings);
-    cfsetospeed(&settings, B9600);
+    cfsetospeed(&settings, B115200);
     cfmakeraw(&settings);
 
     tcsetattr(sock, TCSANOW, &settings);
@@ -45,6 +45,7 @@ XbeeReceiver::XbeeReceiver(ros::NodeHandle& _nh) :
     bufPos = 0;
 
     processedPacket = false;
+    ROS_INFO("XbeeReceiver starting");
 }
 
 bool XbeeReceiver::hasByte() {
@@ -67,7 +68,7 @@ void XbeeReceiver::update() {
         startPktBuffer = (uint32_t)startPktBuffer >> 8;
         uint32_t temp = (uint32_t)buf << 24;
         startPktBuffer = startPktBuffer | temp;
-        if ( startPktBuffer == -1386103603 ) {
+        if ( startPktBuffer == XBEE_STARTBIT ) {
             bufPos = 0;
             processedPacket = false;
 
@@ -94,44 +95,45 @@ void XbeeReceiver::update() {
 void XbeeReceiver::handleSerialPacket() {
 
     ros::Time last_recvd = ros::Time::now();
-    if((packet.true_wind_dir != FLT_MAX) && (packet.true_wind_speed != FLT_MAX))
-    {
+
+    if(packet.battery_volt != FLT_MAX) {
+        volt_msg.data = packet.battery_volt;
+        volt_pub.publish(volt_msg);
+    }
+
+
+    if ( packet.true_wind_dir != FLT_MAX && packet.true_wind_speed != FLT_MAX ) {
         true_wind_msg.header.stamp = last_recvd;
         true_wind_msg.direction = packet.true_wind_dir;
         true_wind_msg.speed = packet.true_wind_speed;
         true_wind_pub.publish(true_wind_msg);
     }
-    
-    if(packet.cmd_heading != FLT_MAX)
-    {
+
+    if ( packet.cmd_heading != FLT_MAX ) {
         cmd_heading_msg.data = packet.cmd_heading;
-        cmd_heading_pub.publish(cmd_heading_msg);   
-    }    
-     
-    if(packet.cmd_sail_angle != INT32_MAX)
-    {        
+        cmd_heading_pub.publish(cmd_heading_msg);
+    }
+
+    if ( packet.cmd_sail_angle != INT32_MAX ) {
         cmd_sail_msg.data = packet.cmd_sail_angle;
         cmd_rudder_pub.publish(cmd_sail_msg);
     }
-    
-    if(packet.cmd_rudder_angle != INT32_MAX)
-    {
+
+    if(packet.cmd_rudder_angle != INT32_MAX) {
         cmd_rudder_msg.data = packet.cmd_rudder_angle;
         cmd_sail_pub.publish(cmd_rudder_msg);
-    }   
+    }
 
-    if(packet.curr_sail_angle != INT32_MAX)
-    {       
+    if(packet.curr_sail_angle != INT32_MAX) {
         curr_sail_msg.data = packet.curr_sail_angle;
         curr_rudder_pub.publish(curr_sail_msg);
     }
-    
-    if(packet.curr_rudder_angle != INT32_MAX)
-    {             
+
+    if(packet.curr_rudder_angle != INT32_MAX) {
         curr_rudder_msg.data = packet.curr_rudder_angle;
         curr_sail_pub.publish(curr_rudder_msg);
     }
-             
+
     /*state_msg.header.stamp = last_recvd;
     state_msg.disabled = packet.state[0];
     state_msg.autonomous = packet.state[1];
@@ -142,8 +144,7 @@ void XbeeReceiver::handleSerialPacket() {
     state_msg.stationKeeping = packet.state[6];
     state_pub.publish(state_msg);*/
 
-    if((packet.goal_type != INT32_MAX) && (packet.goal_point[0] != DBL_MAX) && (packet.goal_point[1] != DBL_MAX) && (packet.goal_direction != INT32_MAX))
-    {          
+    if ( packet.goal_type != INT32_MAX && packet.goal_point[0] != DBL_MAX && packet.goal_point[1] != DBL_MAX && packet.goal_direction != INT32_MAX) {
         goal_msg.header.stamp = last_recvd;
         goal_msg.goalType = packet.goal_type;
         goal_msg.goalPoint.x = packet.goal_point[0];
@@ -152,71 +153,61 @@ void XbeeReceiver::handleSerialPacket() {
         goal_msg.goalDirection = packet.goal_direction;
         goal_pub.publish(goal_msg);
     }
-    
-    if(packet.curr_heading != FLT_MAX)
-    {               
+
+    if ( packet.curr_heading != FLT_MAX ) {
         curr_heading_msg.data = packet.curr_heading;
         curr_heading_pub.publish(curr_heading_msg);
     }
-    
-    if(packet.velocity != FLT_MAX)
-    {           
+
+    if ( packet.velocity != FLT_MAX ) {
         vel_msg.data = packet.velocity;
         vel_pub.publish(vel_msg);
     }
 
-    if(packet.gps[0] != DBL_MAX)
-    {          
+    if ( packet.gps[0] != DBL_MAX ) {
         lat_msg.data = packet.gps[0];
         lat_pub.publish(lat_msg);
     }
 
-    if(packet.gps[1] != DBL_MAX)
-    {               
+    if ( packet.gps[1] != DBL_MAX ) {
         long_msg.data = packet.gps[1];
         long_pub.publish(long_msg);
     }
-    
-    if(packet.battery_volt != FLT_MAX)
-    {              
-        volt_msg.data = packet.battery_volt;
-        volt_pub.publish(volt_msg); 
-    }
 
-    if((packet.buoy_pos[0][0] != DBL_MAX) && (packet.buoy_pos[0][1] != DBL_MAX))
-    {           
-        buoy_msg_1.header.stamp = last_recvd;
-        buoy_msg_1.point.x = packet.buoy_pos[0][0];
-        buoy_msg_1.point.y = packet.buoy_pos[0][1];
-        buoy_msg_1.point.z = 0;
-        buoy_pub_1.publish(buoy_msg_1);
-    }
-    
-    if((packet.buoy_pos[1][0] != DBL_MAX) && (packet.buoy_pos[1][1] != DBL_MAX))
-    {       
-        buoy_msg_2.header.stamp = last_recvd;
-        buoy_msg_2.point.x = packet.buoy_pos[1][0];
-        buoy_msg_2.point.y = packet.buoy_pos[1][1];
-        buoy_msg_2.point.z = 0;
-        buoy_pub_2.publish(buoy_msg_2);
-    }
-
-    if((packet.buoy_pos[2][0] != DBL_MAX) && (packet.buoy_pos[2][1] != DBL_MAX))
-    {               
-        buoy_msg_3.header.stamp = last_recvd;
-        buoy_msg_3.point.x = packet.buoy_pos[2][0];
-        buoy_msg_3.point.y = packet.buoy_pos[2][1];
-        buoy_msg_3.point.z = 0;
-        buoy_pub_3.publish(buoy_msg_3);
-    }
-
-    if((packet.buoy_pos[3][0] != DBL_MAX) && (packet.buoy_pos[3][1] != DBL_MAX))
-    {           
-        buoy_msg_4.header.stamp = last_recvd;
-        buoy_msg_4.point.x = packet.buoy_pos[3][0];
-        buoy_msg_4.point.y = packet.buoy_pos[3][1];
-        buoy_msg_4.point.z = 0;
-        buoy_pub_4.publish(buoy_msg_4);
-    }
+//    if((packet.buoy_pos[0][0] != DBL_MAX) && (packet.buoy_pos[0][1] != DBL_MAX))
+//    {
+//        buoy_msg_1.header.stamp = last_recvd;
+//        buoy_msg_1.point.x = packet.buoy_pos[0][0];
+//        buoy_msg_1.point.y = packet.buoy_pos[0][1];
+//        buoy_msg_1.point.z = 0;
+//        buoy_pub_1.publish(buoy_msg_1);
+//    }
+//
+//    if((packet.buoy_pos[1][0] != DBL_MAX) && (packet.buoy_pos[1][1] != DBL_MAX))
+//    {
+//        buoy_msg_2.header.stamp = last_recvd;
+//        buoy_msg_2.point.x = packet.buoy_pos[1][0];
+//        buoy_msg_2.point.y = packet.buoy_pos[1][1];
+//        buoy_msg_2.point.z = 0;
+//        buoy_pub_2.publish(buoy_msg_2);
+//    }
+//
+//    if((packet.buoy_pos[2][0] != DBL_MAX) && (packet.buoy_pos[2][1] != DBL_MAX))
+//    {
+//        buoy_msg_3.header.stamp = last_recvd;
+//        buoy_msg_3.point.x = packet.buoy_pos[2][0];
+//        buoy_msg_3.point.y = packet.buoy_pos[2][1];
+//        buoy_msg_3.point.z = 0;
+//        buoy_pub_3.publish(buoy_msg_3);
+//    }
+//
+//    if((packet.buoy_pos[3][0] != DBL_MAX) && (packet.buoy_pos[3][1] != DBL_MAX))
+//    {
+//        buoy_msg_4.header.stamp = last_recvd;
+//        buoy_msg_4.point.x = packet.buoy_pos[3][0];
+//        buoy_msg_4.point.y = packet.buoy_pos[3][1];
+//        buoy_msg_4.point.z = 0;
+//        buoy_pub_4.publish(buoy_msg_4);
+//    }
 }
 
