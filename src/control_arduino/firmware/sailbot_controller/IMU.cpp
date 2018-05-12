@@ -4,6 +4,19 @@
 IMU::IMU(ros::NodeHandle* _nh) : nh(_nh), bno(55) {
     bno.begin(Adafruit_BNO055::OPERATION_MODE_NDOF);
 
+    sensor_offsets.accel_offset_x = ACCEL_X;
+    sensor_offsets.accel_offset_y = ACCEL_Y;
+    sensor_offsets.accel_offset_z = ACCEL_Z;
+    sensor_offsets.mag_offset_x = MAG_X;
+    sensor_offsets.mag_offset_y = MAG_Y;
+    sensor_offsets.mag_offset_z = MAG_Z;
+    sensor_offsets.gyro_offset_x = GYRO_X;
+    sensor_offsets.gyro_offset_y = GYRO_Y;
+    sensor_offsets.gyro_offset_z = GYRO_Z;
+    sensor_offsets.accel_radius = ACCEL_RADIUS;
+    sensor_offsets.mag_radius = MAG_RADIUS;
+    bno.setSensorOffsets(sensor_offsets);
+
     imu_msg.header.frame_id = "boat";
     if ( shouldUseROS ) {
         imuPub = new ros::Publisher("imu", &imu_msg);
@@ -57,6 +70,8 @@ void IMU::update() {
         imuPub->publish(&imu_msg);
     }
 }
+
+
 
 
 
