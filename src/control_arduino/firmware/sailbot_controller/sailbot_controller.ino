@@ -142,6 +142,12 @@ void disabledInit() {
 void disabledPeriodic() {
 }
 
+void safetyInit() {
+}
+
+void safetyPeriodic() {
+}
+
 void loop() {
 
     if ( currentState != MODE_DISABLED && tx.wantsEnable() ) {
@@ -162,17 +168,21 @@ void loop() {
         leftRudder->setOpenLoop(0);
         rightRudder->setOpenLoop(0);
         currentState = MODE_DISABLED;
+
+        if ( !tx.isConnected() ) {
+            currentState = MODE_COMMDROP;
+            safetyInit();
+        }
     }
 
-    if ( currentState == MODE_DISABLED ) {
+    if ( currentState == MODE_DISABLED )
         disabledPeriodic();
-    }
-    else if ( currentState == MODE_AUTONOMOUS ) {
+    else if ( currentState == MODE_AUTONOMOUS )
         autonomousPeriodic();
-    }
-    else if ( currentState == MODE_TELEOP ) {
+    else if ( currentState == MODE_TELEOP )
         teleopPeriodic();
-    }
+    else if ( currentState == MODE_COMMDROP )
+        safetyPeriodic();
 
     if ( currentState != MODE_DISABLED )
         enabledPeriodic();

@@ -15,7 +15,7 @@ XbeeCommunicationManager::XbeeCommunicationManager(ros::NodeHandle* _nh) : nh(_n
     buoy1Sub = new ros::Subscriber<geometry_msgs::PointStamped, XbeeCommunicationManager>("buoy/1", &XbeeCommunicationManager::buoy1Cb, this);
     buoy2Sub = new ros::Subscriber<geometry_msgs::PointStamped, XbeeCommunicationManager>("buoy/2", &XbeeCommunicationManager::buoy2Cb, this);
     buoy3Sub = new ros::Subscriber<geometry_msgs::PointStamped, XbeeCommunicationManager>("buoy/3", &XbeeCommunicationManager::buoy3Cb, this);
-    buoy4Sub = new ros::Subscriber<geometry_msgs::PointStamped, XbeeCommunicationManager>("buoy/4", &XbeeCommunicationManager::buoy4Cb, this);    
+    buoy4Sub = new ros::Subscriber<geometry_msgs::PointStamped, XbeeCommunicationManager>("buoy/4", &XbeeCommunicationManager::buoy4Cb, this);
     
     nh->subscribe(*trueWindSub);
     nh->subscribe(*cmdHeadingSub);
@@ -172,6 +172,7 @@ void XbeeCommunicationManager::buoy4Cb(const geometry_msgs::PointStamped& buoy4)
 
 //public method to write to xbee
 int XbeeCommunicationManager::sendConsole(String msg) {
+    return 0;
     if(msg.length()>256)
         return 1;
 

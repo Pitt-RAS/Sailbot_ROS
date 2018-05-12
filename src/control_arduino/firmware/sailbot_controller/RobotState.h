@@ -4,7 +4,8 @@
 enum RobotState {
     MODE_DISABLED,
     MODE_TELEOP,
-    MODE_AUTONOMOUS
+    MODE_AUTONOMOUS,
+    MODE_COMMDROP
 };
 
 #endif
