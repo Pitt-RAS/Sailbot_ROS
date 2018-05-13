@@ -14,6 +14,7 @@
 //#include <visualization/BoatState.h>
 
 #define SERIAL_DEBUG
+#define XBEE_STARTBIT -1386103603
 
 struct string_packet {
     uint8_t size;
@@ -42,7 +43,7 @@ struct serial_packet {
 
 class XbeeReceiver {
 public:
-    XbeeReceiver(ros::NodeHandle&);
+    XbeeReceiver(ros::NodeHandle& _nh);
     int file;
     void update();
 private:
@@ -57,6 +58,7 @@ private:
     char getByte();
 
     void handleSerialPacket();
+
 
     sensors::TrueWind true_wind_msg;
     std_msgs::Float32 cmd_heading_msg;
@@ -88,10 +90,10 @@ private:
     ros::Publisher lat_pub;
     ros::Publisher long_pub;
     ros::Publisher volt_pub;
-    ros::Publisher buoy_pub_1;
-    ros::Publisher buoy_pub_2;
-    ros::Publisher buoy_pub_3;
-    ros::Publisher buoy_pub_4;
+//    ros::Publisher buoy_pub_1;
+//    ros::Publisher buoy_pub_2;
+//    ros::Publisher buoy_pub_3;
+//    ros::Publisher buoy_pub_4;
 };
 
 #endif
