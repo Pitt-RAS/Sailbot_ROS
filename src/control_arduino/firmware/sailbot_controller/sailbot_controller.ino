@@ -107,6 +107,10 @@ void alwaysPeriodic() {
     bno055->update();
 }
 
+void alwaysPeriodicFast() {
+    tx.update();
+}
+
 void teleopInit() {
     heartbeatLEDLimiter.setRate(HEARTBEAT_TELEOP_HZ);
 }
@@ -123,6 +127,7 @@ void teleopPeriodic() {
 
     sail->setSetpoint(sa);
 }
+
 
 void autonomousInit() {
     heartbeatLEDLimiter.setRate(HEARTBEAT_AUTO_HZ);
@@ -150,45 +155,46 @@ void disabledPeriodic() {
 }
 
 void loop() {
+    if ( loopRate.needsRun() ) {
+        if ( currentState != MODE_DISABLED && tx.wantsEnable() ) {
+            enabledInit();
+        }
 
-    if ( currentState != MODE_DISABLED && tx.wantsEnable() ) {
-        enabledInit();
+        if ( tx.wantsEnable() && tx.wantsAutonomous() && currentState != MODE_AUTONOMOUS ) {
+            autonomousInit();
+            currentState = MODE_AUTONOMOUS;
+        }
+        else if ( tx.wantsEnable() && !tx.wantsAutonomous() && currentState != MODE_TELEOP ) {
+            teleopInit();
+            currentState = MODE_TELEOP;
+        }
+        else if ( !tx.wantsEnable() && currentState != MODE_DISABLED ) {
+            disabledInit();
+            sail->setOpenLoop(0);
+            leftRudder->setOpenLoop(0);
+            rightRudder->setOpenLoop(0);
+            currentState = MODE_DISABLED;
+        }
+
+        if ( currentState == MODE_DISABLED ) {
+            disabledPeriodic();
+        }
+        else if ( currentState == MODE_AUTONOMOUS ) {
+            autonomousPeriodic();
+        }
+        else if ( currentState == MODE_TELEOP ) {
+            teleopPeriodic();
+        }
+
+        if ( currentState != MODE_DISABLED )
+            enabledPeriodic();
+
+        alwaysPeriodic();
+
+        if ( shouldUseROS ) {
+            nh.spinOnce();
+        }
     }
 
-    if ( tx.wantsEnable() && tx.wantsAutonomous() && currentState != MODE_AUTONOMOUS ) {
-        autonomousInit();
-        currentState = MODE_AUTONOMOUS;
-    }
-    else if ( tx.wantsEnable() && !tx.wantsAutonomous() && currentState != MODE_TELEOP ) {
-        teleopInit();
-        currentState = MODE_TELEOP;
-    }
-    else if ( !tx.wantsEnable() && currentState != MODE_DISABLED ) {
-        disabledInit();
-        sail->setOpenLoop(0);
-        leftRudder->setOpenLoop(0);
-        rightRudder->setOpenLoop(0);
-        currentState = MODE_DISABLED;
-    }
-
-    if ( currentState == MODE_DISABLED ) {
-        disabledPeriodic();
-    }
-    else if ( currentState == MODE_AUTONOMOUS ) {
-        autonomousPeriodic();
-    }
-    else if ( currentState == MODE_TELEOP ) {
-        teleopPeriodic();
-    }
-
-    if ( currentState != MODE_DISABLED )
-        enabledPeriodic();
-
-    alwaysPeriodic();
-
-    if ( shouldUseROS ) {
-        nh.spinOnce();
-    }
-
-    loopRate.sleep();
+    alwaysPeriodicFast();
 }

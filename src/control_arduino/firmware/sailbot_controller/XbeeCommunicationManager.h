@@ -57,7 +57,7 @@ private:
   serial_packet serial_to_send;
   string_packet console_to_send;
 
-  void trueWindCb(const sensors::TrueWind&); 
+  void trueWindCb(const sensors::TrueWind&);
   void cmdHeadingCb(const std_msgs::Int32&);
   void cmdSailCb(const std_msgs::Int32&);
   void cmdRudderCb(const std_msgs::Int32&);

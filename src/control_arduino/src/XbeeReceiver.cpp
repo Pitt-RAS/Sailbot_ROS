@@ -6,7 +6,8 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 
-XbeeReceiver::XbeeReceiver(ros::NodeHandle& _nh) :
+XbeeReceiver::XbeeReceiver(ros::NodeHandle& _nh, int fd) :
+    sock(fd),
     nh(_nh),
     true_wind_pub(nh.advertise<sensors::TrueWind>("trueWind", 10)),
     cmd_heading_pub(nh.advertise<std_msgs::Float32>("cmd_heading", 10)),
@@ -22,13 +23,6 @@ XbeeReceiver::XbeeReceiver(ros::NodeHandle& _nh) :
     long_pub(nh.advertise<std_msgs::Float64>("longitude", 10)),
     volt_pub(nh.advertise<std_msgs::Float32>("battery_voltage", 10))
 {
-    sock = open("/dev/ttyACM0", O_RDWR);
-    if ( sock == -1 ) {
-        perror("open()");
-        exit(1);
-        return;
-    }
-
     struct termios settings;
     // Set baud rate
     tcgetattr(sock, &settings);
@@ -39,8 +33,6 @@ XbeeReceiver::XbeeReceiver(ros::NodeHandle& _nh) :
     tcflush(sock, TCIOFLUSH);
 
     usleep(20000);
-    char a = 'B';
-    write(sock, &a, 1);
 
     bufPos = 0;
 
@@ -64,7 +56,6 @@ char XbeeReceiver::getByte() {
 void XbeeReceiver::update() {
     if ( hasByte() ) {
         uint8_t buf = getByte();
-
         startPktBuffer = (uint32_t)startPktBuffer >> 8;
         uint32_t temp = (uint32_t)buf << 24;
         startPktBuffer = startPktBuffer | temp;
@@ -73,7 +64,7 @@ void XbeeReceiver::update() {
             processedPacket = false;
 
             #ifdef SERIAL_DEBUG
-            ROS_INFO("Received new serial packet");
+            ROS_INFO("Started new serial packet");
             #endif
         }
         else if ( bufPos == sizeof(serial_packet) ) {

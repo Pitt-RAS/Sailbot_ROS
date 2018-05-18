@@ -11,10 +11,8 @@
 #include <geometry_msgs/PointStamped.h>
 #include <objective/Goal.h>
 #include <sensors/TrueWind.h>
+#include "common.h"
 //#include <visualization/BoatState.h>
-
-#define SERIAL_DEBUG
-#define XBEE_STARTBIT -1386103603
 
 struct string_packet {
     uint8_t size;
@@ -43,8 +41,7 @@ struct serial_packet {
 
 class XbeeReceiver {
 public:
-    XbeeReceiver(ros::NodeHandle& _nh);
-    int file;
+    XbeeReceiver(ros::NodeHandle& _nh, int fd);
     void update();
 private:
     ros::NodeHandle& nh;

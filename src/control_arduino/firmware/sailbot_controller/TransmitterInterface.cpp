@@ -1,42 +1,38 @@
+#include <Arduino.h>
 #include "config.h"
 #include "TransmitterInterface.h"
 
 TransmitterInterface::TransmitterInterface():
-    r9(TX_SERIALPORT), watchdog(TX_TIMEOUT), sailAngle(0), rudderAngle(0), enabled(false), autonomous(false) {
-    r9.begin();
+    watchdog(TX_TIMEOUT), startPktBuffer(0), gotStart(false), bufPos(0), sailAngle(0), rudderAngle(0), enabled(false), autonomous(false) {
 }
 
 void TransmitterInterface::update() {
-    if ( r9.read(&channels[0], &failSafe, &lostFrames) ) {
-        enabled = channels[4] > 1500;
-        autonomous = false;
-//        if(enabled){
-//          autonomous = false;
-//        } else {
-//          autonomous = true;
-//        }
+    if ( XBEE_SERIALPORT.available() > 0 ) {
+        uint8_t buf = XBEE_SERIALPORT.read();
 
-        watchdog.feed();
+        startPktBuffer = (uint32_t)startPktBuffer >> 8;
+        uint32_t temp = (uint32_t)buf << 24;
+        startPktBuffer = startPktBuffer | temp;
+        if ( startPktBuffer == XBEE_START_VAL ) {
+            bufPos = 0;
+            gotStart = true;
+        }
+        else if ( bufPos == sizeof(TransmitterInterfacePacket) ) {
+            if ( gotStart ) {
+                enabled = packet.enabled;
+                autonomous = packet.autonomous;
+                sailAngle = packet.sailCommand;
+                rudderAngle = packet.rudderCommand;
 
-        rudderAngle = map(channels[1],172,1808,0,180);
-        rudderAngle = abs(rudderAngle - 180); //flips
-        sailAngle = map(channels[0],172,1811,0,70);
-
-        sailAngle = channels[0]-172;
-        sailAngle /= 1640;
-        sailAngle *= 1000;
-
-        rudderAngle = channels[1]-1000;
-        rudderAngle /= 828;
-        rudderAngle *= 512;
+                watchdog.feed();
+            }
+            bufPos = 0;
+            gotStart = false;
+        }
+        else {
+            ((char*)&packet)[bufPos++] = buf;
+        }
     }
-
-//    if (sa >= 0 && sa <= 180)
-//        sailAngle = sa;
-//    if (ra >= 0 && ra <= 180)
-//        rudderAngle = ra;
-//    enabled = e;
-//    autonomous = a;
 }
 
 double TransmitterInterface::getSailAngle() {
@@ -56,6 +52,6 @@ bool TransmitterInterface::wantsAutonomous() {
 }
 
 bool TransmitterInterface::isConnected() {
-    return !watchdog.hungry() && !failSafe;
+    return !watchdog.hungry();
 }
 

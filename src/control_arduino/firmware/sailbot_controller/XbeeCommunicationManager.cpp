@@ -31,8 +31,8 @@ XbeeCommunicationManager::XbeeCommunicationManager(ros::NodeHandle* _nh) : nh(_n
     nh->subscribe(*buoy4Sub);
   }
  
-  serial_to_send.start = SERIAL_START_VAL;
-  console_to_send.start = SERIAL_START_VAL;
+  serial_to_send.start = XBEE_START_VAL;
+  console_to_send.start = XBEE_START_VAL;
   serial_to_send.size = 0; //size 0 indicates serial packet (instead of string/console packet)
 
   //set default values to MAX or false

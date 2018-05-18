@@ -1,8 +1,15 @@
 #ifndef TRANSMITTER_INTERFACE_H
 #define TRANSMITTER_INTERFACE_H
 
-#include <SBUS.h>
 #include "SoftWatchdog.h"
+#include <stdint.h>
+
+struct TransmitterInterfacePacket {
+    bool enabled;
+    bool autonomous;
+    int16_t sailCommand;
+    int16_t rudderCommand;
+} __attribute__((packed));
 
 class TransmitterInterface {
 public:
@@ -18,11 +25,12 @@ public:
     void update();
 
 private:
-    SBUS r9;
     SoftWatchdog watchdog;
-    uint16_t channels[16];
-    uint8_t failSafe;
-    uint16_t lostFrames = 0;
+
+    TransmitterInterfacePacket packet;
+    int32_t startPktBuffer;
+    bool gotStart;
+    int bufPos;
 
     double sailAngle;
     double rudderAngle;
