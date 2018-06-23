@@ -48,7 +48,7 @@ class OdomSim:
         self.odomPublisher = rospy.Publisher("odometry/filtered", Odometry, queue_size=10)
         self.resetPoseService = rospy.Service("sim_reset_pose", ResetPose, self.resetPose)
 
-        self.wind_direction_pub = rospy.Publisher("wind_direction", Float32, queue_size=10)
+        self.wind_direction_pub = rospy.Publisher("relative_wind_direction", Float32, queue_size=10)
         self.wind_speed_pub = rospy.Publisher("wind_speed", Float32, queue_size=10)
 
         self.tfBroadcaster = tf.TransformBroadcaster()

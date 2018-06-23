@@ -20,7 +20,7 @@ class TrueWindNode:
     def __init__(self):
         self._lock = threading.Lock()
         self._odom = rospy.Subscriber("/odometry/filtered", Odometry, self._update_odom)
-        self.wind_direction_sub = rospy.Subscriber("wind_direction", Float32, self._update_wind_direction)
+        self.wind_direction_sub = rospy.Subscriber("relative_wind_direction", Float32, self._update_wind_direction)
         self.wind_speed_sub = rospy.Subscriber("wind_speed", Float32, self._update_wind_speed)
         self.true_wind_pub = rospy.Publisher("true_wind", TrueWind, queue_size=10)
 
