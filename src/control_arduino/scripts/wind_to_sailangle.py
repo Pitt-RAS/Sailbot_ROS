@@ -1,34 +1,36 @@
 #!/usr/bin/env python
 import rospy
-from std_msgs.msg import Int32
+from std_msgs.msg import Int32, Float32
 from time import sleep
-import numpy as np
 
 class SailAngleNode:
   def __init__(self):
     self.sailAnglePub = rospy.Publisher('cmd_sail_angle', Int32, queue_size=100)
-    self.cmdHeadingSub = rospy.Subscriber("/relative_wind_direction", Int32, self.wind_callback)
-    self.wind = None
+    self.cmdHeadingSub = rospy.Subscriber("/relative_wind_direction", Float32, self.wind_callback)
+    self.windAngle = None
     self.sailAngle = 0
 
-  def wind_callback(self, data):
-    self.wind = data.data #0 to +/-180 (cw vs ccw)
+  def wind_callback(self, windAngle):
+    # relative_wind_direction is 0 deg when wind comes from right of boat (~east)
+    # Store as 0 deg when wind comes from directly ahead
+    self.windAngle = (windAngle.data - 270) % 360
+    
+    # Only care about theta, angle of wind with 0 deg axis
+    if self.windAngle >= 180:
+        self.windAngle = 360 - self.windAngle
 
   def update(self):
-    if(self.wind is None):
+    if self.windAngle is None:
       return
 
-    if np.abs(self.wind) > 45: #avoids deadzone
-      self.sailAngle = int(np.abs(self.wind)/2)
+    if self.windAngle >= 45: #avoids deadzone
+      self.sailAngle = self.wind / 2
 
-      if self.sailAngle > 70: #70 deg is max landsailer sail angle
+      if self.sailAngle >= 70: #70 deg is max landsailer sail angle
         self.sailAngle = 70
 
     self.sailAnglePub.publish(Int32(self.sailAngle));
  
-    print("wind " + str(self.wind))
-    print("commanding sail to " + str(self.sailAngle))
-
 if __name__ == '__main__':
   rospy.init_node('wind_to_sailangle')
   rate = rospy.Rate(50)
