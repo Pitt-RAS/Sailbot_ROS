@@ -5,7 +5,7 @@
 PIDSubsystem::PIDSubsystem(const char* name, int _analogSensorPin, int pwmPin, double _adcOffset, double _adcConversion, double kP, double kI, double kD, ros::NodeHandle* _nh)
     : nh(_nh), analogSensorPin(_analogSensorPin), pwm(pwmPin), pid(kP, kI, kD), adcOffset(_adcOffset), adcConversion(_adcConversion) {
 
-    configSetpointLimits(10, 1000);
+    configSetpointLimits(10, 8000);
 
     if ( shouldUseROS ) {
         char topic[64];
@@ -19,12 +19,16 @@ PIDSubsystem::PIDSubsystem(const char* name, int _analogSensorPin, int pwmPin, d
         actualPub = new ros::Publisher(strdup(topic), &actualPositionMsg);
         sprintf(topic, "/pidsubsystem/%s/error", name);
         errorPub = new ros::Publisher(strdup(topic), &errorPositionMsg);
+        sprintf(topic, "/pidsubsystem/%s/setpoint", name);
+        setpointPub = new ros::Publisher(strdup(topic), &setpointMsg);
+
 
         nh->subscribe(*pConfigSub);
         nh->subscribe(*iConfigSub);
         nh->subscribe(*dConfigSub);
         nh->advertise(*actualPub);
         nh->advertise(*errorPub);
+        nh->advertise(*setpointPub);
     }
 }
 
@@ -41,6 +45,7 @@ void PIDSubsystem::configSetpointUnits(double adcOffset, double adcConversion) {
 }
 
 void PIDSubsystem::setSetpoint(double setpoint) {
+    debugSetpoint = setpoint;
     setpoint *= adcConversion;
     setpoint += adcOffset;
 
@@ -96,6 +101,9 @@ void PIDSubsystem::debug() {
 
     errorPositionMsg.data = pid.getLastError();
     errorPub->publish(&errorPositionMsg);
+
+    setpointMsg.data = debugSetpoint;
+    setpointPub->publish(&setpointMsg);
 }
 
 void PIDSubsystem::update() {

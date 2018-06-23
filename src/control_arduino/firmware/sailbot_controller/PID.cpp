@@ -62,3 +62,7 @@ double PID::getLastError() {
     return lastError;
 }
 
+double PID::getSetpoint() {
+    return setpoint;
+}
+

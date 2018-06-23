@@ -9,12 +9,7 @@ TransmitterInterface::TransmitterInterface():
 void TransmitterInterface::update() {
     if ( r9.read(&channels[0], &failSafe, &lostFrames) ) {
         enabled = channels[4] > 1500;
-        autonomous = false;
-//        if(enabled){
-//          autonomous = false;
-//        } else {
-//          autonomous = true;
-//        }
+        autonomous = channels[5] > 1500;
 
         watchdog.feed();
 
@@ -24,19 +19,12 @@ void TransmitterInterface::update() {
 
         sailAngle = channels[0]-172;
         sailAngle /= 1640;
-        sailAngle *= 1000;
+        sailAngle *= 8000;
 
         rudderAngle = channels[1]-1000;
         rudderAngle /= 828;
-        rudderAngle *= 512;
+        rudderAngle *= -90;
     }
-
-//    if (sa >= 0 && sa <= 180)
-//        sailAngle = sa;
-//    if (ra >= 0 && ra <= 180)
-//        rudderAngle = ra;
-//    enabled = e;
-//    autonomous = a;
 }
 
 double TransmitterInterface::getSailAngle() {

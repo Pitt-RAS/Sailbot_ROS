@@ -16,7 +16,6 @@ public:
     bool isConnected();
 
     void update();
-
 private:
     SBUS r9;
     SoftWatchdog watchdog;
