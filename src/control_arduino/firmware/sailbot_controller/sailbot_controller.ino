@@ -47,6 +47,8 @@ void setup() {
         nh.initNode();
     }
 
+    analogReadResolution(13);
+
     windsensors = new Windsensors(&nh);
 
     sail = new PIDSubsystem("sail", SAIL_POT, SAIL_PWM, SAIL_P, SAIL_I, SAIL_D, &nh);
@@ -59,15 +61,12 @@ void setup() {
 
     bno055 = new IMU(&nh);
 
-    leftRudder->configSetpointUnits(500, 1);
-    rightRudder->configSetpointUnits(480, 1);
-    rightRudder->configSetpointUnits(350, 1);
+    leftRudder->configSetpointUnits(2500, 4000.0/90.0);
+    rightRudder->configSetpointUnits(2996, 4000.0/90.0);
+    sail->configSetpointLimits(1000, 7000);
 
     leftRudder->configLimit(0.4);
     rightRudder->configLimit(0.4);
-
-    leftRudder->configSetpointLimits(10, 1000);
-    rightRudder->configSetpointLimits(10, 1000);
 
     pinMode(HEARTBEAT_LED, OUTPUT);
     disabledInit();
@@ -115,12 +114,9 @@ void teleopPeriodic() {
     sail->setSetpoint(tx.getSailAngle());
     double ra = tx.getRudderAngle();
     double sa = tx.getSailAngle();
-//    char buf[100];
-//    sprintf(buf, "setting sail %2.2f", sa);
-//    nh.loginfo(buf);
+
     leftRudder->setSetpoint(ra);
     rightRudder->setSetpoint(ra);
-
     sail->setSetpoint(sa);
 }
 

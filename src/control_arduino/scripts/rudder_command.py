@@ -17,7 +17,7 @@ class RudderCommandNode:
   def __init__(self):
     self.rudderAnglePub = rospy.Publisher('cmd_rudder_angle', Int32, queue_size=10)
     self.cmdHeadingSub = rospy.Subscriber("cmd_heading", Float32, self.cmd_callback)
-    self.curHeadingSub = rospy.Subscriber("/odometry/filtered", Odometry, self.cur_callback)
+    self.curHeadingSub = rospy.Subscriber("/odometry/gps/raw", Odometry, self.cur_callback)
     #self.curHeadingSub = rospy.Subscriber("/imu", Imu, self.cur_callback)
     self.goal_heading = None
     self.current_heading = None
@@ -33,16 +33,13 @@ class RudderCommandNode:
       temp_heading = 360 + temp_heading
     self.current_heading = temp_heading
 
-  def calc_cmd_angle(self,goal_heading, theta_e):
-    return int(degrees(atan((2*pi*L*radians(theta_e)*K_p)/V)))
-
   def update(self):
     if self.goal_heading is None or self.current_heading is None:
       return
 
     theta_e = self.goal_heading - self.current_heading
     
-    if(np.abs(theta_e) > 180): #fixes issue with crossing the 0
+    if np.abs(theta_e) > 180: #fixes issue with crossing the 0
       if(theta_e > 0):
         theta_e = theta_e - 360
       else:
@@ -52,11 +49,6 @@ class RudderCommandNode:
     #self.rudderAnglePub.publish(Int32(command_angle))
 
     new_rudder_angle = (K_p * theta_e) + 90
-
-    if(new_rudder_angle<0):
-      new_rudder_angle = 0
-    if(new_rudder_angle>180):
-      new_rudder_angle = 180
 
     self.rudderAnglePub.publish(Int32(new_rudder_angle))
 

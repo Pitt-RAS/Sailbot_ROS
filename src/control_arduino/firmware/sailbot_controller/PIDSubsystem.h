@@ -34,6 +34,7 @@ private:
     bool controlActive;
     double adcOffset;
     double adcConversion;
+    double debugSetpoint;
 
     void updatePTerm(const std_msgs::Float64& pTerm);
     void updateITerm(const std_msgs::Float64& iTerm);
@@ -43,16 +44,17 @@ private:
     double highSetpointLimit;
     double lowSetpointLimit;
 
-
     double actualPosition;
     ros::Subscriber<std_msgs::Float64, PIDSubsystem>* pConfigSub;
     ros::Subscriber<std_msgs::Float64, PIDSubsystem>* iConfigSub;
     ros::Subscriber<std_msgs::Float64, PIDSubsystem>* dConfigSub;
     ros::Publisher* actualPub;
     ros::Publisher* errorPub;
+    ros::Publisher* setpointPub;
 
     std_msgs::Float64 actualPositionMsg;
     std_msgs::Float64 errorPositionMsg;
+    std_msgs::Float64 setpointMsg;
 
 };
 

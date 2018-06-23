@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import rospy
 from std_msgs.msg import Int32, Float32
-from time import sleep
+
 
 class SailAngleNode:
   def __init__(self):

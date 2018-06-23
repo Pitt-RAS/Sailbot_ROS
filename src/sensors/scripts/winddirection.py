@@ -32,7 +32,7 @@ class WindDirectionNode:
         self.relativeWindMarker.color.b = 0.0
         self.relativeWindMarker.type = 0
 
-        self.memory = 0.9
+        self.memory = 0.95
         self.sinweight = 0
         self.cosweight = 0
         self.sinval = 0
@@ -41,7 +41,7 @@ class WindDirectionNode:
         self.offset= rospy.get_param('~wind_direction_const_offset', 0.0)
 
     def updateRelativeWind(self, windDegrees):
-        val = (windDegrees.data/4096.0)*(2.0*pi)
+        val = (windDegrees.data/2048.0)*(2.0*pi)
 
         self.sinweight = self.memory*self.sinweight + 1;
         self.sinval = (1-1/self.sinweight)*self.sinval + (1/self.sinweight)*sin(val);
