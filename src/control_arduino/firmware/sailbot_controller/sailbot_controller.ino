@@ -61,8 +61,10 @@ void setup() {
 
     bno055 = new IMU(&nh);
 
-    leftRudder->configSetpointUnits(2500, 4000.0/90.0);
+    leftRudder->configSetpointUnits(3300, 4000.0/90.0);
     rightRudder->configSetpointUnits(2996, 4000.0/90.0);
+
+    sail->configSetpointUnits(0, 8000/70.0);
     sail->configSetpointLimits(1000, 7000);
 
     leftRudder->configLimit(0.4);

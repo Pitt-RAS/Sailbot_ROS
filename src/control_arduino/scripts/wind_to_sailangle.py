@@ -24,7 +24,7 @@ class SailAngleNode:
       return
 
     if self.windAngle >= 45: #avoids deadzone
-      self.sailAngle = self.wind / 2
+      self.sailAngle = self.windAngle / 2
 
       if self.sailAngle >= 70: #70 deg is max landsailer sail angle
         self.sailAngle = 70

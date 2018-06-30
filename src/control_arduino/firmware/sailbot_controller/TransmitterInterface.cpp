@@ -19,7 +19,7 @@ void TransmitterInterface::update() {
 
         sailAngle = channels[0]-172;
         sailAngle /= 1640;
-        sailAngle *= 8000;
+        sailAngle *= 70;
 
         rudderAngle = channels[1]-1000;
         rudderAngle /= 828;
