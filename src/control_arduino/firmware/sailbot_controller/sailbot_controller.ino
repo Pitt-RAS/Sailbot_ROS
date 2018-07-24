@@ -38,8 +38,6 @@ XbeeCommunicationManager* xbee;
 
 AutonomousCommandBridge *autoBridge;
 
-Watchdog hard;
-
 IMU* bno055;
 
 void setup() {
@@ -72,16 +70,6 @@ void setup() {
 
     pinMode(HEARTBEAT_LED, OUTPUT);
     disabledInit();
-
-    noInterrupts();
-    WDOG_UNLOCK = WDOG_UNLOCK_SEQ1;
-    WDOG_UNLOCK = WDOG_UNLOCK_SEQ2;
-    delayMicroseconds(1);
-
-    WDOG_STCTRLH |= WDOG_STCTRLH_ALLOWUPDATE |
-        WDOG_STCTRLH_WDOGEN | WDOG_STCTRLH_WAITEN |
-        WDOG_STCTRLH_STOPEN | WDOG_STCTRLH_CLKSRC;
-    interrupts();
 }
 
 void alwaysPeriodic() {
@@ -92,7 +80,6 @@ void alwaysPeriodic() {
 
     windsensors->update();
     tx.update();
-    hard.feed();
 
     if ( xbeeRate.needsRun() )
         xbee->update(sail, leftRudder, NULL, NULL);

@@ -15,7 +15,7 @@ extern RobotState currentState;
 #define RUDDER_RIGHT_I 0
 #define RUDDER_RIGHT_D 0
 
-#define SAIL_P 0.001
+#define SAIL_P 0.002
 #define SAIL_I 0
 #define SAIL_D 0
 
