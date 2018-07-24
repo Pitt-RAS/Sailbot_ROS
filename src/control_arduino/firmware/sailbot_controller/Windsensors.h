@@ -4,7 +4,6 @@
 #include <Arduino.h>
 #include <ros.h>
 #include <std_msgs/Int32.h>
-#include <AS5045.h>
 
 class Windsensors {
 public:
@@ -16,8 +15,6 @@ public:
     bool windSensorDtUpdated = false;
 private:
     ros::NodeHandle* nh;
-
-    AS5045 angleSensor;
 
     std_msgs::Int32 windSensorTick;
     ros::Publisher* windSensorTickPublisher;

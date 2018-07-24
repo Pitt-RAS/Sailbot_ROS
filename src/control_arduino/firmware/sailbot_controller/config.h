@@ -15,7 +15,7 @@ extern RobotState currentState;
 #define RUDDER_RIGHT_I 0
 #define RUDDER_RIGHT_D 0
 
-#define SAIL_P 0.001
+#define SAIL_P 0.002
 #define SAIL_I 0
 #define SAIL_D 0
 
@@ -30,9 +30,7 @@ extern RobotState currentState;
 
 #define BATTERY_VOLTAGE A1
 
-#define WINDSENSOR_CS 24
-#define WINDSENSOR_CLK 25
-#define WINDSENSOR_DO 26
+#define WINDSENSOR_PWM 26
 
 #define HEARTBEAT_LED 13
 #define HEARTBEAT_DISABLED_HZ 1

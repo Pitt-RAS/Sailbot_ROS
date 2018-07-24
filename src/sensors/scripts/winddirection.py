@@ -32,16 +32,17 @@ class WindDirectionNode:
         self.relativeWindMarker.color.b = 0.0
         self.relativeWindMarker.type = 0
 
-        self.memory = 0.95
+        self.memory = 0.8
         self.sinweight = 0
         self.cosweight = 0
         self.sinval = 0
         self.cosval = 0
 
-        self.offset= rospy.get_param('~wind_direction_const_offset', 0.0)
+        self.offset= 360 -(-28) #90 + 30
 
     def updateRelativeWind(self, windDegrees):
-        val = (windDegrees.data/2048.0)*(2.0*pi)
+        val = (windDegrees.data/1000.0)*(2.0*pi)
+        val = (2*pi) - val
 
         self.sinweight = self.memory*self.sinweight + 1;
         self.sinval = (1-1/self.sinweight)*self.sinval + (1/self.sinweight)*sin(val);
@@ -51,9 +52,9 @@ class WindDirectionNode:
 
         windAngle = atan2(self.sinval, self.cosval)
 
-        self.windDirectionPub.publish(Float32(degrees(windAngle) + self.offset))
+        self.windDirectionPub.publish(Float32(degrees(val) + self.offset))
 
-        relativeWindQat = tf.transformations.quaternion_from_euler(0, 0, (windAngle + radians(self.offset)))
+        relativeWindQat = tf.transformations.quaternion_from_euler(0, 0, (val + radians(self.offset)))
         self.relativeWindMarker.pose.orientation.x = relativeWindQat[0]
         self.relativeWindMarker.pose.orientation.y = relativeWindQat[1]
         self.relativeWindMarker.pose.orientation.z = relativeWindQat[2]
