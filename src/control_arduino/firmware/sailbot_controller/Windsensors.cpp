@@ -24,7 +24,6 @@ void Windsensors::update() {
         windSensorDtUpdated = false;
     }
 
-
     relativeWindDirection.data = pulseIn(WINDSENSOR_PWM, HIGH, 2000);
     relativeWindDirectionPublisher->publish(&relativeWindDirection);
 }

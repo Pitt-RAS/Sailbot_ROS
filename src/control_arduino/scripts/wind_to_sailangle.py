@@ -24,11 +24,11 @@ class SailAngleNode:
       return
 
     if self.windAngle >= 45: #avoids deadzone
-      self.sailAngle = self.windAngle / 2
+      self.sailAngle = (self.windAngle / 2) - 20
 
       if self.sailAngle >= 70: #70 deg is max landsailer sail angle
         self.sailAngle = 70
-
+    print('commanding {}'.format(self.sailAngle))
     self.sailAnglePub.publish(Int32(self.sailAngle));
  
 if __name__ == '__main__':

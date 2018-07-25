@@ -34,9 +34,10 @@ class RudderCommandNode:
     self.current_heading = temp_heading
 
   def update(self):
+    print("current heading is {}".format(self.current_heading))
     if self.goal_heading is None or self.current_heading is None:
       return
-
+    print("command heading is {}".format(self.goal_heading))
     theta_e = self.goal_heading - self.current_heading
     
     if np.abs(theta_e) > 180: #fixes issue with crossing the 0
