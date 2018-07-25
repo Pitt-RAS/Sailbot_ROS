@@ -30,9 +30,7 @@ extern RobotState currentState;
 
 #define BATTERY_VOLTAGE A1
 
-#define WINDSENSOR_CS 24
-#define WINDSENSOR_CLK 25
-#define WINDSENSOR_DO 26
+#define WINDSENSOR_PWM 26
 
 #define HEARTBEAT_LED 13
 #define HEARTBEAT_DISABLED_HZ 1
