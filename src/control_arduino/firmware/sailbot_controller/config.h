@@ -7,11 +7,11 @@ extern bool shouldUseROS;
 extern RobotState currentState;
 
 // PID Constants
-#define RUDDER_LEFT_P -0.001
+#define RUDDER_LEFT_P -0.0015
 #define RUDDER_LEFT_I 0
 #define RUDDER_LEFT_D 0
 
-#define RUDDER_RIGHT_P -0.0015
+#define RUDDER_RIGHT_P -0.0016
 #define RUDDER_RIGHT_I 0
 #define RUDDER_RIGHT_D 0
 

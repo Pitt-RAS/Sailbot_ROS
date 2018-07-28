@@ -1,0 +1,23 @@
+<launch>
+    <param name="robot_description" command="cat $(find sailbot_sim)/urdf/boat.urdf" />
+
+    <!-- Serial bridge -->
+    <node name="motor_arduino_bridge" pkg="rosserial_python" type="serial_node.py">
+        <param name="port" value="/dev/ttyACM0" />
+    </node>
+
+    <!-- Sensor filters -->
+    <node name="sailbot_wind_velocity" pkg="sensors" type="windspeed_filter.py" />
+    <node name="true_wind" pkg="sensors" type="truewind_simple.py" />
+    <node name="sailbot_wind_direction" pkg="sensors" type="winddirection.py">
+        <param name="wind_direction_const_offset" value="0" type="double"/>
+    </node>
+
+    <!-- Odom -->
+    <include file="$(find sensors)/launch/gps.launch" />
+    <include file="$(find sensors)/launch/gps_odom.launch" />
+
+    <!-- Low level controllers -->
+    <node name="rudder_command" pkg="sensors" type="rudder_command.py" />
+    <node name="wind_to_sailangle" pkg="sensors" type="wind_to_sailangle.py" />
+</launch>

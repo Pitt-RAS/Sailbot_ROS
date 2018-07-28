@@ -61,14 +61,18 @@ void setup() {
 
     bno055 = new IMU(&nh);
 
-    leftRudder->configSetpointUnits(2300, 4000.0/90.0);
+    leftRudder->configSetpointUnits(2800, 4000.0/90.0);
     rightRudder->configSetpointUnits(2996, 4000.0/90.0);
 
     sail->configSetpointUnits(0, 8000/70.0);
-    sail->configSetpointLimits(1000, 7000);
+    sail->configSetpointLimits(2000, 9000);
 
     leftRudder->configLimit(0.4);
     rightRudder->configLimit(0.4);
+
+    leftRudder->setSetpoint(0);
+    rightRudder->setSetpoint(0);
+    sail->setSetpoint(0);
 
     pinMode(HEARTBEAT_LED, OUTPUT);
     disabledInit();
