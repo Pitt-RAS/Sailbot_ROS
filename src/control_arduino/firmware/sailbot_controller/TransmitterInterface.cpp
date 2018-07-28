@@ -1,15 +1,19 @@
 #include "config.h"
 #include "TransmitterInterface.h"
 
-TransmitterInterface::TransmitterInterface():
-    r9(TX_SERIALPORT), watchdog(TX_TIMEOUT), sailAngle(0), rudderAngle(0), enabled(false), autonomous(false) {
+TransmitterInterface::TransmitterInterface(ros::NodeHandle* _nh):
+    nh(_nh), r9(TX_SERIALPORT), watchdog(TX_TIMEOUT), sailAngle(0), rudderAngle(0), enabled(false), autonomous(false) {
     r9.begin();
+    boatStatePub = new ros::Publisher("boatState", &boatStateMsg);
+    nh->advertise(*boatStatePub);
 }
 
 void TransmitterInterface::update() {
     if ( r9.read(&channels[0], &failSafe, &lostFrames) ) {
         enabled = channels[4] > 1500;
-        autonomous = channels[5] > 1500;
+        autonomous = channels[7] > 1500;
+        // Bool: do we want preset program one or two?
+        presetOne = channels[6] < 500;
 
         watchdog.feed();
 
@@ -24,6 +28,11 @@ void TransmitterInterface::update() {
         rudderAngle = channels[1]-1000;
         rudderAngle /= 828;
         rudderAngle *= -90;
+        
+        boatStateMsg.autonomous = autonomous;
+        boatStateMsg.enabled = enabled;
+        boatStateMsg.presetOne = presetOne; 
+        boatStatePub->publish(&boatStateMsg);
     }
 }
 
@@ -45,5 +54,9 @@ bool TransmitterInterface::wantsAutonomous() {
 
 bool TransmitterInterface::isConnected() {
     return !watchdog.hungry() && !failSafe;
+}
+
+bool TransmitterInterface::wantsFirstPreset() {
+    return presetOne;
 }
 

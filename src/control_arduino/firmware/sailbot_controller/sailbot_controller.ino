@@ -23,7 +23,7 @@ PIDSubsystem* rightRudder;
 
 VoltageMonitor* voltageMonitor;
 
-TransmitterInterface tx;
+TransmitterInterface* tx;
 
 Windsensors* windsensors;
 
@@ -46,6 +46,8 @@ void setup() {
     }
 
     analogReadResolution(13);
+
+    tx = new TransmitterInterface(&nh);
 
     windsensors = new Windsensors(&nh);
 
@@ -79,7 +81,7 @@ void alwaysPeriodic() {
     }
 
     windsensors->update();
-    tx.update();
+    tx->update();
 
     if ( xbeeRate.needsRun() )
         xbee->update(sail, leftRudder, NULL, NULL);
@@ -100,9 +102,9 @@ void teleopInit() {
 }
 
 void teleopPeriodic() {
-    sail->setSetpoint(tx.getSailAngle());
-    double ra = tx.getRudderAngle();
-    double sa = tx.getSailAngle();
+    sail->setSetpoint(tx->getSailAngle());
+    double ra = tx->getRudderAngle();
+    double sa = tx->getSailAngle();
 
     leftRudder->setSetpoint(ra);
     rightRudder->setSetpoint(ra);
@@ -136,19 +138,19 @@ void disabledPeriodic() {
 
 void loop() {
 
-    if ( currentState != MODE_DISABLED && tx.wantsEnable() ) {
+    if ( currentState != MODE_DISABLED && tx->wantsEnable() ) {
         enabledInit();
     }
 
-    if ( tx.wantsEnable() && tx.wantsAutonomous() && currentState != MODE_AUTONOMOUS ) {
+    if ( tx->wantsEnable() && tx->wantsAutonomous() && currentState != MODE_AUTONOMOUS ) {
         autonomousInit();
         currentState = MODE_AUTONOMOUS;
     }
-    else if ( tx.wantsEnable() && !tx.wantsAutonomous() && currentState != MODE_TELEOP ) {
+    else if ( tx->wantsEnable() && !tx->wantsAutonomous() && currentState != MODE_TELEOP ) {
         teleopInit();
         currentState = MODE_TELEOP;
     }
-    else if ( !tx.wantsEnable() && currentState != MODE_DISABLED ) {
+    else if ( !tx->wantsEnable() && currentState != MODE_DISABLED ) {
         disabledInit();
         sail->setOpenLoop(0);
         leftRudder->setOpenLoop(0);
