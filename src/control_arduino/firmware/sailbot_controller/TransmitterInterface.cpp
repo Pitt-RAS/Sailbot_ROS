@@ -4,7 +4,7 @@
 TransmitterInterface::TransmitterInterface(ros::NodeHandle* _nh):
     nh(_nh), r9(TX_SERIALPORT), watchdog(TX_TIMEOUT), sailAngle(0), rudderAngle(0), enabled(false), autonomous(false) {
     r9.begin();
-    boatStatePub = new ros::Publisher("boatState", &boatStateMsg);
+    boatStatePub = new ros::Publisher("boat_state", &boatStateMsg);
     nh->advertise(*boatStatePub);
 }
 
